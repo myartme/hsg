@@ -1,0 +1,275 @@
+import { app, BrowserWindow, ipcMain } from 'electron';
+const https = require('https');
+import path from 'node:path';
+import fs from 'node:fs'
+import started from 'electron-squirrel-startup';
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (started) {
+  app.quit();
+}
+
+const getFilePath = (filename, directory) => {
+  if (!fs.existsSync(directory)) fs.mkdirSync(directory)
+  return path.join(directory, filename)
+}
+
+const getCurrentFilePath = (filename, isAppPath) => {
+  if(isAppPath){
+    if (app.isPackaged) {
+      return path.join(app.getAppPath(), '.vite', 'build', 'data', filename);
+    } else {
+      return path.join(app.getAppPath(), 'public', 'data', filename);
+    }
+  } else {
+    return getFilePath(filename, path.join(app.getPath('userData'), 'data'))
+  }
+}
+
+const downloadImageAsBase64 = (url) => {
+  return new Promise((resolve, reject) => {
+    https.get(url, (resp) => {
+      let data = [];
+      resp.on('data', chunk => data.push(chunk));
+      resp.on('end', () => {
+        const buffer = Buffer.concat(data);
+        const base64 = `data:${resp.headers['content-type']};base64,${buffer.toString('base64')}`;
+        resolve(base64);
+      });
+    }).on('error', reject);
+  });
+}
+
+const getFormat = (isJson) => isJson ? 'json' : 'pdf'
+
+const saveContent = async (filename, content, isAppPath, isJson = true) => {
+  try {
+    const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, isAppPath)
+    const dir = path.dirname(filePath)
+    await fs.promises.mkdir(dir, { recursive: true })
+    if(isJson){
+      await fs.promises.writeFile(filePath, content, 'utf8')
+    } else {
+      await fs.promises.writeFile(filePath, content)
+    }
+
+    return {
+      isSuccess: true,
+      content: `Saved to: ${filePath}`
+    }
+  } catch (error) {
+    return {
+      isSuccess: false,
+      error: {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      }
+    }
+  }
+}
+
+const loadContent = async (filename, isAppPath, isJson = true) => {
+  try {
+    const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, isAppPath)
+    const raw = isJson
+        ? await fs.promises.readFile(filePath, 'utf8')
+        : await fs.promises.readFile(filePath)
+    return {
+      isSuccess: true,
+      content: isJson ? JSON.parse(raw) : raw.toString('base64')
+    }
+  } catch (error) {
+    return {
+      isSuccess: false,
+      error: {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      }
+    }
+  }
+}
+
+const deleteContent = async (filename, isJson = true) => {
+  try {
+    const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, false)
+    const dirPath = path.dirname(filePath)
+    await fs.promises.unlink(filePath)
+    const remainingFiles = await fs.promises.readdir(dirPath)
+    if (remainingFiles.length === 0) {
+      await fs.promises.rmdir(dirPath)
+    }
+    return {
+      isSuccess: true
+    }
+  } catch (err) {
+    return {
+      isSuccess: false,
+      error: {
+        code: err.code,
+        message: err.message,
+        stack: err.stack
+      }
+    }
+  }
+}
+
+const renameFile = async(oldFilename, newFilename, isAppPath) => {
+  try {
+    const oldFilePath = getCurrentFilePath(`${oldFilename}`, isAppPath)
+    const newFilePath = getCurrentFilePath(`${newFilename}`, isAppPath)
+
+    await fs.promises.access(oldFilePath);
+    await fs.promises.rename(oldFilePath, newFilePath);
+
+    return {
+      isSuccess: true,
+      content: `File ${oldFilePath} was renamed to ${newFilePath}`
+    }
+  } catch (err) {
+    return {
+      isSuccess: false,
+      error: {
+        code: err.code,
+        message: err.message,
+        stack: err.stack
+      }
+    }
+  }
+}
+
+ipcMain.handle("saveContentLibrary",
+    async (e, { filename, folder, content, isAppPath })=> {
+  return saveContent(path.join('library', folder, filename), content, isAppPath)
+})
+
+ipcMain.handle("loadContentLibrary",
+    async (e, { filename, folder, isAppPath}) => {
+  return loadContent(path.join('library', folder, filename), isAppPath)
+})
+
+ipcMain.handle("deleteContentLibrary",
+    async (e, { filename, folder }) => {
+  return deleteContent(path.join('library', folder, filename))
+})
+
+
+ipcMain.handle("saveContentScript",
+    async (e, { filename, folder, content, isAppPath })=> {
+  return saveContent(path.join('script', folder, filename), content, isAppPath)
+})
+
+ipcMain.handle("loadContentScript",
+    async (e, { filename, folder, isAppPath}) => {
+  return loadContent(path.join('script', folder, filename), isAppPath)
+})
+
+ipcMain.handle("deleteContentScript",
+    async (e, { filename, folder }) => {
+  return deleteContent(path.join('script', folder, filename))
+})
+
+
+ipcMain.handle("saveContentPrint",
+    async (e, { filename, folder, content, isAppPath })=> {
+  return saveContent(path.join('script', folder, filename), content, isAppPath, false)
+})
+
+ipcMain.handle("loadContentPrint",
+    async (e, { filename, folder, isAppPath}) => {
+  return loadContent(path.join('script', folder, filename), isAppPath, false)
+})
+
+ipcMain.handle("deleteContentPrint",
+    async (e, { filename, folder }) => {
+  return deleteContent(path.join('script', folder, filename), false)
+})
+
+
+ipcMain.handle("saveOptions",
+    async (e, { content, isAppPath })=> {
+  return saveContent('options', content, isAppPath)
+})
+
+ipcMain.handle("loadOptions",
+    async (e, { isAppPath }) => {
+  return loadContent('options', isAppPath)
+})
+
+ipcMain.handle("deleteOptions",
+    async () => {
+  return deleteContent('options')
+})
+
+
+ipcMain.handle('renameScriptFile', async (event, { oldFilename, newFilename, folder, isAppPath }) => {
+  return renameFile(
+      path.join('script', folder, oldFilename+'.json'),
+      path.join('script', folder, newFilename+'.json'),
+      isAppPath
+  )
+})
+ipcMain.handle('renamePdfFile', async (event, { oldFilename, newFilename, folder, isAppPath }) => {
+  return renameFile(
+      path.join('script', folder, oldFilename+'.pdf'),
+      path.join('script', folder, newFilename+'.pdf'),
+      isAppPath
+  )
+})
+
+ipcMain.handle('getBase64Image', async (event, imageUrl) => {
+  return await downloadImageAsBase64(imageUrl);
+});
+
+const createWindow = () => {
+  const mainWindow = new BrowserWindow({
+    width: 1280,
+    height: 720,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    }
+  });
+
+  mainWindow.maximize();
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  // and load the index.html of the app.
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+  }
+};
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.whenReady().then(() => {
+  createWindow();
+
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
+
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and import them here.
