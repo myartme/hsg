@@ -91,5 +91,6 @@ typings/
 # Electron-Forge
 out/
 
+.idea/
 public/data
 public/images/icons
