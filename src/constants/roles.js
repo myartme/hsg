@@ -37,7 +37,6 @@ export const EMPTY_CHARACTER = {
     "team": "",
     "ability": "",
     "image": ["", "", ""],
-    "setup": false,
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 0,

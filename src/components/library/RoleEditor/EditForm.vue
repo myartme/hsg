@@ -401,6 +401,7 @@ watch(character, () => {
   if(!character.value.setup){
     delete character.value.setup
   }
+
   isCanSaveChar.value = !isEqual(character.value, activeCharacter.value)
 }, { deep:true })
 

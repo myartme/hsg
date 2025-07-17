@@ -27,7 +27,7 @@
           button-class="w-10 h-10"
           tooltip="Import script"
           :is-circle-type="false"
-          @click="$emit('onImportScript', SET_INDEX.CREATE)" />
+          @click="$emit('onImportScript', SET_INDEX.IMPORT)" />
       <sort-buttons
           :list="localScriptList"
           :is-reset-sort="isResetSort"

@@ -13,16 +13,36 @@
           icon="undo"
           icon-size="w-7 h-7"
           button-class="w-10 h-10"
-          handle="" />
+          :handle="undo" />
     </template>
     <template #header>
       <h2 class="text-2xl font-bold">{{ label }}</h2>
     </template>
     <template #content>
-      <import-script-textarea
-          :value="importContent"
-          @create-meta="meta = $event"
-          @create-list="list = $event" />
+      <div class="resize-none">
+        <div class="flex items-center space-x-1 mb-1">
+          <label class="text-lg block font-semibold mb-1 title-theme">Import Script</label>
+        </div>
+        <div class="relative flex mb-2 overflow-auto max-h-160">
+          <JsonEditorVue
+              :class="[
+              'border-2 rounded-md w-full border-[color:var(--color-border)]',
+              { 'jse-theme-dark' : theme === themes?.dark }
+          ]"
+              v-model="importContent"
+              :onChange="textareaValueChange"
+              mode="text"
+              :readOnly="false"
+              :indentation="4"
+              :navigationBar="false"
+              :mainMenuBar="false"
+              :statusBar="false"
+              :askToFormat="false"
+              :askToRepair="false"
+          />
+        </div>
+        <import-table-info :error-list="errorList" :chars-list="charsList" />
+      </div>
       <simple-input
           v-model:value="meta.name"
           label="Name"
@@ -79,17 +99,21 @@
 import {computed, getCurrentInstance, ref, watch} from "vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
-import {EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
+import {EMPTY_CHARACTER, EMPTY_IMPORT_SCRIPT, MAIN_ROLES, ROLES} from "@/constants/roles";
 import SectorContainer from "@/components/SectorContainer.vue";
 import {useIndexStore} from "@/store";
-import {isEqual} from "lodash/lang";
-import {SET_INDEX} from "@/constants/other";
-import ImportScriptTextarea from "@/components/craft/list/ImportScriptTextarea.vue";
+import {isEmpty, isEqual} from "lodash/lang";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, SET_INDEX, toNormalizeString} from "@/constants/other";
 import {useCraftStore} from "@/store/craft";
 import SimpleInputTag from "@/components/ui/SimpleInputTag.vue";
 import SimpleTextarea from "@/components/ui/SimpleTextarea.vue";
 import SimpleCheckbox from "@/components/ui/SimpleCheckbox.vue";
 import {activeScriptIndex} from "@/store/craft/state";
+import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
+import JsonEditorVue from "json-editor-vue";
+import {useLibraryStore} from "@/store/library";
+import {useOptionsStore} from "@/store/options";
+import {storeToRefs} from "pinia";
 
 defineOptions({
   name: 'import-script'
@@ -99,12 +123,26 @@ const props = defineProps({
   label: String
 })
 
+const libraryStore = useLibraryStore()
+const optionsStore = useOptionsStore()
+const { allListsAsOne } = storeToRefs(libraryStore)
+const { theme, themes } = storeToRefs(optionsStore)
+const defaultTeams = () => {
+  return ROLES.reduce((acc, role) => {
+    acc[role] = 0
+    return acc
+  }, {})
+}
 const instance = getCurrentInstance()
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
-const meta = ref({ ...EMPTY_IMPORT_SCRIPT })
-const list = ref({})
 const importContent = ref("")
+const charsList = ref({})
+const errorList = ref([])
+const teams = ref(defaultTeams())
+const meta = ref({})
+const emits = defineEmits(['createMeta', 'createList'])
+const list = ref({})
 const isVisibleError = ref(false)
 const isCanSave = ref(false)
 
@@ -126,6 +164,90 @@ function save(){
   } catch (e){
     return false
   }
+}
+
+function undo(){
+  try{
+    charsList.value = {}
+    importContent.value = ""
+    errorList.value = []
+    setTimeout(() => {
+      isCanSave.value = false
+      indexStore.unfocusWindow()
+    }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
+    return true
+  } catch (e){
+    return false
+  }
+}
+
+function textareaValueChange({ text }){
+  try{
+    const jsonContent = JSON.parse(text)
+    formalizedMeta(jsonContent)
+    formalizedList(jsonContent)
+  } catch (e){
+    formalizedMeta({})
+    formalizedList({})
+  }
+}
+
+function formalizedMeta(content){
+  meta.value = {...EMPTY_IMPORT_SCRIPT}
+  if(!isEmpty(content)){
+    const foundMeta = content.find(el => el.id === '_meta')
+    if(!!meta){
+      meta.value = {...meta.value, ...foundMeta}
+    }
+  }
+  emits('createMeta', meta.value)
+}
+
+function formalizedList(content){
+  charsList.value = {}
+  errorList.value = []
+  if(!isEmpty(content)){
+    const list = content.filter(el => el.id !== '_meta');
+    charsList.value = ROLES.reduce((acc, role) => {
+      acc[role] = list
+          .filter(el => el.team === role)
+          .map(el =>
+              ({
+                ...EMPTY_CHARACTER,
+                ...el,
+                id: toNormalizeString(`${el.name}_${meta.value.id}`, 30),
+                edition: toNormalizeString(`${meta.value.id}`, 50),
+                jinxes: getJinxes(el)
+              })
+          )
+      return acc;
+    }, {});
+  }
+  emits('createList', charsList.value)
+}
+
+function getJinxes(element){
+  const jinxes = element?.jinxes
+  if(!jinxes) return []
+  return jinxes.map(jinx => {
+    const found = MAIN_ROLES.map(type => allListsAsOne.value[type].find(role => role.id === jinx.id)).find(Boolean);
+    if (found){
+      return {
+        id: jinx.id,
+        reason: jinx.reason,
+        image: getImageFirstUrl(found),
+        name: found.name,
+        ability: found.ability
+      }
+    } else {
+      addNewError(`Jinx of <strong>${element.name}</strong> will be ignored: character with id <strong>${jinx.id}</strong> not found.`);
+      return null
+    }
+  }).filter(Boolean)
+}
+
+function addNewError(message){
+  errorList.value.push(message)
 }
 
 watch(meta, (newVal) => {

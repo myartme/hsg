@@ -3,11 +3,14 @@
       :name="instance?.type.name"
       :is-show-sticky="isCanSave">
     <template #sticky>
-      <action-button v-if="isCanSave"
-                     icon="save"
+      <action-button icon="save"
                      icon-size="w-6 h-6"
                      button-class="w-10 h-10"
-                     :handle="saveData" />
+                     :handle="save" />
+      <action-button icon="undo"
+                     icon-size="w-7 h-7"
+                     button-class="w-10 h-10"
+                     :handle="undo" />
     </template>
     <template #header>
       <h2 class="text-2xl font-semibold">Import Characters</h2>
@@ -54,32 +57,7 @@
               :askToRepair="false"
           />
         </div>
-        <div v-if="!isEmpty(errorList)" class="mb-2">
-          <h3 class="font-semibold mb-1 text-[color:var(--color-button-error)]">Problems:</h3>
-          <div class="border rounded-md p-3 text-[color:var(--color-button-hover-error)] bg-[color:var(--color-bg-error)] border-[color:var(--color-border-error)]">
-            <p v-for="(error, key) in errorList" :key="key" v-html="error" class="text-sm leading-snug">
-            </p>
-          </div>
-        </div>
-        <div v-if="isCanSave" class="mb-2">
-          <h3 class="font-semibold mb-1 text-[color:var(--color-text)]">Ready to import:</h3>
-          <div class="border-2 rounded-md max-w-xs text-[color:var(--color-text)] border-[color:var(--color-border)]">
-            <table class="w-full text-sm border-collapse">
-              <thead class="bg-[color:var(--color-bg)] text-[color:var(--color-title-text)]">
-              <tr>
-                <th class="text-left px-3 py-1">Team</th>
-                <th class="text-right px-3 py-1">Count</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr v-for="(roleList, roleName) in charsList" :key="roleName" class="border-t">
-                <td class="capitalize px-3 py-1">{{ roleName }}</td>
-                <td class="font-mono text-right px-3 py-1">{{ roleList.length }}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <import-table-info :error-list="errorList" :chars-list="charsList" />
       </div>
     </template>
   </sector-container>
@@ -97,6 +75,7 @@ import {isArray, isEmpty, isEqual} from "lodash/lang";
 import JsonEditorVue from "json-editor-vue";
 import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import {useOptionsStore} from "@/store/options";
+import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
 
 defineOptions({
   name: 'import-form'
@@ -107,7 +86,7 @@ const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
 const { theme, themes } = storeToRefs(optionsStore)
 const { activeMeta, activeList, allListsAsOne } = storeToRefs(libraryStore)
-const charsList = ref(charsListDefault())
+const charsList = ref({})
 const importContent = ref("")
 const errorList = ref([])
 const isCanSaveChar = ref(false)
@@ -120,12 +99,6 @@ const isCanSave = computed({
   }
 })
 
-function charsListDefault(){
-  return ROLES.reduce((acc, role) => {
-    acc[role] = []; return acc
-  }, {})
-}
-
 function textareaValueChange({ text }){
   try{
     const jsonContent = JSON.parse(text)
@@ -136,7 +109,7 @@ function textareaValueChange({ text }){
 }
 
 function formalizedList(content){
-  charsList.value = charsListDefault()
+  charsList.value = {}
   errorList.value = []
   if(!isEmpty(content)){
     const normalizedContent = isArray(content) ? content : [content];
@@ -195,7 +168,7 @@ function getJinxes(element){
   }).filter(Boolean)
 }
 
-function saveData(){
+function save(){
   try{
     libraryStore.saveCharactersToList(charsList.value)
     emits('createRole')
@@ -208,7 +181,21 @@ function saveData(){
   }
 }
 
+function undo(){
+  try{
+    charsList.value = {}
+    importContent.value = ""
+    errorList.value = []
+    setTimeout(() => {
+      isCanSave.value = false
+    }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
+    return true
+  } catch (e){
+    return false
+  }
+}
+
 watch(charsList, () => {
-  isCanSave.value = !isEqual(charsList.value, charsListDefault())
+  isCanSave.value = !isEqual(charsList.value, {})
 })
 </script>

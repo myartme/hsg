@@ -64,18 +64,6 @@ html, body, #app {
   --color-border-error: #ffc9c9;
 }
 
-.theme-light .cm-content.cm-lineWrapping {
-  background-color: #ffffff;
-}
-
-.theme-light .cm-gutters .cm-gutter{
-  background-color: #ffffff;
-}
-
-.theme-dark .cm-content.cm-lineWrapping{
-  background-color: #030712;
-}
-
 .theme-dark .cm-gutters .cm-gutter{
   background-color: #030712;
 }

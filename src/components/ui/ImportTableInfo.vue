@@ -19,7 +19,7 @@
         <tbody>
         <tr v-for="(count, name) in charsList" :key="count" class="border-t">
           <td class="capitalize px-3 py-1">{{ name }}</td>
-          <td class="font-mono text-right px-3 py-1">{{ count }}</td>
+          <td class="font-mono text-right px-3 py-1">{{ count.length }}</td>
         </tr>
         </tbody>
       </table>
