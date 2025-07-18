@@ -3,7 +3,8 @@
       :name="instance?.type.name"
       :is-show-sticky="isCanSave">
     <template #sticky>
-      <action-button icon="save"
+      <action-button v-if="issetImportContent"
+                     icon="save"
                      icon-size="w-6 h-6"
                      button-class="w-10 h-10"
                      :handle="save" />
@@ -38,6 +39,11 @@
           <br>&nbsp;&nbsp;&quot;<strong>remindersGlobal</strong>&quot;: [up to 20 elements],
           <br>&nbsp;&nbsp;&quot;<strong>jinxes</strong>&quot;: [{id:&quot;&quot;, reason:&quot;&quot;} (any number of elements )]
           <br>}" />
+        </div>
+        <div class="mb-2">
+          <drag-and-drop
+              text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+              @json-loaded="loadedContent" />
         </div>
         <div class="relative flex mb-2 overflow-auto max-h-160">
           <JsonEditorVue
@@ -76,12 +82,15 @@ import JsonEditorVue from "json-editor-vue";
 import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import {useOptionsStore} from "@/store/options";
 import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
+import DragAndDrop from "@/components/ui/DragAndDrop.vue";
+import {useIndexStore} from "@/store";
 
 defineOptions({
   name: 'import-form'
 })
 
 const instance = getCurrentInstance()
+const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
 const { theme, themes } = storeToRefs(optionsStore)
@@ -99,6 +108,10 @@ const isCanSave = computed({
   }
 })
 
+const issetImportContent = computed(() =>
+    Object.values(charsList.value).reduce((sum, role) => sum + role.length, 0) > 0
+)
+
 function textareaValueChange({ text }){
   try{
     const jsonContent = JSON.parse(text)
@@ -106,6 +119,11 @@ function textareaValueChange({ text }){
   } catch (e){
     formalizedList({})
   }
+}
+
+function loadedContent(value){
+  importContent.value = value
+  textareaValueChange({ text: value })
 }
 
 function formalizedList(content){
@@ -174,6 +192,7 @@ function save(){
     emits('createRole')
     setTimeout(() => {
       isCanSave.value = false
+      indexStore.unfocusWindow()
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e){
@@ -183,11 +202,12 @@ function save(){
 
 function undo(){
   try{
-    charsList.value = {}
     importContent.value = ""
+    charsList.value = {}
     errorList.value = []
     setTimeout(() => {
       isCanSave.value = false
+      indexStore.unfocusWindow()
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e){
@@ -197,5 +217,9 @@ function undo(){
 
 watch(charsList, () => {
   isCanSave.value = !isEqual(charsList.value, {})
+})
+
+watch(isCanSave, (newVal) => {
+  newVal ? indexStore.focusWindow(instance?.type.name) : indexStore.unfocusWindow()
 })
 </script>

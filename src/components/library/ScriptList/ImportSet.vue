@@ -3,11 +3,11 @@
       :name="instance?.type.name"
       :is-show-sticky="isCanSave && isFullData">
     <template #sticky>
-      <action-button
-          icon="save"
-          icon-size="w-6 h-6"
-          button-class="w-10 h-10"
-          :handle="save" />
+      <action-button v-if="issetImportContent"
+                     icon="save"
+                     icon-size="w-6 h-6"
+                     button-class="w-10 h-10"
+                     :handle="save" />
       <action-button
          icon="undo"
          icon-size="w-7 h-7"
@@ -16,6 +16,11 @@
     </template>
     <template #header>
       <h2 class="text-2xl font-bold">{{ label }}</h2>
+      <div class="absolute left-1/2 transform translate-y-2 -translate-x-1/2 flex w-max bg-[color:var(--color-bg)]">
+        <drag-and-drop
+            text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+            @json-loaded="loadedContent" />
+      </div>
     </template>
     <template #content>
       <div class="resize-none">
@@ -117,11 +122,12 @@ import {storeToRefs} from "pinia";
 import { useLibraryStore } from "@/store/library";
 import {useIndexStore} from "@/store";
 import {isEmpty, isEqual} from "lodash/lang";
-import {getImageFirstUrl, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, toNormalizeString} from "@/constants/other";
 import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
 import JsonEditorVue from "json-editor-vue";
 import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import {useOptionsStore} from "@/store/options";
+import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 
 defineOptions({
   name: 'import-set'
@@ -144,7 +150,6 @@ const charsList = ref({})
 const errorList = ref([])
 const isVisibleError = ref(false)
 const isCanSave = ref(false)
-const emits = defineEmits(['createMeta', 'createList'])
 
 const isFullData = computed(() => {
   return !isVisibleError.value &&
@@ -158,6 +163,10 @@ const getEmptyValue = () => ({ ...EMPTY_SET })
 const isOfficial = computed(() => {
   return meta.value.isOfficial ?? false
 })
+
+const issetImportContent = computed(() =>
+    Object.values(charsList.value).reduce((sum, role) => sum + role.length, 0) > 0
+)
 
 function addId(event){
   const value = event.target?.value ? toNormalizeString(event.target.value) : toNormalizeString(event)
@@ -176,12 +185,6 @@ function addId(event){
   meta.value.id = value
 }
 
-function charsListDefault(){
-  return ROLES.reduce((acc, role) => {
-    acc[role] = []; return acc
-  }, {})
-}
-
 function textareaValueChange({ text }){
   try{
     const jsonContent = JSON.parse(text)
@@ -193,6 +196,11 @@ function textareaValueChange({ text }){
   }
 }
 
+function loadedContent(value){
+  importContent.value = value
+  textareaValueChange({ text: value })
+}
+
 function formalizedMeta(content){
   meta.value = {...EMPTY_SET}
   if(!isEmpty(content)){
@@ -202,8 +210,6 @@ function formalizedMeta(content){
       meta.value.id = toNormalizeString(meta.value.name)
     }
   }
-
-  emits('createMeta', meta.value)
 }
 
 function formalizedList(content){
@@ -226,7 +232,6 @@ function formalizedList(content){
       return acc;
     }, {});
   }
-  emits('createList', charsList.value)
 }
 
 function getJinxes(element){
@@ -256,8 +261,10 @@ function addNewError(message){
 function save(){
   try{
     libraryStore.saveNewMetaAndList({ ...meta.value }, { ...list.value })
-    isCanSave.value = false
-    indexStore.unfocusWindow()
+    setTimeout(() => {
+      isCanSave.value = false
+      indexStore.unfocusWindow()
+    }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e){
     return false
@@ -266,11 +273,14 @@ function save(){
 
 function undo(){
   try{
-    charsList.value = charsListDefault()
     importContent.value = ""
+    meta.value = getEmptyValue()
+    charsList.value = {}
     errorList.value = []
-    isCanSave.value = false
-    indexStore.unfocusWindow()
+    setTimeout(() => {
+      isCanSave.value = false
+      indexStore.unfocusWindow()
+    }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e){
     return false

@@ -21,7 +21,18 @@
     <template #content>
       <div class="resize-none">
         <div class="flex items-center space-x-1 mb-1">
-          <label class="text-lg block font-semibold mb-1 title-theme">Import Script</label>
+          <label class="text-lg block font-semibold mb-1 title-theme">Import Content</label>
+          <info-tooltip class="mb-1" icon-size="w-5 h-5" text="You can import script. Required fields: &quot;id&quot;, &quot;name&quot;.
+            <br>Minimum requirements for the character in script:
+            <br>&nbsp;&nbsp;&quot;character_id&quot;,
+            <br>{
+            <br>&nbsp;&nbsp;&quot;<strong>id</strong>&quot;: &quot;character_id&quot;,
+            <br>}" />
+        </div>
+        <div class="mb-2">
+          <drag-and-drop
+              text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+              @json-loaded="loadedContent" />
         </div>
         <div class="relative flex mb-2 overflow-auto max-h-160">
           <JsonEditorVue
@@ -99,11 +110,11 @@
 import {computed, getCurrentInstance, ref, watch} from "vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
-import {EMPTY_CHARACTER, EMPTY_IMPORT_SCRIPT, MAIN_ROLES, ROLES} from "@/constants/roles";
+import { EMPTY_IMPORT_SCRIPT, ROLES} from "@/constants/roles";
 import SectorContainer from "@/components/SectorContainer.vue";
 import {useIndexStore} from "@/store";
 import {isEmpty, isEqual} from "lodash/lang";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, SET_INDEX, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SET_INDEX} from "@/constants/other";
 import {useCraftStore} from "@/store/craft";
 import SimpleInputTag from "@/components/ui/SimpleInputTag.vue";
 import SimpleTextarea from "@/components/ui/SimpleTextarea.vue";
@@ -114,6 +125,8 @@ import JsonEditorVue from "json-editor-vue";
 import {useLibraryStore} from "@/store/library";
 import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
+import InfoTooltip from "@/components/ui/InfoTooltip.vue";
+import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 
 defineOptions({
   name: 'import-script'
@@ -127,22 +140,13 @@ const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
 const { allListsAsOne } = storeToRefs(libraryStore)
 const { theme, themes } = storeToRefs(optionsStore)
-const defaultTeams = () => {
-  return ROLES.reduce((acc, role) => {
-    acc[role] = 0
-    return acc
-  }, {})
-}
 const instance = getCurrentInstance()
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
 const importContent = ref("")
 const charsList = ref({})
 const errorList = ref([])
-const teams = ref(defaultTeams())
 const meta = ref({})
-const emits = defineEmits(['createMeta', 'createList'])
-const list = ref({})
 const isVisibleError = ref(false)
 const isCanSave = ref(false)
 
@@ -156,7 +160,7 @@ const getEmptyValue = () => ({ ...EMPTY_IMPORT_SCRIPT })
 
 function save(){
   try{
-    craftStore.saveImportScript(meta.value, list.value)
+    craftStore.saveImportScript(meta.value, Object.values(charsList.value).flat())
     isCanSave.value = false
     indexStore.unfocusWindow()
     activeScriptIndex.value = SET_INDEX.DEFAULT
@@ -192,6 +196,11 @@ function textareaValueChange({ text }){
   }
 }
 
+function loadedContent(value){
+  importContent.value = value
+  textareaValueChange({ text: value })
+}
+
 function formalizedMeta(content){
   meta.value = {...EMPTY_IMPORT_SCRIPT}
   if(!isEmpty(content)){
@@ -200,53 +209,46 @@ function formalizedMeta(content){
       meta.value = {...meta.value, ...foundMeta}
     }
   }
-  emits('createMeta', meta.value)
 }
 
 function formalizedList(content){
   charsList.value = {}
   errorList.value = []
   if(!isEmpty(content)){
-    const list = content.filter(el => el.id !== '_meta');
+    const localList = content.filter(el => el.id !== '_meta');
+
+    const findCharacterById = (id, role = null) => {
+      const pool = role ? allListsAsOne.value[role] : Object.values(allListsAsOne.value).flat();
+      const character = pool.find(c => c.id === id);
+      if (!character) {
+        addNewError(`Character with ID <strong>${id}</strong> was not found in your library or in the official library.`);
+      }
+      return character;
+    };
+
     charsList.value = ROLES.reduce((acc, role) => {
-      acc[role] = list
+      const direct = localList
           .filter(el => el.team === role)
-          .map(el =>
-              ({
-                ...EMPTY_CHARACTER,
-                ...el,
-                id: toNormalizeString(`${el.name}_${meta.value.id}`, 30),
-                edition: toNormalizeString(`${meta.value.id}`, 50),
-                jinxes: getJinxes(el)
-              })
-          )
+          .map(el => findCharacterById(el.id, role))
+          .filter(Boolean);
+
+      const additional = localList
+          .filter(el => !el.team)
+          .map(el => {
+            const id = typeof el === 'object' && el?.id ? el.id : el;
+            const character = findCharacterById(id);
+            return character && character.team === role ? { id } : null;
+          })
+          .filter(Boolean);
+
+      acc[role] = [...direct, ...additional]
       return acc;
     }, {});
   }
-  emits('createList', charsList.value)
-}
-
-function getJinxes(element){
-  const jinxes = element?.jinxes
-  if(!jinxes) return []
-  return jinxes.map(jinx => {
-    const found = MAIN_ROLES.map(type => allListsAsOne.value[type].find(role => role.id === jinx.id)).find(Boolean);
-    if (found){
-      return {
-        id: jinx.id,
-        reason: jinx.reason,
-        image: getImageFirstUrl(found),
-        name: found.name,
-        ability: found.ability
-      }
-    } else {
-      addNewError(`Jinx of <strong>${element.name}</strong> will be ignored: character with id <strong>${jinx.id}</strong> not found.`);
-      return null
-    }
-  }).filter(Boolean)
 }
 
 function addNewError(message){
+  if(errorList.value.findIndex(el => el === message) !== -1) return
   errorList.value.push(message)
 }
 

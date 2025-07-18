@@ -69,7 +69,7 @@ export const getImageFirstUrl = (character, isOfficial = false) => {
 
     if (Array.isArray(character.image)) {
         if (character.image.length > 0) {
-            return character.image[0];
+            return character.image[0]
         }
     } else {
         return character.image;
