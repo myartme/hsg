@@ -9,29 +9,20 @@
                        icon="save"
                        icon-size="w-6 h-6"
                        button-class="w-10 h-10"
+                       :is-show-effect="true"
+                       :handle="handleSaveScript" />
+        <action-button icon="undo"
+                       icon-size="w-7 h-7"
+                       button-class="w-10 h-10"
                        tooltip="Reset version information"
                        :is-show-effect="true"
                        :handle="handleResetVersions" />
-        <action-button v-if="isCanSave"
-                       icon="undo"
+        <action-button icon="delete"
                        icon-size="w-7 h-7"
                        button-class="w-10 h-10"
-                       itooltip="Delete all versions of this script"
+                       tooltip="Delete all versions of this script"
                        :is-show-effect="true"
                        @click="isVisibleDeleteDialog = true" />
-        <action-button v-if="isCanSave"
-                       icon="delete"
-                       icon-size="w-7 h-7"
-                       button-class="w-10 h-10"
-                       itooltip="Delete all versions of this script"
-                       :is-show-effect="true"
-                       @click="isVisibleDeleteDialog = true" />
-        <action-button
-            icon="delete"
-            icon-size="w-7 h-7"
-            button-class="w-10 h-10"
-            tooltip="Delete all versions of this script"
-            @click="isVisibleDeleteDialog = true" />
       </div>
     </template>
     <template #content>

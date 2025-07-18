@@ -127,11 +127,16 @@ export async function saveImportScript(meta, content) {
     const idx = scriptList.value.findIndex(el => el.name === meta.name)
     if(idx !== -1){
         const loadedMeta = scriptList.value[idx]
-        meta = {...loadedMeta, ...meta, date: now.toISOString(), version: getNextVersion(loadedMeta.version)}
+        const version = Math.max(
+            ...loadedMeta.list
+                .map(el => parseFloat(el.version))
+                .filter(v => !isNaN(v))
+        )
+        meta = {...loadedMeta, ...meta, date: now.toISOString(), version: getNextVersion(version) }
         await setDataScript(meta.version, meta.name, [filterScriptMeta(meta), ...content])
         scriptList.value[idx] = {
             ...filterScriptFileMeta(meta),
-            list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {meta, json: true})]
+            list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
         }
     } else {
         if(meta.author === DEFAULT_SCRIPT_AUTHOR || meta.author === ''){
@@ -142,7 +147,7 @@ export async function saveImportScript(meta, content) {
         scriptList.value.push({
             ...filterScriptFileMeta(meta),
             version: DEFAULT_VERSION,
-            list: [getFormatScriptListElement(now.toISOString(), {meta, json: true})]
+            list: [getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
         })
     }
     await saveScripts()

@@ -37,7 +37,7 @@
       </div>
       <spinner v-show="isLoading"
           item-class="flex justify-center items-center py-5"
-          :size="12" />
+          :size="18" />
       <div v-show="!isLoading"
            v-for="(group, team) in listFiltered"
            :key="team">
