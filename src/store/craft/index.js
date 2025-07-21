@@ -24,7 +24,13 @@ import {
     loadScriptWithMetaFilling,
     loadScripts,
     saveCurrentScript,
-    saveImportScript, deleteScript, deleteScripts, saveUpdateMeta, saveUpdateVersions, saveScriptsList
+    saveImportScript,
+    deleteScript,
+    deleteScripts,
+    saveUpdateMeta,
+    saveUpdateVersions,
+    saveScriptsList,
+    saveScriptWithParams
 } from "@/store/craft/script";
 import {
     addElementToFirstList,
@@ -65,6 +71,7 @@ export const useCraftStore = defineStore('craft', () => {
         savePdf,
         loadPdf,
         deletePdf,
+        saveScriptWithParams,
         saveScriptsList,
         saveCurrentScript,
         saveImportScript,

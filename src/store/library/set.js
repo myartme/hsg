@@ -3,12 +3,10 @@ import {
     activeSetIndex,
     metaSets,
     queuePositions,
-    search,
     activeCharacter
 } from "@/store/library/state";
 import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
 import {loadQueuePositions, saveQueuePositions} from "@/store/library/queue";
-import {loadSearch, saveSearch} from "@/store/library/search";
 import {SET_INDEX} from "@/constants/other";
 import {ROLES} from "@/constants/roles";
 import {loadBootlegger, saveBootlegger} from "@/store/library/bootlegger";
@@ -164,16 +162,11 @@ export async function deleteSet(name){
                     queuePositions.value[team]?.splice(queueIndex, 1);
                 }
             }
-
-            if (search.value[role?.id]) {
-                delete search.value[role.id];
-            }
         }
     }
 
     await deleteDataLibrary(name, 'sets')
     await saveQueuePositions()
-    await saveSearch()
     await saveBootlegger()
     await getSetsFromFile()
     activeSetIndex.value = SET_INDEX.DEFAULT
@@ -200,7 +193,6 @@ export async function getSetsFromFile(isAppPath = false, isRecursive = false){
 export async function loadSets(){
     await getSetsFromFile()
     await loadQueuePositions()
-    await loadSearch()
     await loadBootlegger()
 }
 

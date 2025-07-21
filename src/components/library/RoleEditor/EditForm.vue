@@ -193,7 +193,7 @@ const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
 const stateStore = useOptionsStore()
-const { activeList, activeMeta, activeCharacter, queuePositions, search, bootlegger } = storeToRefs(libraryStore)
+const { activeList, activeMeta, activeCharacter, queuePositions, bootlegger } = storeToRefs(libraryStore)
 
 const errorText = ref(null)
 const isVisibleError = ref(false)
@@ -268,10 +268,6 @@ const bootleggerInit = () => {
   rules.value = getDefaultRules()
 }
 
-const searchInit = () => {
-  tags.value = getDefaultTags()
-}
-
 const queueInit = () => {
   queueCharacter.value = getDefaultQueueCharacter()
 
@@ -283,14 +279,13 @@ const queueInit = () => {
 }
 
 function getDefaultRules(){
-  const elem = bootlegger.value[activeCharacter.value?.id]
-  return !!elem ? [...elem.rules] : []
-}
+  if(activeCharacter.value){
+    const elem = bootlegger.value[activeCharacter.value.team]?.find(el => el.id === activeCharacter.value.id)
+    if(elem)
+      return [...elem.rules]
+  }
 
-function getDefaultTags(){
-  const elem = search.value[activeCharacter.value?.id]
-
-  return !!elem ? [...elem.tags] : []
+  return []
 }
 
 function getDefaultQueueCharacter(){
@@ -342,25 +337,14 @@ function saveData(){
       queuePositions.value[character.value?.team] = queue.value
     }
 
-    search.value = {
-      ...search.value,
-      [character.value.id]: {
+    const indexBootlegger = bootlegger.value[character.value?.team].findIndex(el => el.id === character?.value.id)
+    if(indexBootlegger >= 0){
+      bootlegger.value[character.value?.team][indexBootlegger] = {
         id: character.value.id,
         image: getImageFirstUrl(character.value),
         name: character.value.name,
         ability: character.value.ability,
-        tags: tags.value,
-      }
-    }
-
-    bootlegger.value = {
-      ...bootlegger.value,
-      [character.value.id]: {
-        id: character.value.id,
-        image: getImageFirstUrl(character.value),
-        name: character.value.name,
-        ability: character.value.ability,
-        rules: rules.value,
+        rules: rules.value
       }
     }
 
@@ -381,7 +365,6 @@ function undoUpdate() {
   try {
     characterInit()
     queueInit()
-    searchInit()
     bootleggerInit()
     setTimeout(() => {
       isCanSave.value = false
@@ -430,7 +413,6 @@ watch(queueCharacter, () => {
 watch(activeCharacter, () => {
   characterInit()
   queueInit()
-  searchInit()
   bootleggerInit()
 }, { deep:true, immediate:true })
 

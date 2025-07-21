@@ -12,5 +12,5 @@ import {storeToRefs} from "pinia";
 
 const optionsStore = useOptionsStore()
 const { theme, themes } = storeToRefs(optionsStore)
-useOptionsStore().getOptions()
+optionsStore.getOptions()
 </script>

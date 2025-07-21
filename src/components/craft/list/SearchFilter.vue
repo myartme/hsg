@@ -30,7 +30,7 @@
       ]">Apply</button>
       <button @click="resetFilterButton" :class="[
           buttonClass,
-          'ml-auto w-30 bg-[color:var(--color-border)] hover:bg-[color:var(--color-hover-bg)]'
+          'ml-auto w-30 bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]'
       ]">{{ resetFilterTitle }}</button>
     </div>
   </div>
