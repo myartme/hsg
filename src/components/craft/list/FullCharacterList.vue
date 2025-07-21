@@ -42,7 +42,6 @@
            v-for="(group, team) in listFiltered"
            :key="team">
         <characters-team-list
-            @delete-item="onDeleteItem"
             :team-name="team"
             :team-items="group"
             :is-opened="team !== 'traveller' && team !== 'fabled'" />
@@ -67,7 +66,7 @@ defineOptions({
 })
 
 const craftStore = useCraftStore()
-const { characterListWithParams } = storeToRefs(craftStore)
+const { characterListWithParams, isDeletingFromPdfCharacterList } = storeToRefs(craftStore)
 const instance = getCurrentInstance()
 const searchedQuery = ref("")
 const lastSearchedQuery = ref("")
@@ -75,7 +74,6 @@ const list = ref({})
 const listFiltered = ref({})
 const selectedEditions = ref([])
 const isLoading = ref(false)
-const isDeleting = ref(false)
 const isEditionFilterShow = ref(false)
 const maxFilters = ref(0)
 const isResetFilter = ref(false)
@@ -161,10 +159,6 @@ function getFilteredEdition(characterList = {}){
   }, {});
 }
 
-function onDeleteItem(){
-  isDeleting.value = true
-}
-
 watch(searchedQuery, (newVal) => {
   if(isEditionFilterShow.value){
     isEditionFilterShow.value = !isEditionFilterShow.value
@@ -177,9 +171,9 @@ watch(characterListWithParams, () => {
   list.value = {...characterListWithParams.value}
   listFiltered.value = {...characterListWithParams.value}
 
-  if(isDeleting.value){
+  if(isDeletingFromPdfCharacterList.value){
     listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition())
-    isDeleting.value = false
+    isDeletingFromPdfCharacterList.value = false
   }
 }, {immediate:true})
 </script>

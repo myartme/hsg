@@ -20,4 +20,6 @@ export const activeVersion = ref(ZERO_VERSION)
 export const isSavedScript = ref(false)
 
 export const isWaitingOperation = ref(false)
+
+export const isDeletingFromPdfCharacterList = ref(false)
 export const activeScript = computed(() => scriptList.value[activeScriptIndex.value])

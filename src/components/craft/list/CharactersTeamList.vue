@@ -26,6 +26,7 @@
 import {ref} from "vue";
 import {getImageFirstUrl} from "@/constants/other";
 import {useCraftStore} from "@/store/craft";
+import {isDeletingFromPdfCharacterList} from "@/store/craft/state";
 
 const props = defineProps({
   teamName: String,
@@ -42,10 +43,9 @@ const props = defineProps({
 
 const craftStore = useCraftStore()
 const isOpen = ref(props.isOpened)
-const emits = defineEmits(['deleteItem'])
 
 function selectRole(character) {
   craftStore.addElementToSecondList(character, props.teamName)
-  emits('deleteItem')
+  isDeletingFromPdfCharacterList.value = true
 }
 </script>

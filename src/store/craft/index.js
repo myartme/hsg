@@ -16,7 +16,10 @@ import {
     pdfListWithParams,
     pdfMeta,
     scriptList,
-    isOpenPdfOptions, isSavedScript, isWaitingOperation
+    isOpenPdfOptions,
+    isSavedScript,
+    isWaitingOperation,
+    isDeletingFromPdfCharacterList
 } from "@/store/craft/state";
 import {
     getJsonCurrentScriptContent,
@@ -34,7 +37,10 @@ import {
 } from "@/store/craft/script";
 import {
     addElementToFirstList,
-    addElementToSecondList, deletePdf, loadPdf, savePdf
+    addElementToSecondList,
+    deletePdf,
+    loadPdf,
+    savePdf
 } from "@/store/craft/pdf";
 import {
     loadSets,
@@ -57,6 +63,7 @@ export const useCraftStore = defineStore('craft', () => {
         isOpenPdfOptions,
         isSavedScript,
         isWaitingOperation,
+        isDeletingFromPdfCharacterList,
 
         loadSets,
         addElementToFirstList,

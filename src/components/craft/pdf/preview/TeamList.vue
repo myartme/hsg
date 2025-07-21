@@ -65,6 +65,7 @@ import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
 import {Tooltip} from "floating-vue";
 import {useOptionsStore} from "@/store/options";
+import {isDeletingFromPdfCharacterList} from "@/store/craft/state";
 
 const props = defineProps({
   teamName: String,
@@ -78,6 +79,7 @@ const { tooltipDelay } = storeToRefs(optionsStore)
 
 function selectRole(character, key) {
   craftStore.addElementToFirstList(character, props.teamName, key)
+  isDeletingFromPdfCharacterList.value = true
 }
 
 function getValidJinxesForCharacter(character) {
