@@ -4,9 +4,8 @@ import {ROLES} from "@/constants/roles";
 
 export const allData = ref([])
 export const activeSetIndex = ref(SET_INDEX.DEFAULT)
-export const search = ref({})
 export const bootlegger = ref({})
-export const queuePositions = ref([])
+export const queuePositions = ref({})
 
 export const activeSet = computed(() =>
     allData.value[activeSetIndex.value])

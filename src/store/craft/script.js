@@ -186,12 +186,11 @@ export async function deleteScript(version, name) {
 }
 
 async function saveScript(meta) {
-    await setDataScript(
-        meta.version,
-        meta.name, [
-        filterScriptMeta(meta), ...getCurrentScriptContentToSaveFormat()
-        ]
-    )
+    await saveScriptWithParams(meta.version, meta.name, [filterScriptMeta(meta), ...getCurrentScriptContentToSaveFormat()])
+}
+
+export async function saveScriptWithParams(version, name, content) {
+    await setDataScript(version, name, content)
 }
 
 export async function saveScriptsList(list) {

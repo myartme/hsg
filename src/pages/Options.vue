@@ -20,18 +20,22 @@
         <div class="gap-y-4 space-y-6 items-center">
           <toggle div-class="grid grid-cols-[minmax(150px,22%)_1fr] items-center" label="Dark mode" v-model:value="isDarkMode" />
           <div class="title-theme mb-2">Tooltip delay</div>
-            <div class="pl-4 space-y-2">
-              <slider :div-class="sliderClass" label="Button tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonShow" />
-              <slider :div-class="sliderClass" label="Button tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonHide" />
-            </div>
-            <div class="pl-4 space-y-2">
-              <slider :div-class="sliderClass" label="Input tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoShow" />
-              <slider :div-class="sliderClass" label="Input tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoHide" />
-            </div>
-            <div class="pl-4 space-y-2">
-              <slider :div-class="sliderClass" label="Jinx select character tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesShow" />
-              <slider :div-class="sliderClass" label="Jinx select character tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesHide" />
-            </div>
+          <div class="pl-4 space-y-2">
+            <slider :div-class="sliderClass" label="Button tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonShow" />
+            <slider :div-class="sliderClass" label="Button tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonHide" />
+          </div>
+          <div class="pl-4 space-y-2">
+            <slider :div-class="sliderClass" label="Input tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoShow" />
+            <slider :div-class="sliderClass" label="Input tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoHide" />
+          </div>
+          <div class="pl-4 space-y-2">
+            <slider :div-class="sliderClass" label="Jinx select character tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesShow" />
+            <slider :div-class="sliderClass" label="Jinx select character tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesHide" />
+          </div>
+          <div class="flex gap-5">
+            <import-library title="Import library data" />
+            <export-library title="Export library data" />
+          </div>
         </div>
       </template>
     </sector-container>
@@ -39,7 +43,7 @@
 </template>
 <script setup>
 import SectorContainer from "@/components/SectorContainer.vue";
-import {getCurrentInstance, ref, watch} from "vue";
+import {getCurrentInstance, onMounted, ref, watch} from "vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME} from "@/constants/other";
 import Toggle from "@/components/ui/Toggle.vue";
@@ -48,11 +52,18 @@ import {storeToRefs} from "pinia";
 import Slider from "@/components/ui/Slider.vue";
 import {useIndexStore} from "@/store";
 import {isEqual} from "lodash/lang";
+import ImportLibrary from "@/components/options/ImportLibrary.vue";
+import ExportLibrary from "@/components/options/ExportLibrary.vue";
+import {useLibraryStore} from "@/store/library";
+import {useCraftStore} from "@/store/craft";
 
 defineOptions({
   name: 'options'
 })
+
 const instance = getCurrentInstance()
+const libraryStore = useLibraryStore()
+const craftStore = useCraftStore()
 const optionsStore = useOptionsStore()
 const indexStore = useIndexStore()
 const { theme, themes, tooltipDelay } = storeToRefs(optionsStore)
@@ -88,6 +99,11 @@ function undo(){
     return false
   }
 }
+
+onMounted(async () => {
+  await libraryStore.loadSets()
+  await craftStore.loadScripts()
+})
 
 watch(isCanSave, (newVal) => {
   newVal ? indexStore.focusWindow(instance?.type.name) : indexStore.unfocusWindow()

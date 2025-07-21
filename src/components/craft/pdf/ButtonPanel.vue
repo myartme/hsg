@@ -73,14 +73,13 @@ import html2pdf from "html2pdf.js";
 import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
 import {computed} from "vue";
-import {isWaitingOperation, pdfListWithParams} from "@/store/craft/state";
 import {isEmpty} from "lodash/lang";
 import {DEFAULT_SCRIPT_NAME} from "@/constants/roles";
 import {DEFAULT_VERSION} from "@/constants/other";
 import ActionButton from "@/components/ui/ActionButton.vue";
 
 const craftStore = useCraftStore()
-const { pdfMeta, pdfListElement, isOpenPdfOptions, isSavedScript } = storeToRefs(craftStore)
+const { pdfMeta, pdfListElement, isOpenPdfOptions, isSavedScript, isWaitingOperation, pdfListWithParams } = storeToRefs(craftStore)
 const isEmptyList = computed(() => isEmpty(Object.values(pdfListWithParams.value).flat()))
 
 const isActiveActionButton = computed(() => {

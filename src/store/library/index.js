@@ -4,7 +4,6 @@ import {
     activeSetIndex,
     activeList,
     activeCharacter,
-    search,
     bootlegger,
     queuePositions,
     metaSets,
@@ -16,9 +15,11 @@ import {
     loadSets,
     saveActiveSetWithList,
     saveActiveSetWithMeta, saveCharactersToList,
-    saveNewMetaAndList
+    saveNewMetaAndList, saveSet, saveSets
 } from "@/store/library/set";
 import {deleteActiveCharacter, saveActiveCharacter} from "@/store/library/character";
+import {saveQueuePositions} from "@/store/library/queue";
+import {saveBootlegger} from "@/store/library/bootlegger";
 
 export const useLibraryStore = defineStore('library', () => {
     return {
@@ -27,7 +28,6 @@ export const useLibraryStore = defineStore('library', () => {
         activeMeta,
         activeList,
         activeCharacter,
-        search,
         bootlegger,
         queuePositions,
         metaSets,
@@ -41,6 +41,10 @@ export const useLibraryStore = defineStore('library', () => {
         saveActiveCharacter,
         saveActiveSetWithMeta,
         saveActiveSetWithList,
-        saveCharactersToList
+        saveCharactersToList,
+        saveSet,
+        saveSets,
+        saveQueuePositions,
+        saveBootlegger
     }
 })

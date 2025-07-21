@@ -5,11 +5,9 @@ import {
     activeList,
     activeMeta,
     activeSetIndex,
-    queuePositions,
-    search
+    queuePositions
 } from "@/store/library/state";
 import {saveQueuePositions} from "@/store/library/queue";
-import {saveSearch} from "@/store/library/search";
 import {saveBootlegger} from "@/store/library/bootlegger";
 
 export async function saveActiveCharacter(content){
@@ -31,7 +29,6 @@ export async function saveActiveCharacter(content){
         await saveQueuePositions()
     }
 
-    await saveSearch()
     await saveBootlegger()
 }
 
@@ -52,14 +49,9 @@ export async function deleteActiveCharacter(){
         }
     }
 
-    if (search.value[activeCharacter.value?.id]) {
-        delete search.value[activeCharacter.value.id];
-    }
-
     if(!activeMeta.value.isOfficial){
         await setDataLibrary(`${activeMeta.value.id}`, "sets", list)
         await saveQueuePositions()
-        await saveSearch()
         await saveBootlegger()
     }
 

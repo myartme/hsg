@@ -7,9 +7,8 @@
     <script-options-popup
         v-model:is-open="isOpenPdfOptions"
         :bootlegger="isBootleggersEnabled ? bootlegger : {}" />
-    <div v-if="isWaitingOperation">
-      <spinner item-class="fixed inset-0 z-50 bg-black/60 pointer-events-auto flex justify-center items-center" :size="15" />
-    </div>
+    <spinner v-if="isWaitingOperation"
+             item-class="fixed inset-0 z-50 bg-black/60 pointer-events-auto flex justify-center items-center" :size="15" />
   </div>
 </template>
 
