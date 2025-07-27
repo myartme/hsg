@@ -79,7 +79,7 @@ import {DEFAULT_VERSION} from "@/constants/other";
 import ActionButton from "@/components/ui/ActionButton.vue";
 
 const craftStore = useCraftStore()
-const { pdfMeta, pdfListElement, isOpenPdfOptions, isSavedScript, isWaitingOperation, pdfListWithParams } = storeToRefs(craftStore)
+const { pdfMeta, activeVersion, pdfListElement, isOpenPdfOptions, isSavedScript, isWaitingOperation, pdfListWithParams } = storeToRefs(craftStore)
 const isEmptyList = computed(() => isEmpty(Object.values(pdfListWithParams.value).flat()))
 
 const isActiveActionButton = computed(() => {
@@ -107,12 +107,13 @@ function handleOptions(){
   isOpenPdfOptions.value = !isOpenPdfOptions.value
 }
 
-function handleSaveScript(){
+async function handleSaveScript(){
   if(!isActiveActionButton.value) return
   isWaitingOperation.value = true
   try {
-    craftStore.saveCurrentScript()
+    await craftStore.saveCurrentScript()
     isSavedScript.value = true
+    await craftStore.loadScriptWithMetaFilling(activeVersion.value, pdfMeta.value.name)
     setTimeout(() => {
       isWaitingOperation.value = false
     }, 1000)

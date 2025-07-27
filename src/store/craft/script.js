@@ -2,7 +2,7 @@ import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDat
 import {activeScriptIndex, activeVersion, pdfListWithParams, pdfMeta, scriptList} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
 import {DEFAULT_VERSION, objectToPrettyJson} from "@/constants/other";
-import {DEFAULT_SCRIPT_AUTHOR} from "@/constants/roles";
+import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
 import {isEmpty} from "lodash/lang";
 
 export async function loadScripts() {
@@ -20,7 +20,7 @@ export async function loadScriptWithMetaFilling(version, name){
     const result = await loadScript(version, name)
     if (result.isSuccess) {
         const idx = result.content.find(el => el.id === '_meta')
-        const scriptMeta = result.content.splice(idx, 1)[0]
+        const scriptMeta = {...EMPTY_IMPORT_SCRIPT, ...result.content.splice(idx, 1)[0]}
         const generalMeta = scriptList.value.find(el => el.name === name)
         const listMeta = generalMeta?.list.find(el => el.version === version)
         pdfMeta.value = {
@@ -139,8 +139,8 @@ export async function saveImportScript(meta, content) {
             list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
         }
     } else {
-        if(meta.author === DEFAULT_SCRIPT_AUTHOR || meta.author === ''){
-            meta.author = 'Unknown'
+        if(meta.author === ''){
+            meta.author = DEFAULT_SCRIPT_AUTHOR
         }
         meta = {...meta, date: now.toISOString(), version: DEFAULT_VERSION}
         await setDataScript(meta.version, meta.name, [filterScriptMeta(meta), ...content])
@@ -272,13 +272,36 @@ function formatArray(list) {
 }
 
 function checkMetaDifferent(firstMeta, secondMeta){
-    return {
-        author: (firstMeta.author || "") !== (secondMeta.author || ""),
-        almanac: (firstMeta.almanac || "") !== (secondMeta.almanac || ""),
-        hideTitle: (firstMeta.hideTitle || "") !== (secondMeta.hideTitle || ""),
-        logo: (firstMeta.logo || "") !== (secondMeta.logo || ""),
-        background: (firstMeta.background || "") !== (secondMeta.background || "")
+    const result = {
+        author: {
+            scriptValue: firstMeta.author || "",
+            generalValue: secondMeta.author || ""
+        },
+        almanac: {
+            scriptValue: firstMeta.almanac || "",
+            generalValue:secondMeta.almanac || ""
+        },
+        hideTitle: {
+            scriptValue: firstMeta.hideTitle || false,
+            generalValue: secondMeta.hideTitle || false
+        },
+        logo: {
+            scriptValue: firstMeta.logo || "",
+            generalValue: secondMeta.logo || ""
+        },
+        background: {
+            scriptValue: firstMeta.background || "",
+            generalValue: secondMeta.background || ""
+        }
     }
+
+    return Object.fromEntries(
+        Object.entries(result)
+            .map(([key, value]) => [
+                key,
+                { ...value, isEqual: value.scriptValue === value.generalValue }
+            ])
+    )
 }
 
 function sortScriptArray(list) {

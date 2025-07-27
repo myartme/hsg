@@ -15,7 +15,7 @@
           </div>
           <div class="flex items-center">
             <div @click="isOpenPopup = true"
-                class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-15 gap-3 transition border-[color:var(--color-border)] text-[color:var(--color-text)]">
+                class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-15 gap-3 transition border-[color:var(--color-border)] text-theme">
               <template v-if="selectedRole">
                 <image-any-script :character="selectedRole" img-class="w-10 h-10 rounded" />
                 <span>{{ selectedRole.name }}</span>
@@ -26,10 +26,10 @@
             <button
                 @click="addRole"
                 :class="[
-                    'ml-4 px-4 py-2 rounded-xl whitespace-nowrap text-[color:var(--color-text)] border-[color:var(--color-border)]',
+                    'ml-4 px-4 py-2 rounded-xl whitespace-nowrap text-theme border-[color:var(--color-border)]',
                     !selectedRole || !input
                     ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]'
-                    : 'cursor-pointer text-[color:var(--color-text)] bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
+                    : 'cursor-pointer text-theme bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
 
                 ]"
                 :disabled="!selectedRole || !input"
@@ -69,15 +69,15 @@
         >
           <div class="border rounded-md flex flex-1 p-3 items-center gap-3 transition border-[color:var(--color-border)]">
             <img :src="item.image" class="w-10 h-10 rounded" alt="image" />
-            <div class="text-[color:var(--color-text)]">{{ item.name }}</div>
-            <div class="text-xs text-[color:var(--color-text)]">{{ item.reason }}</div>
+            <div class="text-theme">{{ item.name }}</div>
+            <div class="text-xs text-theme">{{ item.reason }}</div>
             <div v-if="!disabled" class="flex gap-2 ml-auto">
               <button
-                  class="text-sm rounded-xl p-2 pl-3 pr-3 cursor-pointer text-[color:var(--color-text)] border-[color:var(--color-border)] bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]"
+                  class="text-sm rounded-xl p-2 pl-3 pr-3 cursor-pointer text-theme border-[color:var(--color-border)] bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]"
                   @click="editRole(idx)"
               >Edit</button>
               <button
-                  class="text-sm rounded-xl p-2 cursor-pointer text-[color:var(--color-text)] border-[color:var(--color-border)] bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]"
+                  class="text-sm rounded-xl p-2 cursor-pointer text-theme border-[color:var(--color-border)] bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]"
                   @click="removeRole(idx)"
               >Delete</button>
             </div>

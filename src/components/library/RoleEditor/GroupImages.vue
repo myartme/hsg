@@ -68,7 +68,7 @@ const maxValue = computed(() => {
   if(props.teamName === 'traveller') return 3
   return 2
 })
-const inputValues = ref()
+const inputValues = ref([])
 const maxLength = 250
 
 function getLabel(index){
@@ -88,7 +88,8 @@ function getLabel(index){
 }
 
 watch(() => props.value, (newVal) => {
-  inputValues.value = Array.isArray(newVal) ? [...newVal] : [newVal]
+  const values = Array.isArray(newVal) ? [...newVal] : [newVal]
+  inputValues.value = [...values, "", "", ""].slice(0, maxValue.value)
 })
 watch(maxValue, (val) => {
   const values = Array.isArray(props.value) ? props.value : [props.value]

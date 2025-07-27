@@ -48,7 +48,7 @@
     <template #content>
       <div v-show="!isCanSave" class="flex gap-3 h-13 p-5 mt-3 list-element">
         <input v-model="searchedQuery"
-               class="h-10 ml-3 w-full focus:outline-none text-[color:var(--color-text)] placeholder-[color:var(--color-placeholder-text)]"
+               class="h-10 ml-3 w-full focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)]"
                type="text"
                placeholder="Filter by multiple keywords (separate with spaces)"
         />
@@ -108,10 +108,7 @@ defineOptions({
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
-const {
-  activeMeta,
-  activeList,
-} = storeToRefs(libraryStore)
+const {activeMeta, activeList} = storeToRefs(libraryStore)
 
 const meta = ref(cloneDeep(activeMeta.value))
 const list = ref(cloneDeep(activeList.value))
@@ -233,5 +230,8 @@ function filterTextMethod(character, query){
 watch(searchedQuery, (newVal) => {
   isFiltered.value = newVal !== ''
   debouncedSearch(newVal)
+})
+watch(activeList, () => {
+  list.value = {...activeList.value}
 })
 </script>

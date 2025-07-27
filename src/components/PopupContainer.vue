@@ -11,9 +11,9 @@
                type="number"
                @keydown.enter="(e) => e.target.blur()"
                :class="['rounded-md px-3 py-2 h-10 w-1/2 focus:outline-none shadow-sm border-2 focus:border-[color:var(--color-active)]',
-              isDisabled ? 'cursor-not-allowed text-[color:var(--color-text)] border-[color:var(--color-border)] bg-[color:var(--color-bg)]' : 'text-[color:var(--color-text)] border-[color:var(--color-border)] g-[color:var(--color-bg)]']"/>
+              isDisabled ? 'cursor-not-allowed text-theme border-[color:var(--color-border)] bg-[color:var(--color-bg)]' : 'text-theme border-[color:var(--color-border)] g-[color:var(--color-bg)]']"/>
         <button
-            class="ml-4 select-none cursor-pointer text-[color:var(--color-text)]"
+            class="ml-4 select-none cursor-pointer text-theme"
             @click="$emit('close')"
         >✕</button>
       </div>

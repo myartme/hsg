@@ -7,7 +7,7 @@
       <div class="pt-3"></div>
       <div class="flex gap-3 h-13 p-5 ml-5 mr-5 list-element">
         <input v-model="searchedQuery"
-               class="h-10 ml-3 w-full focus:outline-none text-[color:var(--color-text)] placeholder-[color:var(--color-placeholder-text)]"
+               class="h-10 ml-3 w-full focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)]"
                type="text"
                placeholder="Filter by multiple keywords (separate with spaces)"
         />
@@ -35,17 +35,23 @@
                        @on-update-is-reset-filter="isResetFilter = $event"
                        @on-update-is-show="isEditionFilterShow = $event" />
       </div>
-      <spinner v-show="isLoading"
+      <spinner v-if="isLoading"
           item-class="flex justify-center items-center py-5"
           :size="18" />
-      <div v-show="!isLoading"
-           v-for="(group, team) in listFiltered"
-           :key="team">
-        <characters-team-list
-            :team-name="team"
-            :team-items="group"
-            :is-opened="team !== 'traveller' && team !== 'fabled'" />
-      </div>
+      <template v-else>
+        <p v-show="isEmpty(listFiltered)"
+           class="text-theme flex justify-center items-center py-5 ml-5 mr-5">
+          No matching characters. Please adjust the filter parameters to update the results.
+        </p>
+        <div v-show="!isEmpty(listFiltered)"
+             v-for="(group, team) in listFiltered"
+             :key="team">
+          <characters-team-list
+              :team-name="team"
+              :team-items="group"
+              :is-opened="team !== 'traveller' && team !== 'fabled'" />
+        </div>
+      </template>
     </template>
   </sector-container>
 </template>
@@ -86,7 +92,7 @@ const debouncedSearch = debounce(async (val) => {
     return
   }
   lastSearchedQuery.value = val
-  listFiltered.value = getFilteredQuery(val, getFilteredEdition())
+  listFiltered.value = getFilteredQuery(val, getFilteredEdition(list.value))
   isLoading.value = false
 }, 500)
 
@@ -116,7 +122,7 @@ function onUpdateItems(filteredItems){
   if(filteredItems.length === 0){
     listFiltered.value = []
   } else if(filteredItems.length < maxFilters.value){
-    listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition())
+    listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition(list.value))
   } else {
     listFiltered.value = getFilteredQuery(searchedQuery.value, {...list.value})
   }
@@ -127,9 +133,8 @@ function onUpdateItems(filteredItems){
 }
 
 function getFilteredQuery(query, characterList = {}){
-  if(isEmpty(characterList)){
-    characterList = list.value
-  }
+  if(isEmpty(characterList)) return {}
+
   return Object.entries(characterList).reduce((acc, [team, characters]) => {
     const filteredCharacters = characters.filter(character => {
       return filterTextMethod(character, query)
@@ -144,9 +149,8 @@ function getFilteredQuery(query, characterList = {}){
 }
 
 function getFilteredEdition(characterList = {}){
-  if(isEmpty(characterList)){
-    characterList = list.value
-  }
+  if(isEmpty(characterList)) return {}
+
   return Object.entries(characterList).reduce((acc, [team, characters]) => {
     const filteredCharacters = characters
         .filter(character => !(selectedEditions.value.length > 0 && !selectedEditions.value.includes(character.edition)))
@@ -172,7 +176,7 @@ watch(characterListWithParams, () => {
   listFiltered.value = {...characterListWithParams.value}
 
   if(isDeletingFromPdfCharacterList.value){
-    listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition())
+    listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition(list.value))
     isDeletingFromPdfCharacterList.value = false
   }
 }, {immediate:true})

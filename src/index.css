@@ -80,10 +80,21 @@ html, body, #app {
   color: var(--color-title-text);
 }
 
+.text-theme {
+  color: var(--color-text);
+}
+
 .input-theme {
   @apply border-2 focus:outline-none;
   border-color: var(--color-border);
   color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.input-placeholder-theme {
+  @apply border-2 focus:outline-none;
+  border-color: var(--color-border);
+  color: var(--color-placeholder-text);
   background-color: var(--color-bg);
 }
 

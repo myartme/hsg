@@ -5,6 +5,7 @@
         :label="label"
         :required="required"
         :info="info"
+        :different="different"
         :model-length="model?.length" />
     <input
         id="my-checkbox"
@@ -38,6 +39,10 @@ const props = defineProps({
     default: "h-4 w-4 rounded accent-[color:var(--color-active)] hover:accent-[color:var(--color-hover-active)]"
   },
   info: {
+    type: String,
+    default: "",
+  },
+  different: {
     type: String,
     default: "",
   },

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-[color:var(--color-text)]"
+  <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
        @click="isOpen = true">
     <span>{{ title }}</span>
   </div>

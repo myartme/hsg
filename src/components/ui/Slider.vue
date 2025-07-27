@@ -19,7 +19,7 @@
             { 'opacity-50 cursor-not-allowed': disabled }
         ]"
     />
-    <span class="min-w-[5rem] text-right text-sm text-[color:var(--color-text)]">
+    <span class="min-w-[5rem] text-right text-sm text-theme">
       {{ value }} ms
     </span>
   </div>

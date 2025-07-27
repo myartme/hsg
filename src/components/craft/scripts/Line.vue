@@ -6,7 +6,7 @@
             ? 'bg-[color:var(--color-list-element)] hover:bg-[color:var(--color-hover-active)]'
             : 'bg-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
     ]">
-      <span class="flex justify-center font-bold text-center text-[color:var(--color-text)]">{{ index + 1 }}</span>
+      <span class="flex justify-center font-bold text-center text-theme">{{ index + 1 }}</span>
       <div class="w-10 h-10 relative">
         <img v-if="script?.logo"
              class="absolute inset-0 w-full h-full object-cover rounded scale-110"
@@ -14,8 +14,8 @@
              :alt="script.name" />
       </div>
       <span class="block break-words whitespace-normal font-bold title-theme">{{ script?.name }}</span>
-      <span class="text-xs text-[color:var(--color-text)]">{{ script?.author }}</span>
-      <span class="text-xs text-[color:var(--color-text)]">{{ script?.list?.length }}({{ script?.version }})</span>
+      <span class="text-xs text-theme">{{ script?.author }}</span>
+      <span class="text-xs text-theme">{{ script?.list?.length }}({{ script?.version }})</span>
       <action-button
           icon="options"
           icon-size="w-7 h-7"
@@ -38,8 +38,8 @@
                      ? 'bg-[color:var(--color-list-element)] hover:bg-[color:var(--color-hover-active)]'
                      : 'bg-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
           ]">
-            <div class="flex justify-between items-center w-full px-2">
-              <span class="font-bold text-[color:var(--color-text)]">{{ element?.version }}</span>
+            <div class="flex justify-between items-center w-full px-1">
+              <span class="font-bold text-theme">Open v{{ element?.version }}</span>
               <div class="flex gap-2">
                 <action-button
                     icon="downloadJson"
@@ -50,6 +50,17 @@
                     :is-disable="!element.json"
                     @click.stop="handleDownloadJson(element)"
                     :tooltip="!element.json ? 'No json file available' : 'Download last generated json'" />
+                <action-button
+                    icon="toClipboard"
+                    icon-size="w-6 h-6"
+                    button-class="w-9 h-9"
+                    :icon-color="!element.json ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]' : ''"
+                    :button-color="!element.json ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]' : ''"
+                    :is-disable="!element.json"
+                    @click.stop=""
+                    :handle="async () => await handleToClipboard(element)"
+                    :is-show-effect="true"
+                    :tooltip="!element.json ? 'Not available' : 'Copy to clipboard'" />
                 <action-button
                     icon="downloadPdf"
                     icon-size="w-6 h-6"
@@ -145,6 +156,18 @@ async function handleDownloadJson(element){
         `${script.value.name}_v${element.version}.json`
     )
   }
+}
+
+async function handleToClipboard(element){
+  if(element.json){
+    const result = await craftStore.loadScript(element.version, script.value.name)
+    if (result?.isSuccess && result.content) {
+      await navigator.clipboard.writeText(objectToPrettyJson(result.content))
+      return true
+    }
+  }
+
+  return false
 }
 
 async function handleDeleteScript(){

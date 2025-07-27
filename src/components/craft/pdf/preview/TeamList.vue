@@ -7,7 +7,7 @@
       </span>
       <div class="flex-grow border-t border-[color:var(--color-border)]"></div>
       <span class="text-xxs px-3 border rounded-full title-theme border-[color:var(--color-border)]">
-        {{ teamName }} {{ teamName !== 'townsfolk' ? 's' : '' }}
+        {{ teamName }}{{ teamName !== 'townsfolk' ? 's' : '' }}
       </span>
       <div class="flex-grow-0 border-t w-[5%] border-[color:var(--color-border)]"></div>
     </div>
@@ -52,7 +52,7 @@
         </div>
       </div>
       <div class="flex-1 min-w-0 mr-4">
-        <p class="text-xxs leading-tight whitespace-pre-line text-[color:var(--color-text)]">
+        <p class="text-xxs leading-tight whitespace-pre-line text-theme">
           {{ character.ability }}
         </p>
       </div>
@@ -99,7 +99,7 @@ function getValidJinxesForCharacter(character) {
         return {
           id: jinx.id,
           reason: jinx.reason,
-          image: matched.image || "",
+          image: getImageFirstUrl(matched),
           name: matched.name || "",
           ability: matched.ability || ""
         }

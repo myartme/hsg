@@ -12,7 +12,7 @@
           v-model="model"
           :class="[
               selectClass,
-              'input-theme'
+              model === '' ? 'input-placeholder-theme' : 'input-theme'
           ]"
           :disabled="disabled"
       >
@@ -53,7 +53,7 @@ const props = defineProps({
   },
   selectClass: {
     type: String,
-    default: "appearance-none block w-full h-10 px-3 pr-10 py-2 rounded-md shadow-sm text-sm leading-5 focus:outline-none"
+    default: "appearance-none block w-full h-10 px-3 pr-10 py-2 rounded-md text-sm leading-5 focus:outline-none"
   },
   info: {
     type: String,

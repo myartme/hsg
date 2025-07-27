@@ -6,7 +6,7 @@
           :label="label"
           :required="required"
           :info="info" />
-      <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition text-[color:var(--color-text)] border-[color:var(--color-border)]"
+      <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition text-theme border-[color:var(--color-border)]"
            @click="isOpen = true">
         <span v-if="value > 0">{{ value }}</span>
         <span v-else>{{ actionText }}</span>
