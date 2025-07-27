@@ -1,5 +1,5 @@
 import {setDataLibrary} from "@/store";
-import {getSetsFromFile, sets} from "@/store/library/set";
+import {sets} from "@/store/library/set";
 import {
     activeCharacter,
     activeList,

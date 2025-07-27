@@ -22,11 +22,10 @@
 import TeamList from "@/components/craft/pdf/preview/TeamList.vue";
 import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
-import {computed, onMounted, ref, watch} from "vue";
+import {onMounted} from "vue";
 import {listWithParams, scriptList} from "@/store/craft/state";
-import {isEmpty, isEqual} from "lodash/lang";
+import {isEmpty} from "lodash/lang";
 import {DEFAULT_SCRIPT_AUTHOR, DEFAULT_SCRIPT_NAME} from "@/constants/roles";
-import IconElement from "@/components/ui/IconElement.vue";
 
 const craftStore = useCraftStore()
 const { pdfMeta, pdfListWithParams } = storeToRefs(craftStore)
