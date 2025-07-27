@@ -8,7 +8,7 @@
       <info-tooltip v-if="required && modelLength === 0" :text="required" icon="alert" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />
       <info-tooltip v-if="info" :text="info" icon="info" icon-size="w-5 h-5" />
       <info-tooltip v-if="different" :text="different" icon="different" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />
-      <info-tooltip v-if="tooltip" :text="tooltip" :icon="tooltipIcon" icon-size="w-5 h-5" />
+      <info-tooltip v-if="tooltip" :text="tooltip" :icon="tooltipIcon" icon-size="w-5 h-5" :icon-color="tooltipColor" />
     </div>
   </div>
 </template>
@@ -39,6 +39,10 @@ const props = defineProps({
     default: "",
   },
   tooltipIcon: {
+    type: String,
+    default: "",
+  },
+  tooltipColor: {
     type: String,
     default: "",
   },

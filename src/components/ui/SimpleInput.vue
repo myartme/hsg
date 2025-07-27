@@ -8,6 +8,7 @@
         :different="different"
         :tooltip="tooltip"
         :tooltip-icon="tooltipIcon"
+        :tooltip-color="tooltipColor"
         :model-length="model?.length" />
     <div class="relative">
       <input
@@ -55,7 +56,7 @@ const props = defineProps({
   },
   inputClass: {
     type: [String, Array],
-    default: "rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-16"
+    default: "rounded-md px-3 py-2 h-10 w-full focus:outline-none form-input pr-16"
   },
   required: {
     type: String,
@@ -74,6 +75,10 @@ const props = defineProps({
     default: "",
   },
   tooltipIcon: {
+    type: String,
+    default: "",
+  },
+  tooltipColor: {
     type: String,
     default: "",
   },

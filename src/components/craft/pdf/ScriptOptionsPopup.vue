@@ -20,28 +20,44 @@
           :maxlength="50"
           required="This field is required."
           info="Changing this value will be considered a new script!"
-          tooltipIcon="info"
-          :different="meta.different?.name ? 'This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update.' : ''"
+          :tooltip='meta.name === DEFAULT_SCRIPT_NAME ? `This value must be different from the default value <strong>${DEFAULT_SCRIPT_NAME}</strong>. ` : ""'
+          tooltip-icon="alert"
+          tooltip-color="fill-[color:var(--color-error)]"
           class="mb-2" />
-      <simple-input
-          v-model:value="meta.author"
-          label="Author"
-          :maxlength="50"
-          info="This value is common to all versions of the script. Default version for this field is <b>Unknown</b>"
-          :different="meta.different?.author ? 'This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update.' : ''"
-          class="mb-2" />
-      <simple-input
-          v-model:value="meta.almanac"
-          label="Almanac"
-          :maxlength="250"
-          info="This value is common to all versions of the script."
-          :different="meta.different?.almanac ? 'This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update.' : ''"
-          class="mb-2" />
-      <simple-checkbox
-          v-model:value="meta.hideTitle"
-          label="Hide Title"
-          info="You can hide script's title.<br>This value is common to all versions of the script."
-          :different="meta.different?.hideTitle ? 'This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update.' : ''"/>
+      <div class="flex items-end mb-2">
+        <simple-input
+            v-model:value="meta.author"
+            class="w-full"
+            label="Author"
+            :maxlength="50"
+            info="This value is common to all versions of the script."
+            :different="getDifferentText(meta.different?.author?.isEqual)" />
+        <action-button-in-script-option-popup
+            :value="meta.different?.author"
+            @value-update="meta.author = $event" />
+      </div>
+      <div class="flex items-end mb-2">
+        <simple-input
+            v-model:value="meta.almanac"
+            class="w-full"
+            label="Almanac"
+            :maxlength="250"
+            info="This value is common to all versions of the script."
+            :different="getDifferentText(meta.different?.almanac?.isEqual)" />
+        <action-button-in-script-option-popup
+            :value="meta.different?.almanac"
+            @value-update="meta.almanac = $event" />
+      </div>
+      <div class="flex items-end mb-2">
+        <simple-checkbox
+            v-model:value="meta.hideTitle"
+            label="Hide Title"
+            info="You can hide script's title.<br>This value is common to all versions of the script."
+            :different="getDifferentText(meta.different?.hideTitle?.isEqual)"/>
+        <action-button-in-script-option-popup
+            :value="meta.different?.hideTitle"
+            @value-update="meta.hideTitle = $event" />
+      </div>
         <template v-if="!isEmpty(bootleggerOptions)">
           <simple-input-tag
               v-model:value="rules"
@@ -66,22 +82,38 @@
           class="mt-2"
           info="Your custom note." />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <simple-input
-            v-model:value="meta.logo"
-            label="Logo"
-            :maxlength="250"
-            info="This value is common to all versions of the script."
-            :different="meta.different?.logo ? 'This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update.' : ''"
-            class="mb-2" />
-        <simple-input
-            v-model:value="meta.background"
-            label="Background"
-            :maxlength="250"
-            info="This value is common to all versions of the script."
-            :different="meta.different?.background ? 'This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update.' : ''"
-            class="mb-2" />
-        <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50 object-cover rounded mx-auto" alt="logo">
-        <img v-if="meta.background" :src="meta.background" class="mt-10 h-50 object-cover rounded mx-auto" alt="background">
+        <div class="flex items-end mb-2">
+          <simple-input
+              v-model:value="meta.logo"
+              label="Logo"
+              class="w-full"
+              :maxlength="250"
+              info="This value is common to all versions of the script."
+              input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
+              :different="getDifferentText(meta.different?.logo?.isEqual)" />
+          <action-button-in-script-option-popup
+              :value="meta.different?.logo"
+              @value-update="meta.logo = $event" />
+        </div>
+        <div class="flex items-end mb-2">
+          <simple-input
+              v-model:value="meta.background"
+              class="w-full"
+              label="Background"
+              :maxlength="250"
+              info="This value is common to all versions of the script."
+              input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
+              :different="getDifferentText(meta.different?.background?.isEqual)" />
+          <action-button-in-script-option-popup
+              :value="meta.different?.background"
+              @value-update="meta.background = $event" />
+        </div>
+        <div class="object-cover rounded mx-auto">
+          <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50"  alt="logo">
+        </div>
+        <div class="object-cover rounded mx-auto">
+          <img v-if="meta.background" :src="meta.background" class="mt-10 h-50" alt="background">
+        </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
                       :title="`Deleting ${meta.name} and all versions`"
@@ -106,20 +138,23 @@ import {DEFAULT_VERSION, SET_INDEX} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import router from "@/router";
 import PopupContainer from "@/components/PopupContainer.vue";
+import {useLibraryStore} from "@/store/library";
+import {DEFAULT_SCRIPT_NAME} from "@/constants/roles";
+import ActionButtonInScriptOptionPopup from "@/components/craft/pdf/ActionButtonInScriptOptionPopup.vue";
 
 const props = defineProps({
   isOpen: Boolean,
-  bootlegger: {
-    type: Object,
-    default: []
-  }
+  isBootleggersEnabled: Boolean
 })
 
+const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
+const { bootlegger } = storeToRefs(libraryStore)
 const { pdfMeta, pdfListWithParams, activeScriptIndex, activeVersion, isSavedScript } = storeToRefs(craftStore)
 const bootleggerDefault = computed(() => {
   return pdfMeta.value.bootlegger || []
 })
+
 const deletingVersions = computed(() => {
   let result = ""
   let issetVersion = false
@@ -138,13 +173,17 @@ const deletingVersions = computed(() => {
 const meta = ref({})
 const rules = ref([...bootleggerDefault.value])
 const isVisibleDeleteDialog = ref(false)
-const rule = ref(null)
+const rule = ref('')
 const emits = defineEmits(['update:isOpen'])
 const bootleggerOptions = computed(() => {
   return Object.values(pdfListWithParams.value)
       .flat()
-      .flatMap(el => props.bootlegger[el.id]?.rules || [])
+      .flatMap(el => bootlegger.value[el.team].find(boot => boot.id === el.id)?.rules || [])
 })
+
+function getDifferentText(value) {
+  return value === false ? "This value in the current version doesn\'t match the default value for the script.<br>Save the current version to update default value." : ""
+}
 
 function closeWindow(){
   pdfMeta.value['bootlegger'] = rules.value

@@ -40,7 +40,7 @@
     </div>
   </div>
   <div v-if="list.length > 0">
-    <div class="text-lg font-bold uppercase tracking-wide mb-3 mt-3 text-[color:var(--color-text)] bg-[color:var(--color-bg)]">
+    <div class="text-lg font-bold uppercase tracking-wide mb-3 mt-3 text-theme bg-[color:var(--color-bg)]">
       New characters
     </div>
     <div v-for="(element, index) in list" class="mb-1" :key="index">

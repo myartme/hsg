@@ -15,7 +15,7 @@ export const EMPTY_SCRIPT = {
 }
 
 export const DEFAULT_SCRIPT_NAME = 'Script name'
-export const DEFAULT_SCRIPT_AUTHOR = 'Author'
+export const DEFAULT_SCRIPT_AUTHOR = 'Unknown'
 
 export const EMPTY_IMPORT_SCRIPT = {
     "author": "",
@@ -23,11 +23,7 @@ export const EMPTY_IMPORT_SCRIPT = {
     "logo": "",
     "background": "",
     "hideTitle": false,
-    "almanac": "",
-    "bootlegger": [],
-    "note": "",
-    "date": "",
-    "version": ""
+    "almanac": ""
 }
 
 export const EMPTY_CHARACTER = {

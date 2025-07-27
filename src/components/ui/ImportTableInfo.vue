@@ -8,7 +8,7 @@
   </div>
   <div v-if="!isEmpty(charsList)" class="mb-2">
     <h3 class="font-semibold mb-1 text-[color:var(--color-title-text)]">Ready to import:</h3>
-    <div class="border-2 rounded-md max-w-xs text-[color:var(--color-text)] border-[color:var(--color-border)]">
+    <div class="border-2 rounded-md max-w-xs text-theme border-[color:var(--color-border)]">
       <table class="w-full text-sm border-collapse">
         <thead class="text-[color:var(--color-title-text)] bg-[color:var(--color-bg)]">
         <tr>

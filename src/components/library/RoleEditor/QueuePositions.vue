@@ -7,7 +7,7 @@
           :label="label"
           :required="required"
           :info="info" />
-      <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-[color:var(--color-text)]"
+      <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
            @click="isOpen = true">
         <span v-if="queuePosition > 0">{{ queuePosition }}</span>
         <span v-else>{{ actionText }}</span>
@@ -85,7 +85,7 @@ const isOpen = ref(false)
 const orderChar = ref({})
 const roles = ref([])
 const currentForScroll = ref(null)
-const emits = defineEmits(['update:character', 'update:queue'])
+const emits = defineEmits(['updateCharacter', 'updateQueue'])
 
 const isCurrent = (role) => role.id === props.character.id
 const queuePosition = computed({
@@ -152,10 +152,8 @@ function updateRolesAndPositions(){
 }
 
 function closeAndSave(){
-  if(orderChar.value > 0){
-    emits('update:character', orderChar.value)
-  }
-  emits('update:queue', roles.value)
+  emits('updateCharacter', orderChar.value)
+  emits('updateQueue', roles.value)
   isOpen.value = false
 }
 

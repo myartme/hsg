@@ -7,7 +7,7 @@
   ]">
     <div class="flex justify-center font-bold text-center">
       <info-tooltip v-if="requiredText" :text="requiredText" icon="alert" icon-size="w-4 h-4" icon-color="fill-[color:var(--color-error)]" />
-      <p v-else class="text-[color:var(--color-text)]">{{ index + 1 }}</p>
+      <p v-else class="text-theme">{{ index + 1 }}</p>
     </div>
     <div class="w-10 h-10 relative">
       <img :src="getImageFirstUrl(role, isOfficial)"
@@ -15,7 +15,7 @@
            :alt="role.name" />
     </div>
     <span class="block break-words whitespace-normal font-bold title-theme">{{ role.name }}</span>
-    <span class="text-xs text-[color:var(--color-text)]">{{ role.ability }}</span>
+    <span class="text-xs text-theme">{{ role.ability }}</span>
   </div>
 </template>
 <script setup>

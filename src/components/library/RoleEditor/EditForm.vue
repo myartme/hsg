@@ -15,7 +15,7 @@
           :handle="undoUpdate" />
     </template>
     <template #header>
-      <h2 class="text-2xl font-semibold">Edit Character</h2>
+      <h2 class="text-2xl font-semibold">{{ isNew ? 'Create' : 'Edit' }} Character</h2>
       <action-button v-if="!isOfficial && !isNew"
                      icon="delete"
                      icon-size="w-7 h-7"
@@ -128,12 +128,14 @@
           v-if="!isQueuePositionDisabled"
           :action-text="isOfficial ? 'Click to view script queue position' : 'Click to set script queue position'"
           label="Script Character Priority"
-          v-model:character="queueCharacterComputed"
+          :character="queueCharacter"
           :team-name="character.team"
-          v-model:queue="queue"
+          :queue="queue"
           info="The priority of this character on the script sheet. The &quot;Team&quot; field is required fot this field."
           required="This field is required."
-          :disabled="isOfficial" />
+          :disabled="isOfficial"
+          @update-character="queueCharacter = $event"
+          @update-queue="queue = $event" />
       <group-jinx
           v-model:value="character.jinxes"
           label="Jinxes"
@@ -146,7 +148,7 @@
           label="Bootlegger rules"
           :max-tags="10"
           :maxlength="250"
-          info="Bootlegger rules for this character" />
+          info="Bootlegger rules for this character.<br>Don't forget to add bootlegger fabled in the script to see the bootlegger rules in options." />
       <confirm-dialog v-if="isVisibleDeleteDialog"
                       :title="`Deleting ${character.name}`"
                       description="This action cannot be undone. Are you sure you want to delete this character?"
@@ -157,7 +159,7 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, ref, watch } from "vue";
+import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, DEFAULT_ICONS, getImageFirstUrl, toNormalizeString} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
@@ -194,7 +196,6 @@ const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
 const stateStore = useOptionsStore()
 const { activeList, activeMeta, activeCharacter, queuePositions, bootlegger } = storeToRefs(libraryStore)
-
 const errorText = ref(null)
 const isVisibleError = ref(false)
 const character = ref(null)
@@ -203,36 +204,19 @@ const isCanSaveChar = ref(false)
 const isCanSaveTags = ref(false)
 const isCanSaveRules = ref(false)
 const isCanSaveQueue = ref(false)
-const tags = ref(null)
 const rules = ref(null)
-const queueCharacter = ref(getDefaultQueueCharacter())
+const queueCharacter = ref(null)
 const queue = ref(null)
 const emits = defineEmits(['createRole'])
+const scriptCharacterPriority = computed(() => queueCharacter.value?.scriptCharacterPriority || 0)
 
-const isCanSave = computed({
-  get: () => isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value,
-  set: (val) => {
-    isCanSaveChar.value = val
-    isCanSaveTags.value = val
-    isCanSaveRules.value = val
-    isCanSaveQueue.value = val
-  }
-})
-
-const queueCharacterComputed = computed({
-  get() {
-    return {
-      "id": character.value.id || "character_id",
-      "image": getImageFirstUrl(character.value),
-      "name": character.value.name || "Character Name",
-      "ability": character.value.ability || "Character Ability",
-      "scriptCharacterPriority": queueCharacter.value.scriptCharacterPriority || 0
-    }
-  },
-  set(val) {
-    queueCharacter.value = val
-  }
-})
+const isCanSave = computed(() => isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value)
+const setCanSave = (val) => {
+  isCanSaveChar.value = val
+  isCanSaveTags.value = val
+  isCanSaveRules.value = val
+  isCanSaveQueue.value = val
+}
 
 const isOfficial = computed(() => {
   if(stateStore.debugMode) return false
@@ -248,16 +232,13 @@ const isImagesDisabled = computed(() => {
 })
 
 const isFullData = computed(() => {
-  const isValidTeam = (team) =>
-      ['townsfolk', 'outsider', 'minion', 'demon'].includes(team)
-          ? queueCharacter.value.scriptCharacterPriority > 0
-          : ['traveller', 'fabled'].includes(team)
-
   return !isVisibleError.value &&
       character.value.name !== '' &&
       character.value.team !== '' &&
       character.value.ability !== '' &&
-      isValidTeam(character.value.team)
+      ['townsfolk', 'outsider', 'minion', 'demon'].includes(character.value.team)
+      ? scriptCharacterPriority.value > 0
+      : ['traveller', 'fabled'].includes(character.value.team)
 })
 
 const characterInit = () => {
@@ -299,7 +280,7 @@ function getDefaultQueueCharacter(){
     "image": getImageFirstUrl(activeCharacter.value),
     "name": activeCharacter.value.name,
     "ability": activeCharacter.value.ability,
-    "scriptCharacterPriority": 0
+    "scriptCharacterPriority": scriptCharacterPriority.value || 0
   }
 }
 
@@ -332,14 +313,16 @@ function saveData(){
     character.value = stripDefaults(character.value, EMPTY_CHARACTER)
 
     const indexQueue = queue.value.findIndex(el => el.id === character?.value.id || el.id === 'character_id')
+
     if(indexQueue >= 0){
       queue.value[indexQueue].id = character.value.id
       queuePositions.value[character.value?.team] = queue.value
     }
 
     const indexBootlegger = bootlegger.value[character.value?.team].findIndex(el => el.id === character?.value.id)
-    if(indexBootlegger >= 0){
-      bootlegger.value[character.value?.team][indexBootlegger] = {
+
+    const bootleggerElement = () => {
+      return {
         id: character.value.id,
         image: getImageFirstUrl(character.value),
         name: character.value.name,
@@ -348,12 +331,19 @@ function saveData(){
       }
     }
 
+    if(indexBootlegger >= 0){
+      bootlegger.value[character.value?.team][indexBootlegger] = bootleggerElement()
+    } else {
+      bootlegger.value[character.value?.team].push(bootleggerElement())
+    }
+
     libraryStore.saveActiveCharacter(character.value)
     if(props.isNew){
       emits('createRole')
     }
+
     setTimeout(() => {
-      isCanSave.value = false
+      setCanSave(false)
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e){
@@ -367,7 +357,7 @@ function undoUpdate() {
     queueInit()
     bootleggerInit()
     setTimeout(() => {
-      isCanSave.value = false
+      setCanSave(false)
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e) {
@@ -380,12 +370,18 @@ function remove(){
   libraryStore.deleteActiveCharacter()
 }
 
-watch(character, () => {
+watch(character, (value) => {
   if(!character.value.setup){
     delete character.value.setup
   }
-
-  isCanSaveChar.value = !isEqual(character.value, activeCharacter.value)
+  queueCharacter.value = {
+    "id": value.id,
+    "image": getImageFirstUrl(value),
+    "name": value.name,
+    "ability": value.ability,
+    "scriptCharacterPriority": scriptCharacterPriority.value || 0
+  }
+  isCanSaveChar.value = !isEqual(value, activeCharacter.value)
 }, { deep:true })
 
 watch(() => character?.value?.team, (newTeam, oldTeam) => {
@@ -397,10 +393,6 @@ watch(() => character?.value?.team, (newTeam, oldTeam) => {
     character.value.image = DEFAULT_ICONS[newTeam]
   }
 })
-
-watch(tags, () => {
-  isCanSaveTags.value = !isEqual(tags.value, getDefaultTags())
-}, { deep:true })
 
 watch(rules, () => {
   isCanSaveRules.value = !isEqual(rules.value, getDefaultRules())
@@ -416,7 +408,7 @@ watch(activeCharacter, () => {
   bootleggerInit()
 }, { deep:true, immediate:true })
 
-watch(isCanSave, (newVal) => {
-  newVal ? indexStore.focusWindow(instance?.type.name) : indexStore.unfocusWindow()
+watchEffect(() => {
+  isCanSave.value ? indexStore.focusWindow(instance?.type.name) : indexStore.unfocusWindow()
 })
 </script>

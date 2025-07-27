@@ -215,11 +215,11 @@ function formalizedList(content){
   charsList.value = {}
   errorList.value = []
   if(!isEmpty(content)){
-    const localList = content.filter(el => el.id !== '_meta');
+    const localList = content.filter(el => el.id !== '_meta')
 
     const findCharacterById = (id, role = null) => {
-      const pool = role ? allListsAsOne.value[role] : Object.values(allListsAsOne.value).flat();
-      const character = pool.find(c => c.id === id);
+      const pool = role ? allListsAsOne.value[role] : Object.values(allListsAsOne.value).flat()
+      const character = pool.find(c => c.id === id || c.id === id.replaceAll('_', ''))
       if (!character) {
         addNewError(`Character with ID <strong>${id}</strong> was not found in your library or in the official library.`);
       }

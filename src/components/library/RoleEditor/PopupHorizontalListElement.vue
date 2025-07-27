@@ -9,9 +9,9 @@
       <image-any-script :character="element" img-class="w-10 h-10 rounded shrink-0" />
       <div class="flex flex-col flex-1">
         <div class="font-medium text-xs leading-tight truncate title-theme">{{ name }}</div>
-        <div class="text-xs leading-snug line-clamp-1 text-[color:var(--color-text)]">{{ ability }}</div>
+        <div class="text-xs leading-snug line-clamp-1 text-theme">{{ ability }}</div>
       </div>
-      <div class="text-xs min-w-[1.5rem] text-right mr-3 text-[color:var(--color-text)]">{{ value }}</div>
+      <div class="text-xs min-w-[1.5rem] text-right mr-3 text-theme">{{ value }}</div>
     </div>
   </div>
 </template>

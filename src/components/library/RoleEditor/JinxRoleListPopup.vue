@@ -22,11 +22,11 @@
                        @click="selectRole(char)"
                   >
                     <image-any-script :character="char" img-class="w-15 h-15 rounded" />
-                    <span class="text-xs text-center mt-2 text-[color:var(--color-text)]">{{ char.name }}</span>
+                    <span class="text-xs text-center mt-2 text-theme">{{ char.name }}</span>
                   </div>
                 </template>
                 <template #popper>
-                  <div class="text-sm px-3 py-2 rounded max-w-xs bg-[color:var(--color-bg)] text-[color:var(--color-text)]">
+                  <div class="text-sm px-3 py-2 rounded max-w-xs bg-[color:var(--color-bg)] text-theme">
                     {{ char.ability }}
                   </div>
                 </template>

@@ -11,7 +11,7 @@
       <transition name="fade-check">
         <svg
             v-if="showCheck"
-            class="absolute top-0 left-0 w-10 h-10 pointer-events-none"
+            class="absolute w-10 h-10 pointer-events-none"
             viewBox="0 0 52 52"
         >
           <path class="checkmark" fill="none" stroke="#22c55e" stroke-width="5" d="M14 27l10 10 15-20" />
@@ -20,7 +20,7 @@
       <transition name="fade-check">
         <svg
             v-if="showCross"
-            class="absolute top-0 left-0 w-10 h-10 pointer-events-none"
+            class="absolute w-10 h-10 pointer-events-none"
             viewBox="0 0 52 52"
         >
           <path class="crossmark-1" fill="none" stroke="#ef4444" stroke-width="5" d="M16 16 L36 36" />
@@ -69,7 +69,6 @@ const localButtonColor = computed(() => props.buttonColor || "border-[color:var(
 async function handleClick() {
   try {
     const result = await props.handle?.()
-
     if(result){
       if(props.isShowEffect) {
         playEffect(showCheck)
