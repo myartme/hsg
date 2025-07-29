@@ -1,7 +1,7 @@
 {
   "name": "botc_hsg",
   "productName": "BotC HSG",
-  "version": "1.2",
+  "version": "1.5",
   "description": "Blood on the Clocktower character library and script generator.",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -45,6 +45,7 @@
     "tailwindcss": "^4.1.7",
     "vite-plugin-vue-devtools": "^7.7.6",
     "vue": "^3.5.14",
+    "vue-color": "^3.3.1",
     "vue-router": "^4.5.1",
     "vuedraggable": "^4.1.0"
   }

@@ -5,6 +5,7 @@
       :wrapper-class="localWrapperClass + ' ' + buttonClass + ' ' + localButtonColor + ' ' + (isCircleType ? 'rounded-full' : 'rounded-lg')"
       :icon-size="iconSize"
       :icon-color="localIconColor"
+      :is-pressed="isPressed"
       :is-disable="isDisable"
       @click="handleClick" >
     <template #transition>
@@ -45,6 +46,10 @@ const props = defineProps({
     default: true
   },
   isShowEffect: {
+    type: Boolean,
+    default: false
+  },
+  isPressed: {
     type: Boolean,
     default: false
   },

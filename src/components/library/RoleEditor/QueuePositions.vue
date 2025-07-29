@@ -15,7 +15,7 @@
     </div>
     <popup-container
         v-if="isOpen"
-        :is-input-visible="true"
+        :is-input-visible="!disabled || debugMode"
         :input-value="queuePosition"
         :is-disabled="disabled"
         @close="closeAndSave"
@@ -49,6 +49,7 @@ import {isEqual} from "lodash/lang";
 import PopupHorizontalListElement from "@/components/library/RoleEditor/PopupHorizontalListElement.vue";
 import PopupContainer from "@/components/PopupContainer.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+import {debugMode} from "@/store/options/state";
 
 const props = defineProps({
   label: String,

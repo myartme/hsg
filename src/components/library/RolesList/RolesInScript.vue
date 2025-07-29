@@ -21,23 +21,26 @@
                      icon="options"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
+                     :is-pressed="isEditCharacterLibrarySet"
                      :is-circle-type="false"
                      tooltip="Script options"
-                     @click="$emit('update:isOptionShow')" />
+                     @click="$emit('onEditSet')" />
       <action-button v-if="meta.isOfficial === false"
                      icon="add"
                      icon-size="w-10 h-10"
                      button-class="w-10 h-10"
+                     :is-pressed="isCreateCharacterLibrary"
                      :is-circle-type="false"
                      tooltip="Add new character to this set"
-                     @click="switchCreateWindowShow" />
+                     @click="$emit('onCreateRole')" />
       <action-button v-if="meta.isOfficial === false"
                      icon="import"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
+                     :is-pressed="isImportCharacterLibrary"
                      :is-circle-type="false"
                      tooltip="Import new character(s) to this set"
-                     @click="switchImportWindowShow" />
+                     @click="$emit('onImportRole')" />
       <sort-buttons
           :list="list"
           :sort-options-enabled="[SORT.NAME, SORT.OTHER_NIGHT, SORT.FIRST_NIGHT, SORT.SCRIPT_QUEUE]"
@@ -108,13 +111,13 @@ defineOptions({
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
-const {activeMeta, activeList} = storeToRefs(libraryStore)
+const {activeMeta, activeList, isEditCharacterLibrarySet, isCreateCharacterLibrary, isImportCharacterLibrary } = storeToRefs(libraryStore)
 
 const meta = ref(cloneDeep(activeMeta.value))
 const list = ref(cloneDeep(activeList.value))
 const isCanSave = ref(false)
-const isResetSort = ref(true)
-const emits = defineEmits(['selectedRole', 'update:list', 'update:isOptionShow', 'createRole', 'importRole'])
+const isResetSort = ref(false)
+const emits = defineEmits(['selectedRole', 'update:list', 'onEditSet', 'onCreateRole', 'onImportRole'])
 const totalRolesCount = computed(() => {
   return Object.values(list.value).flat().length
 })
@@ -134,7 +137,7 @@ function save(){
 
 function undo(){
   try{
-    resetList()
+    resetList(true)
     setTimeout(() => {
       isCanSave.value = false
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
@@ -144,21 +147,13 @@ function undo(){
   }
 }
 
-function switchCreateWindowShow(){
-  emits('createRole')
-}
-
-function switchImportWindowShow(){
-  emits('importRole')
-}
-
 function resetList(isClick){
   if(!isClick && list.value.length === activeList.value.length) return
   isLoading.value = true
   list.value = cloneDeep(activeList.value)
   searchedQuery.value = ''
-  isResetSort.value = true
   debounce(() => {
+    isResetSort.value = true
     isLoading.value = false
   }, 600)()
 }
@@ -172,7 +167,7 @@ watch(list, () => {
 }, { deep: true })
 
 watch(activeList, () => {
-  resetList()
+  resetList(true)
 })
 
 watch(isCanSave, (newVal) => {

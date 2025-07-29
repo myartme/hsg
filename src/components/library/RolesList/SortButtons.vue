@@ -3,6 +3,7 @@
                  icon="sort"
                  icon-size="w-10 h-10"
                  button-class="w-10 h-10"
+                 :is-pressed="isShowSort"
                  :is-circle-type="false"
                  tooltip="Sort"
                  @click="isShowSort = !isShowSort" />
@@ -10,45 +11,45 @@
     <template v-if="isShowSort">
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.NAME)"
                      :icon="getIcon(SORT.NAME)"
-                     icon-size="w-7 h-7"
+                     icon-size="w-6 h-6"
                      tooltip="By name"
+                     :is-pressed="sortOptions.key === SORT.NAME"
                      button-class="w-9 h-9"
-                     :class="{ 'border-1 rounded-lg' : sortOptions.key === SORT.NAME }"
                      @click="sortListByName" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.SCRIPT_QUEUE)"
                      :icon="getIcon(SORT.SCRIPT_QUEUE)"
                      icon-size="w-7 h-7"
                      tooltip="By script queue"
+                     :is-pressed="sortOptions.key === SORT.SCRIPT_QUEUE"
                      button-class="w-9 h-9"
-                     :class="{ 'border-1 rounded-lg' : sortOptions.key === SORT.SCRIPT_QUEUE }"
                      @click="sortListByQueue" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.FIRST_NIGHT)"
                      :icon="getIcon(SORT.FIRST_NIGHT)"
                      icon-size="w-7 h-7"
                      tooltip="By first night order"
+                     :is-pressed="sortOptions.key === SORT.FIRST_NIGHT"
                      button-class="w-9 h-9"
-                     :class="{ 'border-1 rounded-lg' : sortOptions.key === SORT.FIRST_NIGHT }"
                      @click="sortListByFirstNight" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.OTHER_NIGHT)"
                      :icon="getIcon(SORT.OTHER_NIGHT)"
                      icon-size="w-7 h-7"
                      tooltip="By other night order"
+                     :is-pressed="sortOptions.key === SORT.OTHER_NIGHT"
                      button-class="w-9 h-9"
-                     :class="{ 'border-1 rounded-lg' : sortOptions.key === SORT.OTHER_NIGHT }"
                      @click="sortListByOtherNight" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.AUTHOR)"
                      :icon="getIcon(SORT.AUTHOR)"
                      icon-size="w-7 h-7"
                      tooltip="By author"
+                     :is-pressed="sortOptions.key === SORT.AUTHOR"
                      button-class="w-9 h-9"
-                     :class="{ 'border-1 rounded-lg' : sortOptions.key === SORT.AUTHOR }"
                      @click="sortListByAuthor" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.DATE)"
                      :icon="getIcon(SORT.DATE)"
                      icon-size="w-7 h-7"
                      tooltip="By date"
+                     :is-pressed="sortOptions.key === SORT.DATE"
                      button-class="w-9 h-9"
-                     :class="{ 'border-1 rounded-lg' : sortOptions.key === SORT.DATE }"
                      @click="sortListByDate" />
     </template>
   </transition-group>

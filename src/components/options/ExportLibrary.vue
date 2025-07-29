@@ -78,6 +78,7 @@ const isCanExport = computed(() =>
 const categoryInputs = {
   sets: 'Sets',
   scripts: 'Scripts',
+  scriptTags: 'Script tags',
   options: 'Options'
 }
 
@@ -128,6 +129,9 @@ function getExportDescription(){
     if(el === 'scripts' && scriptLength > 0){
       text += '<br>Scripts: ' + scriptLength
     }
+    if(el === 'scriptTags'){
+      text += '<br>Script tags'
+    }
     if(el === 'options'){
       text += '<br>Options'
     }
@@ -148,7 +152,7 @@ async function exportData(){
       if(el === 'scripts' && scripts.value.length > 0){
         data[el] = scripts.value
       }
-      if(el === 'options'){
+      if(el === 'options' || el === 'scriptTags'){
         data[el] = true
       }
     })

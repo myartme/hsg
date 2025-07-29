@@ -5,19 +5,30 @@
         :label="label"
         :required="required"
         :info="info" />
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div v-for="(item, i) in inputValues" :key="i"
-           class="flex flex-col items-start space-y-2">
-        <simple-input
-            v-model:value="inputValues[i]"
-            :label="getLabel(i)"
-            type="text"
-            div-class="mb-4 mt-3"
-            :disabled="disabled"
-            @change="$emit('update:value', inputValues.length === 1 ? [...inputValues[0]] : [...inputValues])"
-            @keydown.enter="(e) => e.target.blur()"
-            :maxlength="maxLength" />
+           class="flex flex-col items-start">
+        <div class="relative w-full">
+          <simple-input
+              v-model:value="inputValues[i]"
+              :label="getLabel(i)"
+              type="text"
+              div-class="mb-4 mt-3"
+              input-class="rounded-md px-2 py-2 h-10 w-full focus:outline-none form-input pr-25"
+              :disabled="disabled"
+              @change="$emit('update:value', inputValues.length === 1 ? [...inputValues[0]] : [...inputValues])"
+              @keydown.enter="(e) => e.target.blur()"
+              :maxlength="maxLength" />
+          <div class="absolute right-17 bottom-6 w-6 h-6 flex items-center justify-center rounded transition">
+            <action-button
+                icon="cross"
+                icon-size="w-4 h-4"
+                icon-color="fill-[color:var(--color-error)]"
+                icon-hover-color="hover:fill-[color:var(--color-button-error)]"
+                button-class="w-7 h-7"
+                @click.stop="inputValues[i] = ''; $emit('update:value', inputValues.length === 1 ? [...inputValues[0]] : [...inputValues])" />
+          </div>
+        </div>
         <img
             v-if="item"
             :src="item"
@@ -32,6 +43,7 @@
 import {computed, ref, watch} from "vue";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+import ActionButton from "@/components/ui/ActionButton.vue";
 
 const props = defineProps({
   label: String,

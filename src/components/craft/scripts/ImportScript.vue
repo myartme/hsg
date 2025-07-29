@@ -17,18 +17,15 @@
     </template>
     <template #header>
       <h2 class="text-2xl font-bold">{{ label }}</h2>
-    </template>
-    <template #content>
-      <div class="resize-none">
-        <div class="flex items-center space-x-1 mb-1">
-          <label class="text-lg block font-semibold mb-1 title-theme">Import Content</label>
-          <info-tooltip class="mb-1" icon-size="w-5 h-5" text="You can import script. Required fields: &quot;id&quot;, &quot;name&quot;.
+      <info-tooltip class="mb-1" icon-size="w-5 h-5" text="You can import script. Required fields: &quot;id&quot;, &quot;name&quot;.
             <br>Minimum requirements for the character in script:
             <br>&nbsp;&nbsp;&quot;character_id&quot;,
             <br>{
             <br>&nbsp;&nbsp;&quot;<strong>id</strong>&quot;: &quot;character_id&quot;,
             <br>}" />
-        </div>
+    </template>
+    <template #content>
+      <div class="resize-none">
         <div class="mb-2">
           <drag-and-drop
               text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"

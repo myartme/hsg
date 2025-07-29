@@ -1,7 +1,7 @@
 <template>
   <div :class="divClass">
     <div ref="top"></div>
-    <input-title-block
+    <input-title-block v-if="!disabled"
         :label-class="labelClass"
         :label="label"
         :required="required"
@@ -58,7 +58,7 @@
     <div v-if="currentJinxes.length">
       <label :class="[
           labelClass,
-          'title-theme'
+          'title-theme mb-2'
       ]">Jinxed Characters</label>
       <ul>
         <li

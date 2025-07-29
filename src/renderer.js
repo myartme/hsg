@@ -5,6 +5,7 @@ import JsonEditorVue from 'json-editor-vue'
 import FloatingVue from 'floating-vue'
 import './index.css';
 import router from './router'
+import 'vue-color/style.css';
 
 createApp(App)
     .use(router)

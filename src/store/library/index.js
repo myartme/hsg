@@ -8,11 +8,15 @@ import {
     queuePositions,
     metaSets,
     listSets,
-    allData, allListsAsOne
+    allData,
+    allListsAsOne,
+    isEditCharacterLibrarySet,
+    isCreateCharacterLibrary,
+    isImportCharacterLibrary
 } from "@/store/library/state";
 import {
-    deleteSet,
-    loadSets,
+    deleteSet, getOriginalSets,
+    loadSets, restoreSet,
     saveActiveSetWithList,
     saveActiveSetWithMeta, saveCharactersToList,
     saveNewMetaAndList, saveSet, saveSets
@@ -33,10 +37,15 @@ export const useLibraryStore = defineStore('library', () => {
         metaSets,
         listSets,
         allListsAsOne,
+        isEditCharacterLibrarySet,
+        isCreateCharacterLibrary,
+        isImportCharacterLibrary,
 
         deleteSet,
+        restoreSet,
         deleteActiveCharacter,
         loadSets,
+        getOriginalSets,
         saveNewMetaAndList,
         saveActiveCharacter,
         saveActiveSetWithMeta,

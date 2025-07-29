@@ -28,3 +28,7 @@ export const allListsAsOne = computed(() => {
         ])
     );
 })
+
+export const isEditCharacterLibrarySet = ref(false)
+export const isCreateCharacterLibrary = ref(false)
+export const isImportCharacterLibrary = ref(false)

@@ -58,22 +58,36 @@
             :value="meta.different?.hideTitle"
             @value-update="meta.hideTitle = $event" />
       </div>
-        <template v-if="!isEmpty(bootleggerOptions)">
-          <simple-input-tag
-              v-model:value="rules"
-              div-class="mt-2"
-              label="Bootlegger rules"
-              :max-tags="10"
-              :maxlength="250"
-              info="Bootlegger rules for this script." />
-          <simple-dropdown
-              label="Character's bootlegger"
-              info="Bootlegger rules for all characters contained in the current script."
-              div-class="mt-2"
-              v-model:value="rule"
-              :list="bootleggerOptions"
-              default-value="Add Bootlegger..." />
-        </template>
+      <template v-if="isBootleggersEnabled">
+        <simple-input-tag
+            v-model:value="rules"
+            div-class="mt-2"
+            label="Bootlegger rules"
+            :max-tags="10"
+            :maxlength="250"
+            info="Bootlegger rules for this script." />
+        <simple-dropdown
+            v-if="!isEmpty(bootleggerOptions)"
+            label="Character's bootlegger list"
+            info="Bootlegger rules for all characters contained in the current script. Click to add."
+            div-class="mt-2"
+            v-model:value="rule"
+            :list="bootleggerOptions"
+            default-value="Add Bootlegger..." />
+      </template>
+      <input-color-tag v-if="scriptTags.length > 0"
+                       v-model:value="scriptTags"
+                       div-class="mt-2"
+                       label="Tags"
+                       :max-tags="10"
+                       :maxlength="250"
+                       info="Tags for filtering scripts." />
+      <simple-dropdown label="Tags list"
+                       info="All script tags. Click to add."
+                       div-class="mt-2 mb-2"
+                       v-model:value="selectedTag"
+                       :list="Object.values(tags).map(({ title }) => title)"
+                       default-value="Add tag..." />
       <simple-textarea
           v-model:value="meta.note"
           label="Note"
@@ -141,6 +155,7 @@ import PopupContainer from "@/components/PopupContainer.vue";
 import {useLibraryStore} from "@/store/library";
 import {DEFAULT_SCRIPT_NAME} from "@/constants/roles";
 import ActionButtonInScriptOptionPopup from "@/components/craft/pdf/ActionButtonInScriptOptionPopup.vue";
+import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -150,7 +165,9 @@ const props = defineProps({
 const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
 const { bootlegger } = storeToRefs(libraryStore)
-const { pdfMeta, pdfListWithParams, activeScriptIndex, activeVersion, isSavedScript } = storeToRefs(craftStore)
+const { pdfMeta, pdfListWithParams, activeScriptIndex, activeVersion, isSavedScript, tags } = storeToRefs(craftStore)
+const scriptTags = ref([])
+const selectedTag = ref('')
 const bootleggerDefault = computed(() => {
   return pdfMeta.value.bootlegger || []
 })
@@ -187,6 +204,7 @@ function getDifferentText(value) {
 
 function closeWindow(){
   pdfMeta.value['bootlegger'] = rules.value
+  pdfMeta.value['tags'] = Object.values(scriptTags.value).map(({title}) => title)
   emits('update:isOpen', !props.isOpen)
 }
 
@@ -206,9 +224,26 @@ watch(rule, (newVal) => {
 
 watch(pdfMeta, (newVal) => {
   meta.value = newVal
+  if(!isEmpty(meta.value.tags)){
+    scriptTags.value = (meta.value.tags || [])
+        .map(tag => tags.value.find(el => el.title === tag))
+        .filter(Boolean)
+  } else {
+    scriptTags.value = []
+  }
 },{ immediate: true, deep: true})
 
 watch(() => pdfMeta.value?.bootlegger, (newVal) => {
   rules.value = Array.isArray(newVal) ? [...newVal] : []
 }, { immediate: true })
+
+watch(selectedTag, (val) => {
+  if(val !== '' && !meta.value.tags.includes(val)){
+    const idx = tags.value.findIndex(({title}) => title === val)
+    if(idx !== -1){
+      scriptTags.value = [...scriptTags.value, tags.value[idx]]
+      selectedTag.value = ''
+    }
+  }
+})
 </script>

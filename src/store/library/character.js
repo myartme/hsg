@@ -9,6 +9,7 @@ import {
 } from "@/store/library/state";
 import {saveQueuePositions} from "@/store/library/queue";
 import {saveBootlegger} from "@/store/library/bootlegger";
+import {debugMode} from "@/store/options/state";
 
 export async function saveActiveCharacter(content){
     const list = {...activeList.value}
@@ -24,7 +25,7 @@ export async function saveActiveCharacter(content){
     sets.elem(activeSetIndex.value).list.set(list)
     activeCharacter.value = content
 
-    if(!activeMeta.value.isOfficial){
+    if(!(activeMeta.value.isOfficial && !debugMode)){
         await setDataLibrary(`${activeMeta.value.id}`, "sets", list)
         await saveQueuePositions()
     }
