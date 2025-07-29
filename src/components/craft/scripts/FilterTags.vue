@@ -31,9 +31,10 @@
         <img
             v-for="char in listFiltered"
             :key="char.id"
+            class="h-10 w-10 border rounded-md cursor-pointer hover:bg-[color:var(--color-hover-bg)] border-[color:var(--color-border)]"
             :src="getImageFirstUrl(char)"
             @click="addToCharacters(char)"
-            class="h-10 w-10 border rounded-md cursor-pointer hover:bg-[color:var(--color-hover-bg)] border-[color:var(--color-border)]"
+            :alt="char.id"
         />
       </div>
     </div>

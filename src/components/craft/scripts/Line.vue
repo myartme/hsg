@@ -213,7 +213,7 @@ function getPreviewTooltip(elements){
 
   let result = '<div class="flex flex-wrap">'
   images.forEach(el => {
-    result += `<img src="${el}" class="w-12 h-12" />`
+    result += `<img src="${el}" class="w-12 h-12" alt="img" />`
   })
   result += '</div>'
 

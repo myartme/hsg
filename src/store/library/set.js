@@ -7,7 +7,7 @@ import {
 } from "@/store/library/state";
 import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
 import {loadQueuePositions, saveQueuePositions} from "@/store/library/queue";
-import {getImageFirstUrl, SET_INDEX} from "@/constants/other";
+import {SET_INDEX} from "@/constants/other";
 import {ROLES} from "@/constants/roles";
 import {loadBootlegger, saveBootlegger} from "@/store/library/bootlegger";
 

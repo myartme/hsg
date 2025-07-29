@@ -73,7 +73,7 @@
 import SectorContainer from "@/components/SectorContainer.vue";
 import {getCurrentInstance, onMounted, ref, watch} from "vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME} from "@/constants/other";
 import Toggle from "@/components/ui/Toggle.vue";
 import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
@@ -84,9 +84,6 @@ import ImportLibrary from "@/components/options/ImportLibrary.vue";
 import ExportLibrary from "@/components/options/ExportLibrary.vue";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
-import IconElement from "@/components/ui/IconElement.vue";
-import {getOriginalSets, getSetsFromFile} from "@/store/library/set";
-import {listSets} from "@/store/library/state";
 
 defineOptions({
   name: 'options'

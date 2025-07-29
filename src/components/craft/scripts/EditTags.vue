@@ -76,7 +76,6 @@ import {useCraftStore} from "@/store/craft";
 import SimpleCheckbox from "@/components/ui/SimpleCheckbox.vue";
 import {storeToRefs} from "pinia";
 import {ChromePicker} from "vue-color";
-import router from "@/router";
 
 defineOptions({
   name: 'edit-tags'
