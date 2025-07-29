@@ -47,17 +47,31 @@
           v-model:value="meta.hideTitle"
           label="Hide Title"
           tooltip="You can hide script's title." />
+      <input-color-tag v-if="scriptTags.length > 0"
+          v-model:value="scriptTags"
+          div-class="mt-2"
+          label="Tags"
+          :max-tags="10"
+          :maxlength="250"
+          info="Tags for filtering scripts." />
+      <simple-dropdown
+          label="Tags list"
+          info="All script tags. Click to add."
+          div-class="mt-2 mb-2"
+          v-model:value="selectedTag"
+          :list="Object.values(tags).map(({ title }) => title)"
+          default-value="Add tag..." />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <simple-input
             v-model:value="meta.logo"
             label="Logo"
             :maxlength="250"
-            class="mb-2" />
+            div-class="mb-2" />
         <simple-input
             v-model:value="meta.background"
             label="Background"
             :maxlength="250"
-            class="mb-2" />
+            div-class="mb-2" />
         <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50 object-cover rounded mx-auto" alt="logo">
         <img v-if="meta.background" :src="meta.background" class="mt-10 h-50 object-cover rounded mx-auto" alt="background">
       </div>
@@ -76,27 +90,34 @@ import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
 import SimpleCheckbox from "@/components/ui/SimpleCheckbox.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
-import {DEFAULT_VERSION, SET_INDEX, ZERO_VERSION} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, DEFAULT_VERSION, SET_INDEX, ZERO_VERSION} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import router from "@/router";
-import {isEqual} from "lodash/lang";
+import {isEmpty, isEqual} from "lodash/lang";
 import PopupContainer from "@/components/PopupContainer.vue";
+import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
+import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
 
 const props = defineProps({
   isOpen: Boolean
 })
 
 const craftStore = useCraftStore()
-const { pdfMeta, activeScriptIndex, activeVersion } = storeToRefs(craftStore)
+const { pdfMeta, activeScriptIndex, activeVersion, tags } = storeToRefs(craftStore)
 const meta = ref({})
 const defaultMeta = ref({})
 const isVisibleDeleteDialog = ref(false)
 const isCanSave = ref(false)
+const scriptTags = ref([])
+const selectedTag = ref('')
 const emits = defineEmits(['isOpenOptions'])
 
 function handleSaveScript(){
   try {
     craftStore.saveUpdateMeta(meta.value)
+    setTimeout(() => {
+      isCanSave.value = false
+    }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch {
     return false
@@ -130,5 +151,25 @@ watch(meta, () => {
 watch(pdfMeta, (newVal) => {
   meta.value = {...newVal}
   defaultMeta.value = {...newVal}
+  if(!isEmpty(meta.value.tags)){
+    scriptTags.value = (meta.value.tags || [])
+        .map(tag => tags.value.find(el => el.title === tag))
+        .filter(Boolean)
+  } else {
+    scriptTags.value = []
+  }
 },{ immediate: true})
+
+watch(selectedTag, (val) => {
+  if(val !== '' && !meta.value.tags.includes(val)){
+    const idx = tags.value.findIndex(({title}) => title === val)
+    if(idx !== -1){
+      scriptTags.value = [...scriptTags.value, tags.value[idx]]
+      selectedTag.value = ''
+    }
+  }
+})
+watch(scriptTags, (val) => {
+  meta.value.tags = Object.values(val).map(({title}) => title)
+})
 </script>

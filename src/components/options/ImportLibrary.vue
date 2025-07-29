@@ -65,17 +65,21 @@ function textareaValueChange({ text, withReplace }){
   }
 }
 
-function formalizedList(content, withReplace){
+async function formalizedList(content, withReplace){
   if(content.sets){
-    let isOk = optionsStore.importSets(content.sets, withReplace)
+    let isOk = await optionsStore.importSets(content.sets, withReplace)
     messages.value.push(isOk ? 'Sets imported.' : 'An error occurred while importing the sets.')
   }
   if(content.scripts){
-    let isOk = optionsStore.importScripts(content.scripts, withReplace)
+    let isOk = await optionsStore.importScripts(content.scripts, withReplace)
     messages.value.push(isOk ? 'Scripts imported.' : 'An error occurred while importing the scripts.')
   }
+  if(content.scriptTags){
+    let isOk = await optionsStore.importScriptTags(content.scriptTags, withReplace)
+    messages.value.push(isOk ? 'Script tags imported.' : 'An error occurred while importing the script tags.')
+  }
   if(content.options){
-    let isOk = optionsStore.importOptions(content.options, withReplace)
+    let isOk = await optionsStore.importOptions(content.options)
     messages.value.push(isOk ? 'Options imported.' : 'An error occurred while importing the options.')
   }
 }

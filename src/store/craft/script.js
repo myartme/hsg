@@ -1,5 +1,5 @@
 import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDataScript} from "@/store";
-import {activeScriptIndex, activeVersion, pdfListWithParams, pdfMeta, scriptList} from "@/store/craft/state";
+import {activeScriptIndex, activeVersion, pdfListWithParams, pdfMeta, scriptList, tags} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
 import {DEFAULT_VERSION, objectToPrettyJson} from "@/constants/other";
 import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
@@ -52,13 +52,19 @@ export async function saveCurrentScript() {
             if (!arraysEqual(sorted1, sorted2)) {
                 pdfMeta.value.version = getNextVersion(list.at(-1).version)
                 await saveScript(pdfMeta.value)
-                pdfMeta.value.list.push(getFormatScriptListElement(now.toISOString(), {...pdfMeta.value, ...list, json:true }))
+                pdfMeta.value.list.push(
+                    getFormatScriptListElement(
+                        now.toISOString(), {...pdfMeta.value, ...list, json:true }, getCurrentScriptContentToSaveFormat()
+                    )
+                )
                 scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
             } else {
                 await saveScript(pdfMeta.value)
                 pdfMeta.value.list = list.map(el => {
                     if(el.version === pdfMeta.value.version){
-                        el = getFormatScriptListElement(now.toISOString(), {...pdfMeta.value, ...list, json:true })
+                        el = getFormatScriptListElement(
+                            now.toISOString(), {...pdfMeta.value, ...list, json:true }, getCurrentScriptContentToSaveFormat()
+                        )
                     }
 
                     return el
@@ -74,9 +80,11 @@ export async function saveCurrentScript() {
         pdfMeta.value = {
             ...pdfMeta.value,
             version: DEFAULT_VERSION,
-            list: [getFormatScriptListElement(now.toISOString(), {
-                ...pdfMeta.value, json:true
-            })]
+            list: [
+                getFormatScriptListElement(
+                    now.toISOString(), { ...pdfMeta.value, json:true }, getCurrentScriptContentToSaveFormat()
+                )
+            ]
         }
         scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
     }
@@ -205,6 +213,17 @@ export async function saveScripts(list = {}) {
     await setDataScript('scripts', '', list)
 }
 
+export async function loadTags() {
+    const result = await getDataScript('script_tags', '')
+    if (result.isSuccess) {
+        tags.value = result.content
+    }
+}
+
+export async function saveTags(content) {
+    await setDataScript('script_tags', '', content)
+}
+
 function getNextVersion(version){
     return (Number(version) + 0.1).toFixed(1)
 }
@@ -233,6 +252,7 @@ function filterScriptFileMeta(meta){
         "background": meta?.background || "",
         "hideTitle": meta?.hideTitle || false,
         "version": meta?.version || "",
+        "tags": meta?.tags || [],
         "list": meta?.list || []
     }
 }
@@ -250,13 +270,16 @@ function filterScriptMeta(meta){
     }
 }
 
-function getFormatScriptListElement(date, meta){
+function getFormatScriptListElement(date, meta, characters = {}){
     return {
         date: date,
         note: meta.note || "",
         json: meta.json || false,
         pdf: meta.pdf || false,
-        version: meta.version || ""
+        version: meta.version || "",
+        characters: characters.map(el => {
+            return el.id ? el.id : el
+        })
     }
 }
 

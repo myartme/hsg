@@ -138,6 +138,27 @@ export const useOptionsStore = defineStore('options', () => {
         }
     }
 
+    async function importScriptTags(data, withReplace){
+        try{
+            if(!withReplace){
+                const tags = await getTags()
+
+                data.forEach(el => {
+                    const exists = tags.some(tag => tag.title === el.title)
+                    if (!exists) {
+                        tags.push(el)
+                    }
+                })
+                await setTags(tags)
+            } else {
+                await setTags(data)
+            }
+            return true
+        } catch(e) {
+            return false
+        }
+    }
+
     async function importOptions(data){
         try{
             await setOptions(data)
@@ -165,11 +186,17 @@ export const useOptionsStore = defineStore('options', () => {
             result = {
                 ...result,
                 options : {
-                    appVersion: appVersion.value,
                     debugMode: debugMode.value,
                     theme: theme.value,
                     tooltip: tooltipDelay.value
                 }
+            }
+        }
+
+        if(data.scriptTags){
+            result = {
+                ...result,
+                scriptTags : await getTags()
             }
         }
         return objectToPrettyJson(result)
@@ -250,7 +277,6 @@ export const useOptionsStore = defineStore('options', () => {
         const response = await getDataOptions(isAppPath)
         if(response?.isSuccess){
             const options = response.content
-            appVersion.value = options.appVersion
             debugMode.value = options.debugMode
             theme.value = options.theme
             tooltipDelay.value = { ...options.tooltip }
@@ -261,12 +287,22 @@ export const useOptionsStore = defineStore('options', () => {
         }
     }
 
+    async function getTags(){
+        const craftStore = useCraftStore()
+        const { tags } = storeToRefs(craftStore)
+        await craftStore.loadTags()
+
+        return tags.value
+    }
+
+    async function setTags(content) {
+        const craftStore = useCraftStore()
+        await craftStore.saveTags(content)
+    }
+
     async function setOptions(content) {
         if(content.theme){
             theme.value = content.theme
-        }
-        if(content.appVersion){
-            appVersion.value = content.appVersion
         }
         if(content.debugMode){
             debugMode.value = content.debugMode
@@ -276,12 +312,12 @@ export const useOptionsStore = defineStore('options', () => {
         }
 
         await setDataOptions({
-            appVersion: appVersion.value,
             debugMode: debugMode.value,
             theme: theme.value,
             tooltip: tooltipDelay.value
         })
     }
+
     async function deleteOptions() {
         await deleteDataOptions()
     }
@@ -299,6 +335,7 @@ export const useOptionsStore = defineStore('options', () => {
         exportData,
         importSets,
         importScripts,
+        importScriptTags,
         importOptions
     }
 })

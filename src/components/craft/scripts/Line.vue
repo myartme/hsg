@@ -26,19 +26,19 @@
     <sector-container v-if="isSelected"
                       :name="instance?.type.name"
                       container-class="pt-1 pb-0"
-                      content-class="pl-[50px]">
+                      content-class="w-full pl-[5%]">
       <template #content>
         <div class="flex flex-wrap gap-1 max-w-fit">
           <div v-for="(element, index) in list"
                :key="index"
                @click="(event) => selectScript(element, event)"
                :class="[
-                   'flex list-element h-12 w-70',
+                   'flex list-element h-12 w-100',
                    element.version === activeVersion
                      ? 'bg-[color:var(--color-list-element)] hover:bg-[color:var(--color-hover-active)]'
                      : 'bg-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
           ]">
-            <div class="flex justify-between items-center w-full px-1">
+            <div class="flex justify-between items-center w-full px-3">
               <span class="font-bold text-theme">Open v{{ element?.version }}</span>
               <div class="flex gap-2">
                 <action-button
@@ -70,6 +70,12 @@
                     :is-disable="!element.pdf"
                     @click.stop="handleDownloadPdf(element)"
                     :tooltip="!element.pdf ? 'No pdf file available' : 'Download last generated pdf'" />
+                <action-button v-if="element.characters?.length > 0"
+                    icon="eye"
+                    icon-size="w-7 h-7"
+                    @click.stop=""
+                    :tooltip="getPreviewTooltip(element.characters)"
+                    button-class="w-9 h-9" />
                 <action-button
                     icon="delete"
                     icon-size="w-6 h-6"
@@ -96,27 +102,34 @@ import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
 import router from "@/router";
 import ActionButton from "@/components/ui/ActionButton.vue";
-import {DEFAULT_VERSION, objectToPrettyJson} from "@/constants/other";
+import {DEFAULT_VERSION, getImageFirstUrl, objectToPrettyJson} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import {pdfMeta} from "@/store/craft/state";
+import {useLibraryStore} from "@/store/library";
 
 const props = defineProps({
   scriptData: Object,
+  filteredCharacterList: {
+    type: Array,
+    default: []
+  },
   isSelected: {
     type: Boolean,
     default: false
   }
 })
 
+const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
 const instance = getCurrentInstance()
+const { allListsAsOne } = storeToRefs(libraryStore)
 const { activeScriptIndex, activeScript, activeVersion, isSavedScript } = storeToRefs(craftStore)
-const list = ref()
+const list = ref([])
 const isVisibleDeleteDialog = ref(false)
 const deletingVersion = ref(DEFAULT_VERSION)
 const index = computed(() => props.scriptData.index)
 const script = computed(() => props.scriptData.script)
-const emits = defineEmits(['isOpenOptions'])
+const emits = defineEmits(['isOpenOptions', 'onEmptyList'])
 
 function selectScript(element, event){
   event.stopPropagation()
@@ -192,7 +205,30 @@ function generateDownload(content, format, fileName){
   URL.revokeObjectURL(url)
 }
 
+function getPreviewTooltip(elements){
+  const images = elements.map(name => {
+    const found = Object.values(allListsAsOne.value).flat().find(obj => obj.id === name)
+    return found ? getImageFirstUrl(found) : null
+  })
+
+  let result = '<div class="flex flex-wrap">'
+  images.forEach(el => {
+    result += `<img src="${el}" class="w-12 h-12" alt="img" />`
+  })
+  result += '</div>'
+
+  return result
+}
+
 watch(activeScriptIndex, () => {
-  list.value = activeScript.value?.list
-}, {immediate: true})
+  if(props.filteredCharacterList?.length > 0){
+    if(activeScript.value?.list) {
+      list.value = activeScript.value.list.filter(item =>
+          item.characters ? item.characters?.some(charId => props.filteredCharacterList.includes(charId)) : false
+      )
+    }
+  } else {
+    list.value = activeScript.value?.list
+  }
+}, { immediate: true })
 </script>

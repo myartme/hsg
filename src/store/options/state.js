@@ -4,7 +4,7 @@ export const themes = ref({
     dark: 'dark',
     light: 'light'
 })
-export const appVersion= ref(1.0)
+export const appVersion= ref(1.5)
 export const debugMode= ref(false)
 export const theme = ref(themes.value.light)
 export const tooltipDelay = ref({

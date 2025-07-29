@@ -7,6 +7,7 @@ import AddWithBorderIcon from "@/components/ui/svg/addWithBorder.svg";
 import AlertIcon from "@/components/ui/svg/alert.svg";
 import AuthorDownIcon from "@/components/ui/svg/authorDown.svg";
 import AuthorUpIcon from "@/components/ui/svg/authorUp.svg";
+import CheckIcon from "@/components/ui/svg/check.svg";
 import CrossIcon from "@/components/ui/svg/cross.svg";
 import DateDownIcon from "@/components/ui/svg/dateDown.svg";
 import DateUpIcon from "@/components/ui/svg/dateUp.svg";
@@ -14,6 +15,7 @@ import DeleteIcon from "@/components/ui/svg/delete.svg";
 import DifferentIcon from "@/components/ui/svg/different.svg";
 import DownloadJsonIcon from "@/components/ui/svg/downloadJson.svg";
 import DownloadPdfIcon from "@/components/ui/svg/downloadPdf.svg";
+import EyeIcon from "@/components/ui/svg/eye.svg";
 import FilterIcon from "@/components/ui/svg/filter.svg";
 import FirstNightDownIcon from "@/components/ui/svg/firstNightDown.svg";
 import FirstNightUpIcon from "@/components/ui/svg/firstNightUp.svg";
@@ -30,6 +32,7 @@ import ScriptQueueDownIcon from "@/components/ui/svg/scriptQueueDown.svg";
 import ScriptQueueUpIcon from "@/components/ui/svg/scriptQueueUp.svg";
 import SortIcon from "@/components/ui/svg/sort.svg";
 import SortWithBorderIcon from "@/components/ui/svg/sortWithBorder.svg";
+import TagsIcon from "@/components/ui/svg/tags.svg";
 import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
 
@@ -48,6 +51,7 @@ const icons = {
   alert : AlertIcon,
   authorDown : AuthorDownIcon,
   authorUp: AuthorUpIcon,
+  check: CheckIcon,
   cross: CrossIcon,
   dateDown: DateDownIcon,
   dateUp: DateUpIcon,
@@ -55,6 +59,7 @@ const icons = {
   different: DifferentIcon,
   downloadJson: DownloadJsonIcon,
   downloadPdf: DownloadPdfIcon,
+  eye: EyeIcon,
   filter: FilterIcon,
   firstNightDown: FirstNightDownIcon,
   firstNightUp: FirstNightUpIcon,
@@ -71,6 +76,7 @@ const icons = {
   scriptQueueUp: ScriptQueueUpIcon,
   sort: SortIcon,
   sortWithBorder: SortWithBorderIcon,
+  tags: TagsIcon,
   toClipboard : ToClipboardIcon,
   undo : UndoIcon,
 }

@@ -23,3 +23,8 @@ export const isWaitingOperation = ref(false)
 
 export const isDeletingFromPdfCharacterList = ref(false)
 export const activeScript = computed(() => scriptList.value[activeScriptIndex.value])
+
+export const tags = ref([])
+
+export const isEditScriptTags = ref(false)
+export const isImportScript = ref(false)

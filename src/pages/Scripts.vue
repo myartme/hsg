@@ -4,8 +4,10 @@
       <list class="w-[50%]"
           @on-create-script="onCreateScript"
           @on-import-script="onImportScript"
-          @on-select-script="onSelectScript" />
-      <import-script v-if="activeScriptIndex === SET_INDEX.IMPORT" />
+          @on-select-script="onSelectScript"
+          @on-edit-tags="onEditTags" />
+      <import-script label="Import Content" v-if="isImportScript" />
+      <edit-tags label="Script tags" v-if="isEditScriptTags" />
     </div>
   </div>
 </template>
@@ -16,20 +18,24 @@ import {DEFAULT_VERSION, SET_INDEX} from "@/constants/other";
 import {onMounted} from "vue";
 import List from "@/components/craft/scripts/List.vue";
 import router from "@/router";
-import ImportScript from "@/components/craft/list/ImportScript.vue";
+import ImportScript from "@/components/craft/scripts/ImportScript.vue";
+import EditTags from "@/components/craft/scripts/EditTags.vue";
 
 const craftStore = useCraftStore()
-const { activeScriptIndex, activeVersion, isSavedScript } = storeToRefs(craftStore)
+const { activeScriptIndex, activeVersion, isSavedScript, isEditScriptTags, isImportScript } = storeToRefs(craftStore)
 
-function onCreateScript(event){
-  activeScriptIndex.value = event
+function onCreateScript(){
   isSavedScript.value = false
+  activeScriptIndex.value = SET_INDEX.DEFAULT
   activeVersion.value = DEFAULT_VERSION
+  isImportScript.value = false
+  isEditScriptTags.value = false
   router.push({ name: 'scriptEdit' })
 }
 
-function onImportScript(event){
-  activeScriptIndex.value = event
+function onImportScript(){
+  isImportScript.value = !isImportScript.value
+  isEditScriptTags.value = false
 }
 
 function onSelectScript(event){
@@ -40,9 +46,15 @@ function onSelectScript(event){
   }
 }
 
+function onEditTags(){
+  isEditScriptTags.value = !isEditScriptTags.value
+  isImportScript.value = false
+}
+
 onMounted(async () => {
   await craftStore.loadSets()
   await craftStore.loadScripts()
+  await craftStore.loadTags()
   craftStore.resetMeta()
 })
 </script>

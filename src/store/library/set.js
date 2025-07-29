@@ -3,7 +3,7 @@ import {
     activeSetIndex,
     metaSets,
     queuePositions,
-    activeCharacter
+    activeCharacter, bootlegger
 } from "@/store/library/state";
 import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
 import {loadQueuePositions, saveQueuePositions} from "@/store/library/queue";
@@ -162,14 +162,70 @@ export async function deleteSet(name){
                     queuePositions.value[team]?.splice(queueIndex, 1);
                 }
             }
+            if(!!bootlegger.value[team]){
+                const bootleggerIndex = bootlegger.value[team]?.findIndex(el => el.id === role.id)
+                if (bootleggerIndex !== -1) {
+                    bootlegger.value[team]?.splice(bootleggerIndex, 1);
+                }
+            }
         }
     }
 
     await deleteDataLibrary(name, 'sets')
+    metaSets.value?.splice(idx, 1)
+    await saveSets()
     await saveQueuePositions()
     await saveBootlegger()
     await getSetsFromFile()
     activeSetIndex.value = SET_INDEX.DEFAULT
+}
+
+export async function restoreSet(set){
+    const idx = metaSets.value.findIndex(el => el.id === set.id)
+    if (idx !== -1) return
+
+    const setResponse = await getDataLibrary(set.id, "sets", true)
+    const setContent = setResponse?.isSuccess ? setResponse.content : null
+
+    const queueResponse = await getDataLibrary('script_character_priority', "", true)
+    const queueContent = queueResponse?.isSuccess ? queueResponse.content : null
+
+    const bootleggerResponse = await getDataLibrary('bootlegger', "", true)
+    const bootleggerContent = bootleggerResponse?.isSuccess ? bootleggerResponse.content : null
+
+    if(setContent && queueContent && bootleggerContent){
+        for (const team of ROLES) {
+            const teamRoles = setContent[team] || [];
+
+            for (const role of teamRoles) {
+                const queueElement = queueContent[team]?.find(el => el.id === role.id)
+                if (queueElement) {
+                    queuePositions.value[team].push(queueElement)
+                }
+
+                const bootleggerElement = bootleggerContent[team]?.find(el => el.id === role.id)
+                if (bootleggerElement) {
+                    bootlegger.value[team].push(bootleggerElement)
+                }
+            }
+        }
+        metaSets.value?.push(set)
+        await saveSet(set.id, setContent)
+        await saveSets()
+        await saveQueuePositions()
+        await saveBootlegger()
+        await getSetsFromFile()
+    }
+
+    /*
+
+    await deleteDataLibrary(name, 'sets')
+    metaSets.value?.splice(idx, 1)
+    await saveSets()
+    await saveQueuePositions()
+    await saveBootlegger()
+    await getSetsFromFile()
+    activeSetIndex.value = SET_INDEX.DEFAULT*/
 }
 
 export async function saveSet(name, content){
@@ -188,6 +244,15 @@ export async function getSetsFromFile(isAppPath = false, isRecursive = false){
             await getSetsFromFile(!isAppPath, true)
         }
     }
+}
+
+export async function getOriginalSets(){
+    const response = await getDataLibrary('role_sets', "", true)
+    if(response?.isSuccess){
+        return response.content
+    }
+
+    return null
 }
 
 export async function loadSets(){

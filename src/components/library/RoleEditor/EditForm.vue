@@ -165,7 +165,7 @@ import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, DEFAULT_ICONS, getImageFirstUrl, toNo
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {useIndexStore} from "@/store";
-import {isEqual} from "lodash/lang";
+import {isArray, isEqual} from "lodash/lang";
 import SectorContainer from "@/components/SectorContainer.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
@@ -208,7 +208,6 @@ const rules = ref(null)
 const queueCharacter = ref(null)
 const queue = ref(null)
 const emits = defineEmits(['createRole'])
-const scriptCharacterPriority = computed(() => queueCharacter.value?.scriptCharacterPriority || 0)
 
 const isCanSave = computed(() => isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value)
 const setCanSave = (val) => {
@@ -233,11 +232,11 @@ const isImagesDisabled = computed(() => {
 
 const isFullData = computed(() => {
   return !isVisibleError.value &&
-      character.value.name !== '' &&
-      character.value.team !== '' &&
-      character.value.ability !== '' &&
-      ['townsfolk', 'outsider', 'minion', 'demon'].includes(character.value.team)
-      ? scriptCharacterPriority.value > 0
+  character.value.name !== '' &&
+  character.value.team !== '' &&
+  character.value.ability !== '' &&
+  ['townsfolk', 'outsider', 'minion', 'demon'].includes(character.value.team)
+      ? queueCharacter.value?.scriptCharacterPriority > 0
       : ['traveller', 'fabled'].includes(character.value.team)
 })
 
@@ -280,7 +279,7 @@ function getDefaultQueueCharacter(){
     "image": getImageFirstUrl(activeCharacter.value),
     "name": activeCharacter.value.name,
     "ability": activeCharacter.value.ability,
-    "scriptCharacterPriority": scriptCharacterPriority.value || 0
+    "scriptCharacterPriority": 0
   }
 }
 
@@ -311,9 +310,17 @@ function saveData(){
     }
 
     character.value = stripDefaults(character.value, EMPTY_CHARACTER)
+    if(!getImageFirstUrl(character.value)){
+      if(isArray(character.value.image)){
+        character.value.image[0] = DEFAULT_ICONS[character.value.team]
+      } else {
+        character.value.image = DEFAULT_ICONS[character.value.team]
+      }
+    }
+
+    character.value.image = [...character.value.image]
 
     const indexQueue = queue.value.findIndex(el => el.id === character?.value.id || el.id === 'character_id')
-
     if(indexQueue >= 0){
       queue.value[indexQueue].id = character.value.id
       queuePositions.value[character.value?.team] = queue.value
@@ -374,13 +381,7 @@ watch(character, (value) => {
   if(!character.value.setup){
     delete character.value.setup
   }
-  queueCharacter.value = {
-    "id": value.id,
-    "image": getImageFirstUrl(value),
-    "name": value.name,
-    "ability": value.ability,
-    "scriptCharacterPriority": scriptCharacterPriority.value || 0
-  }
+
   isCanSaveChar.value = !isEqual(value, activeCharacter.value)
 }, { deep:true })
 

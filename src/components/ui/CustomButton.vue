@@ -8,10 +8,13 @@
     >
       <template #default>
         <button
-            :class="[wrapperClass, isDisable ? 'cursor-not-allowed' : 'cursor-pointer']"
+            :class="[
+                wrapperClass,
+                isDisable ? 'cursor-not-allowed' : 'cursor-pointer'
+            ]"
             @click="handleTooltip"
             @blur="handleTooltip">
-          <icon-element :name="icon" :size="iconSize" :color="iconColor" />
+          <icon-element :name="icon" :size="iconSize" :color="isPressed ? 'fill-[color:var(--color-menu-active)]' : iconColor" />
           <slot name="transition" />
         </button>
       </template>
@@ -19,8 +22,11 @@
         <div v-html="tooltip"></div>
       </template>
     </tooltip>
-    <button v-else :class="[wrapperClass, isDisable ? 'cursor-not-allowed' : 'cursor-pointer']">
-      <icon-element :name="icon" :size="iconSize" :color="iconColor" />
+    <button v-else :class="[
+        wrapperClass,
+        isDisable ? 'cursor-not-allowed' : 'cursor-pointer'
+    ]">
+      <icon-element :name="icon" :size="iconSize" :color="isPressed ? 'fill-[color:var(--color-menu-active)]' : iconColor" />
       <slot name="transition" />
     </button>
   </div>
@@ -34,6 +40,10 @@ import IconElement from "@/components/ui/IconElement.vue";
 const props = defineProps({
   icon: String,
   iconSize: String,
+  isPressed: {
+    type: Boolean,
+    default: false
+  },
   isDisable: {
     type: Boolean,
     default: false

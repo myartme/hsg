@@ -16,7 +16,7 @@
           ]"
           :disabled="disabled"
       >
-        <option disabled value="">{{ defaultValue }}</option>
+        <option hidden value="">{{ defaultValue }}</option>
         <option v-for="roleType in list" :key="roleType">{{ roleType }}</option>
       </select>
       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
