@@ -17,7 +17,7 @@
 <script setup>
 import SectorContainer from "@/components/SectorContainer.vue";
 import {getCurrentInstance} from "vue";
-import {appVersion, debugMode} from "@/store/options/state";
+import {debugMode} from "@/store/options/state";
 defineOptions({
   name: 'app-menu'
 })

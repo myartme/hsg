@@ -101,7 +101,7 @@ import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import RoleLine from "@/components/library/Roles/RoleLine.vue";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, isEqualWithDefault, SORT} from "@/constants/other";
-import {cloneDeep, isEmpty, isEqual} from "lodash/lang";
+import {cloneDeep, isEmpty} from "lodash/lang";
 import {useIndexStore} from "@/store";
 import SortButtons from "@/components/library/Roles/SortButtons.vue";
 import {activeCharacter} from "@/store/library/state";

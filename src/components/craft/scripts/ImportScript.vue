@@ -106,7 +106,7 @@ import { EMPTY_IMPORT_SCRIPT, ROLES} from "@/constants/roles";
 import SectorContainer from "@/components/SectorContainer.vue";
 import {useIndexStore} from "@/store";
 import {isEmpty, isEqual} from "lodash/lang";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, objectToPrettyJson, SET_INDEX} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SET_INDEX} from "@/constants/other";
 import {useCraftStore} from "@/store/craft";
 import SimpleInputTag from "@/components/ui/SimpleInputTag.vue";
 import SimpleTextarea from "@/components/ui/SimpleTextarea.vue";
@@ -117,7 +117,6 @@ import JsonEditorVue from "json-editor-vue";
 import {useLibraryStore} from "@/store/library";
 import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
-import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import ImportScriptTooltip from "@/components/craft/scripts/ImportScriptTooltip.vue";
 

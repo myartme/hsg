@@ -39,11 +39,11 @@
   </div>
 </template>
 <script setup>
-import {computed, ref, watch} from "vue";
+import {ref, watch} from "vue";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
-import {DEFAULT_ICONS, getImageArray, getImageFirstUrl} from "@/constants/other";
+import {getImageArray} from "@/constants/other";
 
 const props = defineProps({
   label: String,

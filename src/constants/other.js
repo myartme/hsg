@@ -103,7 +103,7 @@ export const isEqualWithDefault = (a, b) => {
         val === undefined || val === null ||
         (typeof val === 'string' && val.trim() === '') ||
         (Array.isArray(val) && val.length === 0) ||
-        (typeof val === 'object' && val !== null && Object.keys(val).length === 0)
+        (typeof val === 'object' && true && Object.keys(val).length === 0)
 
     const customizer = (val1, val2) => {
         if (isEmpty(val1) && isEmpty(val2)) return true

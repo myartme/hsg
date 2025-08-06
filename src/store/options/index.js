@@ -10,7 +10,6 @@ import {getDataOptions, setDataOptions, deleteDataOptions} from "@/store";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
 import {objectToPrettyJson, toNormalizeString} from "@/constants/other";
-import {isArray} from "lodash/lang";
 
 export const useOptionsStore = defineStore('options', () => {
     async function importSets(data, withReplace){
