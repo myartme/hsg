@@ -17,6 +17,10 @@
       <input type="checkbox" value="official_experimental" class="cursor-pointer" v-model="localItems">
       <span>Official Experimental</span>
     </label>
+    <label :class="labelClass">
+      <input type="checkbox" value="official_fabled" class="cursor-pointer" v-model="localItems">
+      <span>Official Fabled</span>
+    </label>
     <template v-for="meta in metaSets">
       <label v-if="meta.name !=='BotC official roles'" :class="labelClass">
         <input type="checkbox" class="cursor-pointer" :value="meta.id" v-model="localItems">
@@ -58,7 +62,8 @@ const defaultFilterItems = computed(() => {
     'official_trouble_brewing',
     'official_sects_and_violets',
     'official_bad_moon_rising',
-    'official_experimental'
+    'official_experimental',
+    'official_fabled'
   ]
   for(const meta of metaSets.value){
     result.push(meta.id)

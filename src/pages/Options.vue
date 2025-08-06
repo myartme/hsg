@@ -32,6 +32,7 @@
             <slider :div-class="sliderClass" label="Jinx select character tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesShow" />
             <slider :div-class="sliderClass" label="Jinx select character tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesHide" />
           </div>
+          <div class="title-theme mb-2">Restore sets</div>
           <div class="flex gap-5">
             <div v-for="set in originalSets" class="w-36 h-36 relative rounded-md flex items-center justify-center cursor-pointer transition select-none overflow-hidden border-[color:var(--color-border)]">
               <div class="absolute inset-0 bg-cover bg-center z-0"

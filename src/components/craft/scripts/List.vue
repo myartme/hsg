@@ -78,7 +78,7 @@
   </sector-container>
 </template>
 <script setup>
-import SortButtons from "@/components/library/RolesList/SortButtons.vue";
+import SortButtons from "@/components/library/Roles/SortButtons.vue";
 import SectorContainer from "@/components/SectorContainer.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {useCraftStore} from "@/store/craft";

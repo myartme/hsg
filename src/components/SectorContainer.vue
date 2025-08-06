@@ -11,7 +11,7 @@
     </sticky-actions>
     <div v-if="hasHeader" :class="[
         headerClass,
-        'title-theme'
+        'title-theme select-none'
     ]">
       <slot name="header" />
     </div>

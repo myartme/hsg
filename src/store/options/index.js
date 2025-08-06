@@ -10,6 +10,7 @@ import {getDataOptions, setDataOptions, deleteDataOptions} from "@/store";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
 import {objectToPrettyJson, toNormalizeString} from "@/constants/other";
+import {isArray} from "lodash/lang";
 
 export const useOptionsStore = defineStore('options', () => {
     async function importSets(data, withReplace){
@@ -101,6 +102,7 @@ export const useOptionsStore = defineStore('options', () => {
         try {
             const craftStore = useCraftStore()
             const {scriptList} = storeToRefs(craftStore)
+
             for (const [key, metaEl] of Object.entries(data.meta)) {
                 const idx = scriptList.value.findIndex(el => el.name === metaEl.name)
                 if (idx >= 0) {
@@ -124,7 +126,7 @@ export const useOptionsStore = defineStore('options', () => {
                         }
                     }
                 } else {
-                    scriptList.value = {...scriptList.value, ...metaEl}
+                    scriptList.value.push(metaEl)
                     for (const [listKey, list] of Object.entries(metaEl.list)) {
                         await craftStore.saveScriptWithParams(list.version, metaEl.name, data.list[key][listKey])
                     }
@@ -133,7 +135,8 @@ export const useOptionsStore = defineStore('options', () => {
             await craftStore.saveScriptsList(scriptList.value)
 
             return true
-        } catch {
+        } catch(e) {
+            console.log(e)
             return false
         }
     }

@@ -28,7 +28,7 @@
     <template #content>
       <simple-input
           v-model:value="meta.name"
-          label="Name"
+          label="Script name"
           :maxlength="50"
           :disabled="true"
           class="mb-2" />
@@ -45,8 +45,8 @@
           class="mb-2" />
       <simple-checkbox
           v-model:value="meta.hideTitle"
-          label="Hide Title"
-          tooltip="You can hide script's title." />
+          label="Hide script name"
+          tooltip="You can hide script's title in the script." />
       <input-color-tag v-if="scriptTags.length > 0"
           v-model:value="scriptTags"
           div-class="mt-2"
@@ -55,6 +55,7 @@
           :maxlength="250"
           info="Tags for filtering scripts." />
       <simple-dropdown
+          v-if="tags.length > 0"
           label="Tags list"
           info="All script tags. Click to add."
           div-class="mt-2 mb-2"

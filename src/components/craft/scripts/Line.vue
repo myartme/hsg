@@ -1,10 +1,10 @@
 <template>
   <div>
     <div :class="[
-        'grid list-element grid-cols-[3rem_3rem_minmax(auto,50%)_minmax(150px,1fr)_3rem_3rem]',
+        'grid list-element grid-cols-[3rem_3rem_minmax(auto,50%)_minmax(150px,1fr)_3rem_3rem] h-14',
          isSelected
-            ? 'bg-[color:var(--color-list-element)] hover:bg-[color:var(--color-hover-active)]'
-            : 'bg-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
+            ? 'bg-[color:var(--color-list-element)] group-hover:bg-[color:var(--color-hover-active)]'
+            : 'bg-[color:var(--color-bg)] group-hover:bg-[color:var(--color-hover-bg)]'
     ]">
       <span class="flex justify-center font-bold text-center text-theme">{{ index + 1 }}</span>
       <div class="w-10 h-10 relative">
@@ -31,31 +31,29 @@
         <div class="flex flex-wrap gap-1 max-w-fit">
           <div v-for="(element, index) in list"
                :key="index"
-               @click="(event) => selectScript(element, event)"
                :class="[
-                   'flex list-element h-12 w-100',
-                   element.version === activeVersion
-                     ? 'bg-[color:var(--color-list-element)] hover:bg-[color:var(--color-hover-active)]'
-                     : 'bg-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
+                   'flex version-element h-14 w-100',
+                   {'bg-[color:var(--color-list-element)]' : element.version === activeVersion }
           ]">
             <div class="flex justify-between items-center w-full px-3">
-              <span class="font-bold text-theme">Open v{{ element?.version }}</span>
+              <span class="p-1 font-bold cursor-pointer text-theme rounded-2xl border-3 border-[color:var(--color-border)] hover:border-[color:var(--color-disable-bg)]"
+                    @click="(event) => selectScript(element, event)">Open v{{ element?.version }}</span>
               <div class="flex gap-2">
                 <action-button
                     icon="downloadJson"
                     icon-size="w-6 h-6"
                     button-class="w-9 h-9"
-                    :icon-color="!element.json ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]' : ''"
-                    :button-color="!element.json ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]' : ''"
+                    :icon-color="getIconClass(element.json)"
+                    :button-color="getButtonClass(element.json)"
                     :is-disable="!element.json"
                     @click.stop="handleDownloadJson(element)"
-                    :tooltip="!element.json ? 'No json file available' : 'Download last generated json'" />
+                    :tooltip="!element.json ? 'No json file available. You need generate it in script editor.' : 'Download last generated json'" />
                 <action-button
                     icon="toClipboard"
                     icon-size="w-6 h-6"
                     button-class="w-9 h-9"
-                    :icon-color="!element.json ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]' : ''"
-                    :button-color="!element.json ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]' : ''"
+                    :icon-color="getIconClass(element.json)"
+                    :button-color="getButtonClass(element.json)"
                     :is-disable="!element.json"
                     @click.stop=""
                     :handle="async () => await handleToClipboard(element)"
@@ -65,11 +63,11 @@
                     icon="downloadPdf"
                     icon-size="w-6 h-6"
                     button-class="w-9 h-9"
-                    :icon-color="!element.pdf ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]' : ''"
-                    :button-color="!element.pdf ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]' : ''"
+                    :icon-color="getIconClass(element.pdf)"
+                    :button-color="getButtonClass(element.pdf)"
                     :is-disable="!element.pdf"
                     @click.stop="handleDownloadPdf(element)"
-                    :tooltip="!element.pdf ? 'No pdf file available' : 'Download last generated pdf'" />
+                    :tooltip="!element.pdf ? 'No pdf file available. You need generate it in script editor.' : 'Download last generated pdf'" />
                 <action-button v-if="element.characters?.length > 0"
                     icon="eye"
                     icon-size="w-7 h-7"
@@ -92,7 +90,7 @@
                     :title="`Deleting ${script.name} v${deletingVersion}`"
                     description="This action cannot be undone. Are you sure you want to delete this character?"
                     @confirm="handleDeleteScript()"
-                    @cancel="isVisibleDeleteDialog = false; deletingVersion = DEFAULT_VERSION" />
+                    @cancel="isVisibleDeleteDialog = false" />
   </div>
 </template>
 <script setup>
@@ -130,6 +128,8 @@ const deletingVersion = ref(DEFAULT_VERSION)
 const index = computed(() => props.scriptData.index)
 const script = computed(() => props.scriptData.script)
 const emits = defineEmits(['isOpenOptions', 'onEmptyList'])
+const getIconClass = (val) => val ? '' : 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
+const getButtonClass = (val) => val ? '' : 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
 
 function selectScript(element, event){
   event.stopPropagation()

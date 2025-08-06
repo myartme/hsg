@@ -36,7 +36,7 @@ const props = defineProps({
   },
   inputClass: {
     type: String,
-    default: "h-4 w-4 rounded accent-[color:var(--color-active)] hover:accent-[color:var(--color-hover-active)]"
+    default: "h-4 w-4 mb-1.5 rounded accent-[color:var(--color-active)] hover:accent-[color:var(--color-hover-active)]"
   },
   info: {
     type: String,

@@ -1,6 +1,6 @@
 <template>
   <div class="flex gap-6 p-6 h-full overflow-hidden">
-    <script-list
+    <set-list
         :info-sets="metaSets"
         @on-select-script="activeSetIndex = $event.key"
         @on-create-script="activeSetIndex = $event" />
@@ -34,13 +34,13 @@
 
 <script setup>
 import {onMounted, watch} from "vue";
-import RolesInScript from "@/components/library/RolesList/RolesInScript.vue";
+import RolesInScript from "@/components/library/Roles/RolesInScript.vue";
 import EditForm from "@/components/library/RoleEditor/EditForm.vue";
-import EditSet from "@/components/library/ScriptList/EditSet.vue";
-import ScriptList from "@/components/library/ScriptList/ScritpList.vue";
+import EditSet from "@/components/library/Sets/EditSet.vue";
+import SetList from "@/components/library/Sets/SetList.vue";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
-import ImportSet from "@/components/library/ScriptList/ImportSet.vue";
+import ImportSet from "@/components/library/Sets/ImportSet.vue";
 import {SET_INDEX} from "@/constants/other";
 import ImportForm from "@/components/library/RoleEditor/ImportForm.vue";
 import {EMPTY_CHARACTER} from "@/constants/roles";

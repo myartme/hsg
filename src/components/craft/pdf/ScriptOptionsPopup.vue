@@ -16,7 +16,7 @@
     <template #content>
       <simple-input
           v-model:value="meta.name"
-          label="Name"
+          label="Script name"
           :maxlength="50"
           required="This field is required."
           info="Changing this value will be considered a new script!"
@@ -51,8 +51,8 @@
       <div class="flex items-end mb-2">
         <simple-checkbox
             v-model:value="meta.hideTitle"
-            label="Hide Title"
-            info="You can hide script's title.<br>This value is common to all versions of the script."
+            label="Hide script name"
+            info="You can hide script's title in the script.<br>This value is common to all versions of the script."
             :different="getDifferentText(meta.different?.hideTitle?.isEqual)"/>
         <action-button-in-script-option-popup
             :value="meta.different?.hideTitle"
@@ -82,7 +82,8 @@
                        :max-tags="10"
                        :maxlength="250"
                        info="Tags for filtering scripts." />
-      <simple-dropdown label="Tags list"
+      <simple-dropdown v-if="tags.length > 0"
+                       label="Tags list"
                        info="All script tags. Click to add."
                        div-class="mt-2 mb-2"
                        v-model:value="selectedTag"
@@ -102,7 +103,7 @@
               label="Logo"
               class="w-full"
               :maxlength="250"
-              info="This value is common to all versions of the script."
+              info="Enter image URL. This value is common to all versions of the script."
               input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
               :different="getDifferentText(meta.different?.logo?.isEqual)" />
           <action-button-in-script-option-popup
@@ -115,7 +116,7 @@
               class="w-full"
               label="Background"
               :maxlength="250"
-              info="This value is common to all versions of the script."
+              info="Enter image URL. This value is common to all versions of the script."
               input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
               :different="getDifferentText(meta.different?.background?.isEqual)" />
           <action-button-in-script-option-popup

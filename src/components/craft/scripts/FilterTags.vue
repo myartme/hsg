@@ -7,7 +7,7 @@
           :list="selectorList"
           default-value="Select tag to filter..." />
       <input-title-block label="Filter by character" class="mt-2" />
-      <div class="w-full">
+      <div class="w-full grid grid-cols-[1fr_auto] items-center gap-1">
         <input
             v-model="searchedQuery"
             class="px-3 pr-10 py-2 h-10 text-sm border-2 rounded-md focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)] border-[color:var(--color-border)]"
@@ -17,7 +17,7 @@
         <button
             @click="isEmptyFilter = true"
             :class="[
-                    'ml-4 px-4 py-2 rounded-xl whitespace-nowrap text-theme border-[color:var(--color-border)]',
+                    'ml-4 px-4 py-2 rounded-xl min-w-18 max-w-18 whitespace-nowrap text-theme border-[color:var(--color-border)]',
                     isEmptyFilter
                     ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]'
                     : 'cursor-pointer text-theme bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
@@ -39,13 +39,15 @@
       </div>
     </div>
     <div class="grid grid-cols-2 gap-4">
-      <div class="flex" v-if="scriptTags.length > 0">
+      <div class="flex border-3 border-[color:var(--color-border)] rounded-2xl" v-if="scriptTags.length > 0">
         <input-color-tag
+            div-class="ml-2 mr-2"
             label="Tags"
             v-model:value="scriptTags" />
       </div>
-      <div class="flex" v-if="characters.length > 0">
+      <div class="flex border-3 border-[color:var(--color-border)] rounded-2xl" v-if="characters.length > 0">
         <input-image-tag
+            div-class="ml-2 mr-2"
             label="Characters"
             v-model:value="characters" />
       </div>

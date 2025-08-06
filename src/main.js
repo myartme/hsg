@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { Menu, app, BrowserWindow, ipcMain } from 'electron';
 const https = require('https');
 import path from 'node:path';
 import fs from 'node:fs'
@@ -228,7 +228,8 @@ const createWindow = () => {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-    }
+    },
+    icon: path.join(__dirname, 'icon.png')
   });
 
   mainWindow.maximize();
@@ -245,12 +246,105 @@ const createWindow = () => {
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
+
+  const template = [];
+
+  if (process.platform === 'darwin') {
+    // macOS
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            {
+              label: 'About',
+              click: () => {
+                app.showAboutPanel();
+              }
+            },
+            { type: 'separator' },
+            { role: 'quit' }
+          ]
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'selectAll' }
+          ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'reload' },
+            { role: 'toggledevtools' },
+            { role: 'togglefullscreen' }
+          ]
+        }
+    );
+  } else {
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            { role: 'quit' }
+          ]
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'selectAll' }
+          ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'reload' },
+            { role: 'togglefullscreen' }
+          ]
+        },
+        {
+          label: 'Help',
+          submenu: [
+            {
+              label: 'About',
+              click: () => mainWindow.webContents.send('show-about')
+            }
+          ]
+        }
+    )
+  }
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  if (process.platform === 'darwin') {
+    app.setAboutPanelOptions({
+      applicationName: 'BotC HSG',
+      applicationVersion: '1.5.0',
+      version: '1.5.0',
+      copyright: '© 2025 Artem Chendey',
+      iconPath: path.join(__dirname, 'icon.icns'),
+      credits: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +
+          'The application uses images from the official website: http://bloodontheclocktower.com. All trademarks and assets belong to their respective owners.\n' +
+          'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.'
+    });
+  }
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the

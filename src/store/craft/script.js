@@ -59,6 +59,7 @@ export async function saveCurrentScript() {
                 )
                 scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
             } else {
+
                 await saveScript(pdfMeta.value)
                 pdfMeta.value.list = list.map(el => {
                     if(el.version === pdfMeta.value.version){
@@ -73,6 +74,19 @@ export async function saveCurrentScript() {
                 pdfMeta.value.version = list.at(-1).version
                 scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
             }
+        } else {
+            pdfMeta.value.version = DEFAULT_VERSION
+            await saveScript(pdfMeta.value)
+            pdfMeta.value = {
+                ...pdfMeta.value,
+                version: DEFAULT_VERSION,
+                list: [
+                    getFormatScriptListElement(
+                        now.toISOString(), { ...pdfMeta.value, json:true }, getCurrentScriptContentToSaveFormat()
+                    )
+                ]
+            }
+            scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
         }
     } else {
         pdfMeta.value.version = DEFAULT_VERSION
@@ -144,7 +158,7 @@ export async function saveImportScript(meta, content) {
         await setDataScript(meta.version, meta.name, [filterScriptMeta(meta), ...content])
         scriptList.value[idx] = {
             ...filterScriptFileMeta(meta),
-            list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
+            list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {...meta, json: true}, content)]
         }
     } else {
         if(meta.author === ''){
@@ -155,7 +169,7 @@ export async function saveImportScript(meta, content) {
         scriptList.value.push({
             ...filterScriptFileMeta(meta),
             version: DEFAULT_VERSION,
-            list: [getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
+            list: [getFormatScriptListElement(now.toISOString(), {...meta, json: true}, content)]
         })
     }
     await saveScripts()

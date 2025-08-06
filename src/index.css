@@ -12,7 +12,7 @@ html, body, #app {
 }
 
 .background-violet {
-  background-image: url("/images/elements/background.jpg");
+  background-image: url("/images/elements/ui/background.jpg");
   background-repeat: repeat;
   height: 100%;
   margin: 0;
@@ -36,6 +36,7 @@ html, body, #app {
   --color-border: #212123;
   --color-placeholder-text: #99a1af;
   --color-disable-placeholder-text: #5C565680;
+  --color-bg-button-pressed: #a568fd;
   --color-error: #ff000b;
   --color-button-error: #d6313c;
   --color-button-hover-error: #fb2c36;
@@ -57,6 +58,7 @@ html, body, #app {
   --color-border: #6c798e;
   --color-placeholder-text: #4a5565cc;
   --color-disable-placeholder-text: #99a1af;
+  --color-bg-button-pressed: #44068CCC;
   --color-error: #fb2c36;
   --color-button-error: #95050c;
   --color-button-hover-error: #95050CCC;
@@ -138,6 +140,11 @@ html, body, #app {
 
 .list-element{
   @apply border-3 p-1 rounded-2xl cursor-pointer select-none text-center items-center justify-center;
+  border-color: var(--color-border);
+}
+
+.version-element{
+  @apply border-3 p-1 rounded-2xl select-none text-center items-center justify-center;
   border-color: var(--color-border);
 }
 

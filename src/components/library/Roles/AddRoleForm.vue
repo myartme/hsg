@@ -52,7 +52,7 @@
 </template>
 <script setup>
 import { computed, ref } from "vue";
-import RoleLine from "@/components/library/RolesList/RoleLine.vue";
+import RoleLine from "@/components/library/Roles/RoleLine.vue";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import { EMPTY_CHARACTER, ROLES } from "@/constants/roles";
 import { storeToRefs } from "pinia";

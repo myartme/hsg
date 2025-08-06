@@ -68,8 +68,8 @@ const props = defineProps({
 const showCheck = ref(false)
 const showCross = ref(false)
 const localWrapperClass = computed(() => props.wrapperClass || "flex items-center justify-center border-2 select-none")
-const localIconColor = computed(() => props.iconColor || "fill-[color:var(--color-text)] hover:fill-[color:var(--color-border)]")
-const localButtonColor = computed(() => props.buttonColor || "border-[color:var(--color-text)] hover:border-[color:var(--color-border)]")
+const localIconColor = computed(() => props.iconColor || "fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-border)]")
+const localButtonColor = computed(() => props.buttonColor || "border-[color:var(--color-text)] group-hover:border-[color:var(--color-border)]")
 
 async function handleClick() {
   try {
