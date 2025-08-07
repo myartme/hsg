@@ -12,6 +12,7 @@
                placeholder="Filter by multiple keywords (separate with spaces)"
         />
         <div class="flex pr-3 gap-3">
+          <div v-click-outside="() => isEditionFilterShow = false">
           <action-button
               icon="filter"
               icon-size="w-4 h-4"
@@ -19,6 +20,14 @@
               icon-hover-color="group-hover:fill-[color:var(--color-active)]"
               button-class="w-7 h-7"
               @click.stop="isEditionFilterShow = !isEditionFilterShow" />
+          <search-filter :items="selectedEditions"
+                         :is-show="isEditionFilterShow"
+                         :is-reset-filter="isResetFilter"
+                         @on-update-items="onUpdateItems"
+                         @on-update-max-filters="maxFilters = $event"
+                         @on-update-is-reset-filter="isResetFilter = $event"
+                         @on-update-is-show="isEditionFilterShow = $event" />
+          </div>
           <action-button
               icon="cross"
               icon-size="w-4 h-4"
@@ -27,13 +36,6 @@
               button-class="w-7 h-7"
               @click.stop="resetAllFilters" />
         </div>
-        <search-filter :items="selectedEditions"
-                       :is-show="isEditionFilterShow"
-                       :is-reset-filter="isResetFilter"
-                       @on-update-items="onUpdateItems"
-                       @on-update-max-filters="maxFilters = $event"
-                       @on-update-is-reset-filter="isResetFilter = $event"
-                       @on-update-is-show="isEditionFilterShow = $event" />
       </div>
       <div class="flex flex-wrap ml-5 mt-5 mr-5 gap-3">
         <template v-for="elem in ROLES">

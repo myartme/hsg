@@ -135,7 +135,7 @@ function selectScript(element, event){
   event.stopPropagation()
   activeVersion.value = element.version
   isSavedScript.value = true
-  craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name)
+  craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name, true)
   router.push({ name: 'scriptEdit' })
 }
 

@@ -17,7 +17,7 @@
     <input
         ref="fileInput"
         type="file"
-        accept=".json"
+        :accept="getFormats"
         class="hidden"
         @change="onFileChange"
     />
@@ -25,16 +25,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {computed, ref} from 'vue'
 
 const props = defineProps({
-  text: String
+  text: String,
+  formats: {
+    type: Array,
+    default: ['json']
+  }
 })
 
 const fileInput = ref(null)
 const error = ref("")
 const isDragging = ref(false)
 const emit = defineEmits(['jsonLoaded'])
+const getFormats = computed(() => {
+  return props.formats.map(el => '.' + el).join(',')
+})
 function triggerFileInput() {
   fileInput.value?.click()
 }
@@ -45,7 +52,7 @@ function handleFile(file) {
     return
   }
 
-  if (file.type === 'application/json' || file.name.endsWith('.json')) {
+  if (file.type === 'application/json' || file.name.endsWith('.hsgl')) {
     const reader = new FileReader()
 
     reader.onload = () => {

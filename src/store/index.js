@@ -45,6 +45,14 @@ export const getBase64Image = async (url) => {
     return await window.electronAPI.getBase64Image(url)
 }
 
+export const openLink = async (url) => {
+    return await window.electronAPI.openLink(url)
+}
+
+export const deleteAllData = async () => {
+    return await window.electronAPI.deleteAllData()
+}
+
 export const useIndexStore = defineStore('index', () => {
     const isLocked = ref(false)
     const lockedSource = ref(null)

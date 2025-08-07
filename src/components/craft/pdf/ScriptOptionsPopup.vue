@@ -99,7 +99,7 @@
           class="mt-2"
           info="Your custom note." />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-end mb-2">
+        <div class="flex items-end">
           <simple-input
               v-model:value="meta.logo"
               label="Logo"
@@ -112,7 +112,7 @@
               :value="meta.different?.logo"
               @value-update="meta.logo = $event" />
         </div>
-        <div class="flex items-end mb-2">
+        <div class="flex items-end">
           <simple-input
               v-model:value="meta.background"
               class="w-full"
@@ -125,10 +125,10 @@
               :value="meta.different?.background"
               @value-update="meta.background = $event" />
         </div>
-        <div class="mt-2 max-h-[500px] mx-auto rounded object-cover">
+        <div class="max-h-[500px] mx-auto rounded object-cover">
           <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
         </div>
-        <div class="mt-2 max-h-[500px] mx-auto rounded object-cover">
+        <div class="max-h-[500px] mx-auto rounded object-cover">
           <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
         </div>
       </div>
@@ -247,12 +247,14 @@ watch(() => pdfMeta.value?.bootlegger, (newVal) => {
 }, { immediate: true })
 
 watch(selectedTag, (val) => {
-  if(val !== '' && !meta.value.tags.includes(val)){
+  console.log(val)
+  console.log(scriptTags.value)
+  if(val !== '' && !scriptTags.value.find(({title}) => title === val)){
     const idx = tags.value.findIndex(({title}) => title === val)
     if(idx !== -1){
       scriptTags.value = [...scriptTags.value, tags.value[idx]]
-      selectedTag.value = ''
     }
   }
+  selectedTag.value = ''
 })
 </script>

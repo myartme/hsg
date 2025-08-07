@@ -16,11 +16,24 @@
     </template>
     <template #header>
       <h2 class="text-2xl font-semibold">{{ isNew ? 'Create' : 'Edit' }} Character</h2>
+      <action-button v-if="isOfficial"
+               icon="wiki"
+               icon-size="w-7 h-7"
+               button-class="w-10 h-10"
+               tooltip="Go to the Blood on the Clocktower Wiki"
+               @click="optionsStore.openLinkinBrowser(character?.wiki)" />
+      <action-button v-if="!isOfficial && !isNew"
+                     icon="toClipboard"
+                     icon-size="w-7 h-7"
+                     button-class="w-10 h-10"
+                     tooltip="Copy character data to clipboard"
+                     :handle="handleToClipboard"
+                     :is-show-effect="true" />
       <action-button v-if="!isOfficial && !isNew"
                      icon="delete"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
-                     info="Delete this character"
+                     tooltip="Delete this character"
                      @click="isVisibleDeleteDialog = true" />
     </template>
     <template #content>
@@ -161,7 +174,7 @@
 <script setup>
 import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, isEqualWithDefault, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, isEqualWithDefault, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {useIndexStore} from "@/store";
@@ -194,7 +207,7 @@ const props = defineProps({
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
-const stateStore = useOptionsStore()
+const optionsStore = useOptionsStore()
 const { activeList, activeMeta, activeCharacter, queuePositions, bootlegger } = storeToRefs(libraryStore)
 const errorText = ref(null)
 const isVisibleError = ref(false)
@@ -218,7 +231,7 @@ const setCanSave = (val) => {
 }
 
 const isOfficial = computed(() => {
-  if(stateStore.debugMode) return false
+  if(optionsStore.debugMode) return false
   return activeMeta.value.isOfficial ?? false
 })
 
@@ -380,6 +393,16 @@ function undoUpdate() {
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e) {
+    return false
+  }
+}
+
+function handleToClipboard(){
+  try {
+    navigator.clipboard.writeText(objectToPrettyJson(character.value))
+    return true
+
+  } catch {
     return false
   }
 }

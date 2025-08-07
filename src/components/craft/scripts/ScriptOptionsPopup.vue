@@ -62,25 +62,25 @@
           v-model:value="selectedTag"
           :list="Object.values(tags).map(({ title }) => title)"
           default-value="Add tag..." />
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
         <div class="flex items-end">
           <simple-input
               v-model:value="meta.logo"
               label="Logo"
               :maxlength="250"
-              div-class="w-full mb-2" />
+              div-class="w-full" />
         </div>
         <div class="flex items-end ">
           <simple-input
               v-model:value="meta.background"
               label="Background"
               :maxlength="250"
-              div-class="w-full mb-2" />
+              div-class="w-full" />
         </div>
-        <div class="mt-2 max-h-[500px] mx-auto rounded object-cover">
+        <div class="max-h-[500px] mx-auto rounded object-cover">
           <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
         </div>
-        <div class="mt-2 max-h-[500px] mx-auto rounded object-cover">
+        <div class="max-h-[500px] mx-auto rounded object-cover">
           <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
         </div>
       </div>
@@ -174,9 +174,9 @@ watch(selectedTag, (val) => {
     const idx = tags.value.findIndex(({title}) => title === val)
     if(idx !== -1){
       scriptTags.value = [...scriptTags.value, tags.value[idx]]
-      selectedTag.value = ''
     }
   }
+  selectedTag.value = ''
 })
 watch(scriptTags, (val) => {
   meta.value.tags = Object.values(val).map(({title}) => title)

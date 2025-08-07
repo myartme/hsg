@@ -1,13 +1,9 @@
 <template>
-  <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
-       @click="isOpen = true">
-    <span>{{ title }}</span>
-  </div>
-  <popup-container v-if="isOpen"
-                   :is-input-visible="false"
-                   @close="isOpen = !isOpen">
+  <popup-container
+      :is-input-visible="false"
+      @close="$emit('onClose')">
     <template #header>
-      <p class="title-theme mr-2">{{ title }}</p>
+      <p class="title-theme mr-2">Export library data</p>
     </template>
     <template #content>
       <div class="grid grid-cols-[1fr_1fr_1fr]">
@@ -52,16 +48,11 @@ import ExportStep from "@/components/options/ExportStep.vue";
 import {useOptionsStore} from "@/store/options";
 import Spinner from "@/components/ui/Spinner.vue";
 
-const props = defineProps({
-  title: String
-})
-
 const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
 const optionsStore = useOptionsStore()
 const { metaSets } = storeToRefs(libraryStore)
 const { scriptList, isWaitingOperation } = storeToRefs(craftStore)
-const isOpen = ref(false)
 const steps = ref(['categories'])
 const categories = ref([])
 const sets = ref([])
@@ -162,7 +153,7 @@ async function exportData(){
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `BoTC_HSG_export_${(new Date()).toISOString()}.json`
+    link.download = `BoTC_HSG_export_${(new Date()).toISOString()}.hsgl`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

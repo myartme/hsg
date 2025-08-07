@@ -24,8 +24,10 @@ export async function loadScript(version, name) {
     return await getDataScript(version, toNormalizeString(name))
 }
 
-export async function loadScriptWithMetaFilling(version, name){
-    isWaitingOperation.value = true
+export async function loadScriptWithMetaFilling(version, name, withWaitingOptions = false){
+    if(withWaitingOptions){
+        isWaitingOperation.value = true
+    }
     const result = await loadScript(version, toNormalizeString(name))
     if (result.isSuccess) {
         const idx = result.content.find(el => el.id === '_meta')
@@ -36,12 +38,14 @@ export async function loadScriptWithMetaFilling(version, name){
             ...generalMeta,
             ...scriptMeta,
             version: version,
-            note: listMeta.note,
+            note: listMeta?.note,
             different: checkMetaDifferent(scriptMeta, generalMeta)
         }
         fillPdfList(result.content)
     }
-    isWaitingOperation.value = false
+    if(withWaitingOptions) {
+        isWaitingOperation.value = false
+    }
 }
 
 export async function saveCurrentScript() {
@@ -111,6 +115,11 @@ export async function saveCurrentScript() {
             ]
         }
         scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
+    }
+
+    const idx = scriptList.value.findIndex(el => el.name === pdfMeta.value.name)
+    if(idx !== -1){
+        activeScriptIndex.value = idx
     }
 
     await saveScripts()
@@ -185,6 +194,31 @@ export async function saveImportScript(meta, content) {
         })
     }
     await saveScripts()
+}
+
+export async function updateCharacterDataInScripts(character){
+    scriptList.value.map(script => {
+        if(script.list){
+            script.list.map(async el => {
+                if (el.characters) {
+                    const idx = el.characters.findIndex(char => char === character.id)
+                    if (idx !== -1) {
+                        const result = await loadScript(el.version, toNormalizeString(script.name))
+                        if(result.isSuccess){
+                            const data = result.content.map(elementInScript => {
+                                if(elementInScript.id === character.id && elementInScript.name && elementInScript.ability){
+                                    return character
+                                }
+
+                                return elementInScript
+                            })
+                            await saveScriptWithParams(el.version, toNormalizeString(script.name), data)
+                        }
+                    }
+                }
+            })
+        }
+    })
 }
 
 export function getJsonCurrentScriptContent(){

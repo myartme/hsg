@@ -1,21 +1,19 @@
 import {defineStore, storeToRefs} from 'pinia'
-import {
-    appVersion,
-    debugMode,
-    theme,
-    themes,
-    tooltipDelay
-} from "@/store/options/state";
-import {getDataOptions, setDataOptions, deleteDataOptions} from "@/store";
+import {appVersion, debugMode, theme, themes, tooltipDelay} from "@/store/options/state";
+import {getDataOptions, setDataOptions, deleteDataOptions, deleteAllData, openLink} from "@/store";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
 import {objectToPrettyJson, toNormalizeString} from "@/constants/other";
+import router from "@/router";
 
 export const useOptionsStore = defineStore('options', () => {
     async function importSets(data, withReplace){
         try {
             const libraryStore = useLibraryStore()
+            const craftStore = useCraftStore()
             const {metaSets, listSets, queuePositions, bootlegger} = storeToRefs(libraryStore)
+            await craftStore.loadScripts()
+
             if (data.meta && data.list) {
                 for (const [key, metaEl] of Object.entries(data.meta)) {
                     const idx = metaSets.value.findIndex(el => el.id === metaEl.id)
@@ -51,6 +49,7 @@ export const useOptionsStore = defineStore('options', () => {
                                     const listIdx = listSets.value[idx][team].findIndex(character => character.id === el.id)
                                     if (listIdx >= 0) {
                                         listSets.value[idx][team][listIdx] = el
+                                        craftStore.updateCharacterDataInScripts(el)
                                     } else {
                                         listSets.value[idx][team].push(el)
                                     }
@@ -116,6 +115,7 @@ export const useOptionsStore = defineStore('options', () => {
                             } else {
                                 scriptList.value[idx].list.push(list)
                             }
+
                             await craftStore.saveScriptWithParams(list.version, scriptList.value[idx].name, data.list[key][listKey])
                         }
                     } else {
@@ -138,7 +138,6 @@ export const useOptionsStore = defineStore('options', () => {
 
             return true
         } catch(e) {
-            console.log(e)
             return false
         }
     }
@@ -327,6 +326,18 @@ export const useOptionsStore = defineStore('options', () => {
         await deleteDataOptions()
     }
 
+    async function deleteAppData(){
+        const result = await deleteAllData()
+        if(result){
+            await router.replace({ name: 'library' })
+            location.reload()
+        }
+    }
+
+    async function openLinkinBrowser(url){
+        await openLink(url)
+    }
+
     return {
         appVersion,
         debugMode,
@@ -341,6 +352,8 @@ export const useOptionsStore = defineStore('options', () => {
         importSets,
         importScripts,
         importScriptTags,
-        importOptions
+        importOptions,
+        deleteAppData,
+        openLinkinBrowser
     }
 })

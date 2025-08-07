@@ -56,8 +56,16 @@ contextBridge.exposeInMainWorld(
         },
 
         getBase64Image: (url) =>
-            ipcRenderer.invoke('getBase64Image', url)
+            ipcRenderer.invoke('getBase64Image', url),
 
+
+        openLink: (url) => {
+            return ipcRenderer.invoke('openLink', url)
+        },
+
+        deleteAllData: () => {
+            return ipcRenderer.invoke('deleteAllData')
+        }
     }
 )
 ipcRenderer.on('show-about', () => {
@@ -84,7 +92,7 @@ ipcRenderer.on('show-about', () => {
         font-family: sans-serif;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
           <h2 style="margin-bottom: 8px; color:white">BotC HSG</h2>
-          <p style="margin-bottom: 16px; color:white">Version 1.5.0</p>
+          <p style="margin-bottom: 16px; color:white">Version 1.6.0</p>
           <p style="margin-bottom: 24px; font-size: 14px; color: #9a9797;">
             This is an unofficial library of characters and scripts for the game Blood on the Clocktower.
             <br>The application uses images from the official website: http://bloodontheclocktower.com.

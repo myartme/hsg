@@ -39,17 +39,17 @@
       </div>
     </div>
     <div class="grid grid-cols-2 gap-4">
-      <div class="flex border-3 border-[color:var(--color-border)] rounded-2xl" v-if="scriptTags.length > 0">
+      <div class="flex border-3 border-[color:var(--color-border)] rounded-2xl" v-if="filteredScriptListTags.length > 0">
         <input-color-tag
             div-class="ml-2 mr-2"
             label="Tags"
-            v-model:value="scriptTags" />
+            v-model:value="filteredScriptListTags" />
       </div>
-      <div class="flex border-3 border-[color:var(--color-border)] rounded-2xl" v-if="characters.length > 0">
+      <div class="flex border-3 border-[color:var(--color-border)] rounded-2xl" v-if="filteredScriptListCharacters.length > 0">
         <input-image-tag
             div-class="ml-2 mr-2"
             label="Characters"
-            v-model:value="characters" />
+            v-model:value="filteredScriptListCharacters" />
       </div>
     </div>
   </div>
@@ -74,9 +74,7 @@ const props = defineProps({
   selectedTags: Array
 })
 const craftStore = useCraftStore()
-const { characterListWithParams, tags } = storeToRefs(craftStore)
-const scriptTags = ref([])
-const characters = ref([])
+const { characterListWithParams, tags, filteredScriptListTags, filteredScriptListCharacters } = storeToRefs(craftStore)
 const searchedQuery = ref("")
 const lastSearchedQuery = ref("")
 const listFiltered = ref([])
@@ -111,18 +109,18 @@ function filterTextMethod(character, query){
 }
 
 function addToCharacters(char){
-  if(characters.value.some(({id}) => id === char.id)) return
-    characters.value = [...characters.value, {id: char.id, image: getImageFirstUrl(char)}]
+  if(filteredScriptListCharacters.value.some(({id}) => id === char.id)) return
+    filteredScriptListCharacters.value = [...filteredScriptListCharacters.value, {id: char.id, image: getImageFirstUrl(char)}]
 }
 
 function addNewTag(tag){
-  if(tag !== '' && !scriptTags.value.some(({title}) => title === tag)){
+  if(tag !== '' && !filteredScriptListTags.value.some(({title}) => title === tag)){
     const idx = tags.value.findIndex(({title}) => title === tag)
     if(idx !== -1){
-      scriptTags.value = [...scriptTags.value, tags.value[idx]]
-      selectedTag.value = ''
+      filteredScriptListTags.value = [...filteredScriptListTags.value, tags.value[idx]]
     }
   }
+  selectedTag.value = ''
 }
 
 watch(searchedQuery, (newVal) => {
@@ -137,20 +135,20 @@ watch(selectedTag, (val) => {
   addNewTag(val)
 })
 
-watch(scriptTags, (val) => {
+watch(filteredScriptListTags, (val) => {
   emits('onSelectedTags', val.map(tag => tag.title))
-  isEmptyFilter.value = val.length === 0 && characters.value.length === 0
-})
+  isEmptyFilter.value = val.length === 0 && filteredScriptListCharacters.value.length === 0
+}, {immediate: true})
 
-watch(characters, (val) => {
+watch(filteredScriptListCharacters, (val) => {
   emits('onSelectedCharacters', val.map(char => char.id))
-  isEmptyFilter.value = val.length === 0 && scriptTags.value.length === 0
-})
+  isEmptyFilter.value = val.length === 0 && filteredScriptListTags.value.length === 0
+}, {immediate: true})
 
 watch(isEmptyFilter, (val) => {
   if(val){
-    scriptTags.value = []
-    characters.value = []
+    filteredScriptListTags.value = []
+    filteredScriptListCharacters.value = []
     searchedQuery.value = ''
   }
 })
