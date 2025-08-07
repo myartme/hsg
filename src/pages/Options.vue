@@ -32,6 +32,7 @@
             <slider :div-class="sliderClass" label="Jinx select character tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesShow" />
             <slider :div-class="sliderClass" label="Jinx select character tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesHide" />
           </div>
+          <div class="title-theme mb-2">Restore sets</div>
           <div class="flex gap-5">
             <div v-for="set in originalSets" class="w-36 h-36 relative rounded-md flex items-center justify-center cursor-pointer transition select-none overflow-hidden border-[color:var(--color-border)]">
               <div class="absolute inset-0 bg-cover bg-center z-0"
@@ -61,9 +62,36 @@
             </div>
           </div>
           <div class="flex gap-5">
-            <import-library title="Import library data" />
-            <export-library title="Export library data" />
+            <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
+                 @click="isOpenImport = true">
+              <span>Import library data</span>
+            </div>
+            <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
+                 @click="isOpenExport = true">
+              <span>Export library data</span>
+            </div>
+            <import-library v-if="isOpenImport"
+                            @on-close="isOpenImport = !isOpenImport" />
+            <export-library v-if="isOpenExport"
+                            @on-close="isOpenExport = !isOpenExport" />
           </div>
+          <div>
+            <button
+                @click="isVisibleResetAppDataDialog = true"
+                class="ml-4 px-4 py-2 rounded-xl whitespace-nowrap text-theme border-[color:var(--color-border)] cursor-pointer text-theme bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]"
+            >Reset app data
+            </button>
+          </div>
+          <confirm-dialog v-if="isVisibleResetAppDataDialog"
+                          title="Delete app data"
+                          description="Don't forget to export your data if you want to keep it. Are you sure you want to delete the app data?"
+                          @confirm="isVisibleResetAppDataDialog = false; isVisibleResetAppDataDialogTwo = true"
+                          @cancel="isVisibleResetAppDataDialog = false" />
+          <confirm-dialog v-if="isVisibleResetAppDataDialogTwo"
+                          title="Delete app data"
+                          description="This action cannot be undone. Are you sure you want to delete the app data?"
+                          @confirm="resetAppData(); isVisibleResetAppDataDialogTwo = false"
+                          @cancel="isVisibleResetAppDataDialogTwo = false" />
         </div>
       </template>
     </sector-container>
@@ -84,6 +112,7 @@ import ImportLibrary from "@/components/options/ImportLibrary.vue";
 import ExportLibrary from "@/components/options/ExportLibrary.vue";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
+import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 
 defineOptions({
   name: 'options'
@@ -100,6 +129,11 @@ const isCanSave = ref(false)
 const isDarkMode = ref(false)
 const originalSets = ref(null)
 const tooltipDelayOptions = ref()
+const isOpenImport = ref(false)
+const isOpenExport = ref(false)
+const isVisibleResetAppDataDialog = ref(false)
+const isVisibleResetAppDataDialogTwo = ref(false)
+const emits = defineEmits(['onClose'])
 const sliderClass = 'grid grid-cols-[minmax(150px,20%)_25%_4rem] items-center gap-x-4'
 
 function save(){
@@ -136,6 +170,10 @@ function isEnableButton(setId){
 
 async function restoreSet(setId){
   await libraryStore.restoreSet(setId)
+}
+
+async function resetAppData(){
+  await optionsStore.deleteAppData()
 }
 
 onMounted(async () => {

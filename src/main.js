@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { Menu, app, BrowserWindow, ipcMain, shell } from 'electron';
 const https = require('https');
 import path from 'node:path';
 import fs from 'node:fs'
+import { rm, mkdir, writeFile, readFile, unlink, readdir, rmdir, access, rename } from 'fs/promises';
 import started from 'electron-squirrel-startup';
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -45,11 +46,11 @@ const saveContent = async (filename, content, isAppPath, isJson = true) => {
   try {
     const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, isAppPath)
     const dir = path.dirname(filePath)
-    await fs.promises.mkdir(dir, { recursive: true })
+    await mkdir(dir, { recursive: true })
     if(isJson){
-      await fs.promises.writeFile(filePath, content, 'utf8')
+      await writeFile(filePath, content, 'utf8')
     } else {
-      await fs.promises.writeFile(filePath, content)
+      await writeFile(filePath, content)
     }
 
     return {
@@ -72,8 +73,8 @@ const loadContent = async (filename, isAppPath, isJson = true) => {
   try {
     const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, isAppPath)
     const raw = isJson
-        ? await fs.promises.readFile(filePath, 'utf8')
-        : await fs.promises.readFile(filePath)
+        ? await readFile(filePath, 'utf8')
+        : await readFile(filePath)
     return {
       isSuccess: true,
       content: isJson ? JSON.parse(raw) : raw.toString('base64')
@@ -94,10 +95,10 @@ const deleteContent = async (filename, isJson = true) => {
   try {
     const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, false)
     const dirPath = path.dirname(filePath)
-    await fs.promises.unlink(filePath)
-    const remainingFiles = await fs.promises.readdir(dirPath)
+    await unlink(filePath)
+    const remainingFiles = await readdir(dirPath)
     if (remainingFiles.length === 0) {
-      await fs.promises.rmdir(dirPath)
+      await rmdir(dirPath)
     }
     return {
       isSuccess: true
@@ -119,8 +120,8 @@ const renameFile = async(oldFilename, newFilename, isAppPath) => {
     const oldFilePath = getCurrentFilePath(`${oldFilename}`, isAppPath)
     const newFilePath = getCurrentFilePath(`${newFilename}`, isAppPath)
 
-    await fs.promises.access(oldFilePath);
-    await fs.promises.rename(oldFilePath, newFilePath);
+    await access(oldFilePath);
+    await rename(oldFilePath, newFilePath);
 
     return {
       isSuccess: true,
@@ -219,7 +220,23 @@ ipcMain.handle('renamePdfFile', async (event, { oldFilename, newFilename, folder
 
 ipcMain.handle('getBase64Image', async (event, imageUrl) => {
   return await downloadImageAsBase64(imageUrl);
-});
+})
+
+ipcMain.handle('openLink', async (event, link) => {
+  try{
+    await shell.openExternal(link)
+    return true
+  } catch {}
+  return false
+})
+
+ipcMain.handle('deleteAllData', async () => {
+  try{
+    await rm(getCurrentFilePath('', false), { recursive: true, force: true })
+    return true
+  } catch {}
+  return false
+})
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -228,7 +245,8 @@ const createWindow = () => {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-    }
+    },
+    icon: path.join(__dirname, 'icon.png')
   });
 
   mainWindow.maximize();
@@ -245,12 +263,105 @@ const createWindow = () => {
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
+
+  const template = [];
+
+  if (process.platform === 'darwin') {
+    // macOS
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            {
+              label: 'About',
+              click: () => {
+                app.showAboutPanel();
+              }
+            },
+            { type: 'separator' },
+            { role: 'quit' }
+          ]
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'selectAll' }
+          ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'reload' },
+            { role: 'toggledevtools' },
+            { role: 'togglefullscreen' }
+          ]
+        }
+    );
+  } else {
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            { role: 'quit' }
+          ]
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'selectAll' }
+          ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'reload' },
+            { role: 'togglefullscreen' }
+          ]
+        },
+        {
+          label: 'Help',
+          submenu: [
+            {
+              label: 'About',
+              click: () => mainWindow.webContents.send('show-about')
+            }
+          ]
+        }
+    )
+  }
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  if (process.platform === 'darwin') {
+    app.setAboutPanelOptions({
+      applicationName: 'BotC HSG',
+      applicationVersion: '1.6.0',
+      version: '1.6.0',
+      copyright: '© 2025 Artem Chendey',
+      iconPath: path.join(__dirname, 'icon.icns'),
+      credits: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +
+          'The application uses images from the official website: http://bloodontheclocktower.com. All trademarks and assets belong to their respective owners.\n' +
+          'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.'
+    });
+  }
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the

@@ -2,7 +2,7 @@
   <div class="flex items-center space-x-1 mb-1">
     <label :class="[
           labelClass,
-          'title-theme'
+          'title-theme select-none'
       ]">{{ label }}</label>
     <div class="flex items-center pb-1.5 pl-1 space-x-2">
       <info-tooltip v-if="required && modelLength === 0" :text="required" icon="alert" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />

@@ -12,45 +12,57 @@
                placeholder="Filter by multiple keywords (separate with spaces)"
         />
         <div class="flex pr-3 gap-3">
+          <div v-click-outside="() => isEditionFilterShow = false">
           <action-button
               icon="filter"
               icon-size="w-4 h-4"
               icon-color="fill-[color:var(--color-menu-active)]"
-              icon-hover-color="hover:fill-[color:var(--color-active)]"
+              icon-hover-color="group-hover:fill-[color:var(--color-active)]"
               button-class="w-7 h-7"
               @click.stop="isEditionFilterShow = !isEditionFilterShow" />
+          <search-filter :items="selectedEditions"
+                         :is-show="isEditionFilterShow"
+                         :is-reset-filter="isResetFilter"
+                         @on-update-items="onUpdateItems"
+                         @on-update-max-filters="maxFilters = $event"
+                         @on-update-is-reset-filter="isResetFilter = $event"
+                         @on-update-is-show="isEditionFilterShow = $event" />
+          </div>
           <action-button
               icon="cross"
               icon-size="w-4 h-4"
               icon-color="fill-[color:var(--color-error)]"
-              icon-hover-color="hover:fill-[color:var(--color-button-error)]"
+              icon-hover-color="group-hover:fill-[color:var(--color-button-error)]"
               button-class="w-7 h-7"
               @click.stop="resetAllFilters" />
         </div>
-        <search-filter :items="selectedEditions"
-                       :is-show="isEditionFilterShow"
-                       :is-reset-filter="isResetFilter"
-                       @on-update-items="onUpdateItems"
-                       @on-update-max-filters="maxFilters = $event"
-                       @on-update-is-reset-filter="isResetFilter = $event"
-                       @on-update-is-show="isEditionFilterShow = $event" />
+      </div>
+      <div class="flex flex-wrap ml-5 mt-5 mr-5 gap-3">
+        <template v-for="elem in ROLES">
+          <div :class="[
+              'cursor-pointer select-none rounded-lg border-3 border-[color:var(--color-border)]',
+              { 'bg-[color:var(--color-active)]' : teamFilter === elem }
+              ]"
+               @click="changeRoleFilter(elem)">
+            <p class="text-theme p-1 mr-3 ml-3">{{ elem }}</p>
+          </div>
+        </template>
       </div>
       <spinner v-if="isLoading"
           item-class="flex justify-center items-center py-5"
           :size="18" />
       <template v-else>
-        <p v-show="isEmpty(listFiltered)"
-           class="text-theme flex justify-center items-center py-5 ml-5 mr-5">
-          No matching characters. Please adjust the filter parameters to update the results.
-        </p>
         <div v-show="!isEmpty(listFiltered)"
              v-for="(group, team) in listFiltered"
              :key="team">
           <characters-team-list
               :team-name="team"
-              :team-items="group"
-              :is-opened="team !== 'traveller' && team !== 'fabled'" />
+              :team-items="group" />
         </div>
+        <p v-show="isEmpty(listFiltered)"
+           class="text-theme flex justify-center items-center py-5 ml-5 mr-5">
+          No matching characters. Please adjust the filter parameters to update the results.
+        </p>
       </template>
     </template>
   </sector-container>
@@ -66,6 +78,7 @@ import SearchFilter from "@/components/craft/list/SearchFilter.vue";
 import {debounce} from "lodash/function";
 import {isEmpty} from "lodash/lang";
 import Spinner from "@/components/ui/Spinner.vue";
+import {ROLES} from "@/constants/roles";
 
 defineOptions({
   name: 'full-character-list-craft'
@@ -78,6 +91,7 @@ const searchedQuery = ref("")
 const lastSearchedQuery = ref("")
 const list = ref({})
 const listFiltered = ref({})
+const teamFilter = ref("")
 const selectedEditions = ref([])
 const isLoading = ref(false)
 const isEditionFilterShow = ref(false)
@@ -92,7 +106,7 @@ const debouncedSearch = debounce(async (val) => {
     return
   }
   lastSearchedQuery.value = val
-  listFiltered.value = getFilteredQuery(val, getFilteredEdition(list.value))
+  listFiltered.value = getFilteredQuery(val, getFiltered(list.value))
   isLoading.value = false
 }, 500)
 
@@ -113,7 +127,18 @@ function filterTextMethod(character, query){
 
 async function resetAllFilters(){
   searchedQuery.value = ''
+  teamFilter.value = ''
   isResetFilter.value = true
+}
+
+function changeRoleFilter(role){
+  if(teamFilter.value === role){
+    teamFilter.value = ''
+  } else {
+    teamFilter.value = role
+  }
+
+  listFiltered.value = getFiltered(list.value)
 }
 
 function onUpdateItems(filteredItems){
@@ -122,7 +147,7 @@ function onUpdateItems(filteredItems){
   if(filteredItems.length === 0){
     listFiltered.value = []
   } else if(filteredItems.length < maxFilters.value){
-    listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition(list.value))
+    listFiltered.value = getFilteredQuery(searchedQuery.value, getFiltered(list.value))
   } else {
     listFiltered.value = getFilteredQuery(searchedQuery.value, {...list.value})
   }
@@ -148,6 +173,10 @@ function getFilteredQuery(query, characterList = {}){
   }, {});
 }
 
+function getFiltered(characterList = {}){
+  return getFilteredEdition(getFilteredTeam(characterList))
+}
+
 function getFilteredEdition(characterList = {}){
   if(isEmpty(characterList)) return {}
 
@@ -163,6 +192,14 @@ function getFilteredEdition(characterList = {}){
   }, {});
 }
 
+function getFilteredTeam(characterList = {}){
+  if(teamFilter.value){
+    return { [teamFilter.value]: characterList[teamFilter.value] ?? [] }
+  }
+
+  return characterList
+}
+
 watch(searchedQuery, (newVal) => {
   if(isEditionFilterShow.value){
     isEditionFilterShow.value = !isEditionFilterShow.value
@@ -176,7 +213,7 @@ watch(characterListWithParams, () => {
   listFiltered.value = {...characterListWithParams.value}
 
   if(isDeletingFromPdfCharacterList.value){
-    listFiltered.value = getFilteredQuery(searchedQuery.value, getFilteredEdition(list.value))
+    listFiltered.value = getFilteredQuery(searchedQuery.value, getFiltered(list.value))
     isDeletingFromPdfCharacterList.value = false
   }
 }, {immediate:true})

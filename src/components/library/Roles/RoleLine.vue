@@ -35,9 +35,7 @@ const props = defineProps({
   isOfficial: Boolean
 })
 
-const {
-  queuePositions
-} = storeToRefs(useLibraryStore())
+const {queuePositions} = storeToRefs(useLibraryStore())
 
 const index = computed(() => props.roleData.index)
 const role = computed(() => props.roleData.role)

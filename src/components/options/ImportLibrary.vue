@@ -1,15 +1,11 @@
 <template>
-  <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
-       @click="isOpen = true">
-    <span>{{ title }}</span>
-  </div>
-  <popup-container v-if="isOpen"
-                   :is-input-visible="false"
-                   @close="isOpen = !isOpen; messages = []">
+  <popup-container
+      :is-input-visible="false"
+      @close="$emit('onClose'); messages = []">
     <template #header>
       <div class="flex">
-        <p class="title-theme mr-2">{{ title }}</p>
-        <info-tooltip class="mt-1" icon-size="w-5 h-5" text="<strong>Merge mode:</strong><br>New sets are added to your library. New characters are added to existing sets. New options are added.<br><br><strong>Replace mode:</strong><br>Includes merge mode. All existing items in your library will be replaced with the imported ones." />
+        <p class="title-theme mr-2">Import library data</p>
+        <info-tooltip class="mt-1" icon-size="w-5 h-5" text="<strong>Merge mode:</strong><br> - New sets are added to your library <br> - New characters are added to existing sets<br> - New scripts are added to your script list<br> - New script versions are added to your script list<br> - New options are added<br><br><strong>Replace mode:</strong><br> - Includes merge mode <br> - Existing characters in sets are replaced<br> - Existing versions in scripts are replaced" />
       </div>
     </template>
     <template #content>
@@ -18,10 +14,12 @@
           <drag-and-drop
               class="w-[80%]"
               :text="`${inputPlaceholder}<br><strong>Merge mode</strong>`"
+              :formats="['hsgl']"
               @json-loaded="loadedContentWithMerge" />
           <drag-and-drop
               class="w-[80%]"
               :text="`${inputPlaceholder}<br><strong>Replace mode</strong>`"
+              :formats="['hsgl']"
               @json-loaded="loadedContentWithReplace" />
         </div>
         <div v-if="messages.length > 0"
@@ -45,9 +43,9 @@ const props = defineProps({
   title: String
 })
 const optionsStore = useOptionsStore()
-const isOpen = ref(false)
 const messages = ref([])
-const inputPlaceholder = "Click to choose a JSON file / drag a JSON file here"
+const emits = defineEmits(['onClose'])
+const inputPlaceholder = "Click to choose a HSGL file / drag a HSGL file here"
 function loadedContentWithMerge(value){
   textareaValueChange({ text: value, withReplace: false })
 }

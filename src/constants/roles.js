@@ -32,7 +32,7 @@ export const EMPTY_CHARACTER = {
     "name": "",
     "team": "",
     "ability": "",
-    "image": ["", "", ""],
+    "image": [],
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 0,

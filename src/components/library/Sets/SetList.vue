@@ -5,18 +5,18 @@
       container-class="flex-1 pr-1 rounded-md overflow-auto relative w-40 min-w-[10rem] max-w-[10rem]"
       content-class="flex flex-col gap-4">
     <template #content>
-      <script-icon v-for="(file, key) in infoSets"
+      <set-icon v-for="(file, key) in infoSets"
                    :key="file.id"
                    :name="file.name"
                    :logo="file.logo"
                    :selected="key === activeSetIndex"
                    @click="selectScript(file, key)" />
-      <script-icon
+      <set-icon
           name="Import Set"
           :half-size="true"
           :selected="activeSetIndex === SET_INDEX.IMPORT"
           @click="$emit('onCreateScript', SET_INDEX.IMPORT)" />
-      <script-icon
+      <set-icon
           name="Create Set"
           :half-size="true"
           :selected="activeSetIndex === SET_INDEX.CREATE"
@@ -27,7 +27,7 @@
 <script setup>
 import {SET_INDEX} from "@/constants/other";
 import SectorContainer from "@/components/SectorContainer.vue";
-import ScriptIcon from "@/components/library/ScriptList/ScriptIcon.vue";
+import SetIcon from "@/components/library/Sets/SetIcon.vue";
 import {useLibraryStore} from "@/store/library";
 import {storeToRefs} from "pinia";
 import {getCurrentInstance} from "vue";

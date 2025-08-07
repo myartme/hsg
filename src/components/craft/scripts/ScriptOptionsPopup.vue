@@ -28,7 +28,7 @@
     <template #content>
       <simple-input
           v-model:value="meta.name"
-          label="Name"
+          label="Script name"
           :maxlength="50"
           :disabled="true"
           class="mb-2" />
@@ -45,8 +45,8 @@
           class="mb-2" />
       <simple-checkbox
           v-model:value="meta.hideTitle"
-          label="Hide Title"
-          tooltip="You can hide script's title." />
+          label="Hide script name"
+          tooltip="You can hide script's title in the script." />
       <input-color-tag v-if="scriptTags.length > 0"
           v-model:value="scriptTags"
           div-class="mt-2"
@@ -55,25 +55,34 @@
           :maxlength="250"
           info="Tags for filtering scripts." />
       <simple-dropdown
+          v-if="tags.length > 0"
           label="Tags list"
           info="All script tags. Click to add."
           div-class="mt-2 mb-2"
           v-model:value="selectedTag"
           :list="Object.values(tags).map(({ title }) => title)"
           default-value="Add tag..." />
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <simple-input
-            v-model:value="meta.logo"
-            label="Logo"
-            :maxlength="250"
-            div-class="mb-2" />
-        <simple-input
-            v-model:value="meta.background"
-            label="Background"
-            :maxlength="250"
-            div-class="mb-2" />
-        <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50 object-cover rounded mx-auto" alt="logo">
-        <img v-if="meta.background" :src="meta.background" class="mt-10 h-50 object-cover rounded mx-auto" alt="background">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div class="flex items-end">
+          <simple-input
+              v-model:value="meta.logo"
+              label="Logo"
+              :maxlength="250"
+              div-class="w-full" />
+        </div>
+        <div class="flex items-end ">
+          <simple-input
+              v-model:value="meta.background"
+              label="Background"
+              :maxlength="250"
+              div-class="w-full" />
+        </div>
+        <div class="max-h-[500px] mx-auto rounded object-cover">
+          <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
+        </div>
+        <div class="max-h-[500px] mx-auto rounded object-cover">
+          <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
+        </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
                       :title="`Deleting all versions of ${meta.name}`"
@@ -165,9 +174,9 @@ watch(selectedTag, (val) => {
     const idx = tags.value.findIndex(({title}) => title === val)
     if(idx !== -1){
       scriptTags.value = [...scriptTags.value, tags.value[idx]]
-      selectedTag.value = ''
     }
   }
+  selectedTag.value = ''
 })
 watch(scriptTags, (val) => {
   meta.value.tags = Object.values(val).map(({title}) => title)

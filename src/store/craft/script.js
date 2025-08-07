@@ -1,7 +1,15 @@
 import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDataScript} from "@/store";
-import {activeScriptIndex, activeVersion, pdfListWithParams, pdfMeta, scriptList, tags} from "@/store/craft/state";
+import {
+    activeScriptIndex,
+    activeVersion,
+    isWaitingOperation,
+    pdfListWithParams,
+    pdfMeta,
+    scriptList,
+    tags
+} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
-import {DEFAULT_VERSION, objectToPrettyJson} from "@/constants/other";
+import {DEFAULT_VERSION, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
 import {isEmpty} from "lodash/lang";
 
@@ -13,11 +21,14 @@ export async function loadScripts() {
 }
 
 export async function loadScript(version, name) {
-    return await getDataScript(version, name)
+    return await getDataScript(version, toNormalizeString(name))
 }
 
-export async function loadScriptWithMetaFilling(version, name){
-    const result = await loadScript(version, name)
+export async function loadScriptWithMetaFilling(version, name, withWaitingOptions = false){
+    if(withWaitingOptions){
+        isWaitingOperation.value = true
+    }
+    const result = await loadScript(version, toNormalizeString(name))
     if (result.isSuccess) {
         const idx = result.content.find(el => el.id === '_meta')
         const scriptMeta = {...EMPTY_IMPORT_SCRIPT, ...result.content.splice(idx, 1)[0]}
@@ -27,10 +38,13 @@ export async function loadScriptWithMetaFilling(version, name){
             ...generalMeta,
             ...scriptMeta,
             version: version,
-            note: listMeta.note,
+            note: listMeta?.note,
             different: checkMetaDifferent(scriptMeta, generalMeta)
         }
         fillPdfList(result.content)
+    }
+    if(withWaitingOptions) {
+        isWaitingOperation.value = false
     }
 }
 
@@ -41,7 +55,7 @@ export async function saveCurrentScript() {
         pdfMeta.value.author = 'Unknown'
     }
     if (activeScriptIndex.value >= 0) {
-        const result = await getDataScript(activeVersion.value || DEFAULT_VERSION, pdfMeta.value.name)
+        const result = await getDataScript(activeVersion.value || DEFAULT_VERSION, toNormalizeString(pdfMeta.value.name))
         if (result.isSuccess) {
             const idxMeta = result.content.find(el => el.id === '_meta')
             result.content.splice(idxMeta, 1)
@@ -59,6 +73,7 @@ export async function saveCurrentScript() {
                 )
                 scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
             } else {
+
                 await saveScript(pdfMeta.value)
                 pdfMeta.value.list = list.map(el => {
                     if(el.version === pdfMeta.value.version){
@@ -73,6 +88,19 @@ export async function saveCurrentScript() {
                 pdfMeta.value.version = list.at(-1).version
                 scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
             }
+        } else {
+            pdfMeta.value.version = DEFAULT_VERSION
+            await saveScript(pdfMeta.value)
+            pdfMeta.value = {
+                ...pdfMeta.value,
+                version: DEFAULT_VERSION,
+                list: [
+                    getFormatScriptListElement(
+                        now.toISOString(), { ...pdfMeta.value, json:true }, getCurrentScriptContentToSaveFormat()
+                    )
+                ]
+            }
+            scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
         }
     } else {
         pdfMeta.value.version = DEFAULT_VERSION
@@ -87,6 +115,11 @@ export async function saveCurrentScript() {
             ]
         }
         scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
+    }
+
+    const idx = scriptList.value.findIndex(el => el.name === pdfMeta.value.name)
+    if(idx !== -1){
+        activeScriptIndex.value = idx
     }
 
     await saveScripts()
@@ -105,8 +138,8 @@ export async function saveUpdateVersions(meta) {
                 const currentVersion = version
 
                 if (currentVersion !== el.version) {
-                    await renameScriptFile(el.version, currentVersion, elem.name);
-                    await renamePdfFile(el.version, currentVersion, elem.name);
+                    await renameScriptFile(el.version, currentVersion, toNormalizeString(elem.name));
+                    await renamePdfFile(el.version, currentVersion, toNormalizeString(elem.name));
                 }
                 return { ...el, version: currentVersion }
             })
@@ -117,6 +150,8 @@ export async function saveUpdateVersions(meta) {
             version: version,
             date: new Date().toISOString()
         }
+
+        scriptList.value = [...scriptList.value]
 
         await saveScripts()
     }
@@ -141,24 +176,49 @@ export async function saveImportScript(meta, content) {
                 .filter(v => !isNaN(v))
         )
         meta = {...loadedMeta, ...meta, date: now.toISOString(), version: getNextVersion(version) }
-        await setDataScript(meta.version, meta.name, [filterScriptMeta(meta), ...content])
+        await setDataScript(meta.version, toNormalizeString(meta.name), [filterScriptMeta(meta), ...content])
         scriptList.value[idx] = {
             ...filterScriptFileMeta(meta),
-            list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
+            list: [...scriptList.value[idx].list, getFormatScriptListElement(now.toISOString(), {...meta, json: true}, content)]
         }
     } else {
         if(meta.author === ''){
             meta.author = DEFAULT_SCRIPT_AUTHOR
         }
         meta = {...meta, date: now.toISOString(), version: DEFAULT_VERSION}
-        await setDataScript(meta.version, meta.name, [filterScriptMeta(meta), ...content])
+        await setDataScript(meta.version, toNormalizeString(meta.name), [filterScriptMeta(meta), ...content])
         scriptList.value.push({
             ...filterScriptFileMeta(meta),
             version: DEFAULT_VERSION,
-            list: [getFormatScriptListElement(now.toISOString(), {...meta, json: true})]
+            list: [getFormatScriptListElement(now.toISOString(), {...meta, json: true}, content)]
         })
     }
     await saveScripts()
+}
+
+export async function updateCharacterDataInScripts(character){
+    scriptList.value.map(script => {
+        if(script.list){
+            script.list.map(async el => {
+                if (el.characters) {
+                    const idx = el.characters.findIndex(char => char === character.id)
+                    if (idx !== -1) {
+                        const result = await loadScript(el.version, toNormalizeString(script.name))
+                        if(result.isSuccess){
+                            const data = result.content.map(elementInScript => {
+                                if(elementInScript.id === character.id && elementInScript.name && elementInScript.ability){
+                                    return character
+                                }
+
+                                return elementInScript
+                            })
+                            await saveScriptWithParams(el.version, toNormalizeString(script.name), data)
+                        }
+                    }
+                }
+            })
+        }
+    })
 }
 
 export function getJsonCurrentScriptContent(){
@@ -168,7 +228,7 @@ export function getJsonCurrentScriptContent(){
 export async function deleteScripts(name) {
     const idx = scriptList.value.findIndex(el => el.name === name)
     for(const el of scriptList.value[idx].list){
-        const scriptDelete = await deleteDataScript(el.version, name)
+        const scriptDelete = await deleteDataScript(el.version, toNormalizeString(name))
         if(scriptDelete.isSuccess){
             await deletePdf(el.version, name)
         }
@@ -178,7 +238,7 @@ export async function deleteScripts(name) {
 }
 
 export async function deleteScript(version, name) {
-    const scriptDelete = await deleteDataScript(version, name)
+    const scriptDelete = await deleteDataScript(version, toNormalizeString(name))
     if(scriptDelete.isSuccess){
         await deletePdf(version, name)
         const idx = scriptList.value.findIndex(el => el.name === name)
@@ -198,7 +258,7 @@ async function saveScript(meta) {
 }
 
 export async function saveScriptWithParams(version, name, content) {
-    await setDataScript(version, name, content)
+    await setDataScript(version, toNormalizeString(name), content)
 }
 
 export async function saveScriptsList(list) {

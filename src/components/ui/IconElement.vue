@@ -35,6 +35,7 @@ import SortWithBorderIcon from "@/components/ui/svg/sortWithBorder.svg";
 import TagsIcon from "@/components/ui/svg/tags.svg";
 import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
+import WikiIcon from "@/components/ui/svg/wiki.svg";
 
 const props = defineProps({
   name: String,
@@ -79,5 +80,6 @@ const icons = {
   tags: TagsIcon,
   toClipboard : ToClipboardIcon,
   undo : UndoIcon,
+  wiki : WikiIcon,
 }
 </script>

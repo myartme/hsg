@@ -10,6 +10,7 @@ import {
 import {saveQueuePositions} from "@/store/library/queue";
 import {saveBootlegger} from "@/store/library/bootlegger";
 import {debugMode} from "@/store/options/state";
+import {useCraftStore} from "@/store/craft";
 
 export async function saveActiveCharacter(content){
     const list = {...activeList.value}
@@ -27,6 +28,9 @@ export async function saveActiveCharacter(content){
 
     if(!(activeMeta.value.isOfficial && !debugMode)){
         await setDataLibrary(`${activeMeta.value.id}`, "sets", list)
+        const craftStore = useCraftStore()
+        await craftStore.loadScripts()
+        await craftStore.updateCharacterDataInScripts(activeCharacter.value)
         await saveQueuePositions()
     }
 

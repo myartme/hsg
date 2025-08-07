@@ -16,7 +16,9 @@
     <template #content>
       <simple-input
           v-model:value="meta.name"
-          label="Name"
+          label="Script name"
+          @focusin="nameUpdate"
+          @focusout="nameUpdate"
           :maxlength="50"
           required="This field is required."
           info="Changing this value will be considered a new script!"
@@ -51,8 +53,8 @@
       <div class="flex items-end mb-2">
         <simple-checkbox
             v-model:value="meta.hideTitle"
-            label="Hide Title"
-            info="You can hide script's title.<br>This value is common to all versions of the script."
+            label="Hide script name"
+            info="You can hide script's title in the script.<br>This value is common to all versions of the script."
             :different="getDifferentText(meta.different?.hideTitle?.isEqual)"/>
         <action-button-in-script-option-popup
             :value="meta.different?.hideTitle"
@@ -82,7 +84,8 @@
                        :max-tags="10"
                        :maxlength="250"
                        info="Tags for filtering scripts." />
-      <simple-dropdown label="Tags list"
+      <simple-dropdown v-if="tags.length > 0"
+                       label="Tags list"
                        info="All script tags. Click to add."
                        div-class="mt-2 mb-2"
                        v-model:value="selectedTag"
@@ -96,37 +99,37 @@
           class="mt-2"
           info="Your custom note." />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-end mb-2">
+        <div class="flex items-end">
           <simple-input
               v-model:value="meta.logo"
               label="Logo"
               class="w-full"
               :maxlength="250"
-              info="This value is common to all versions of the script."
+              info="Enter image URL. This value is common to all versions of the script."
               input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
               :different="getDifferentText(meta.different?.logo?.isEqual)" />
           <action-button-in-script-option-popup
               :value="meta.different?.logo"
               @value-update="meta.logo = $event" />
         </div>
-        <div class="flex items-end mb-2">
+        <div class="flex items-end">
           <simple-input
               v-model:value="meta.background"
               class="w-full"
               label="Background"
               :maxlength="250"
-              info="This value is common to all versions of the script."
+              info="Enter image URL. This value is common to all versions of the script."
               input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
               :different="getDifferentText(meta.different?.background?.isEqual)" />
           <action-button-in-script-option-popup
               :value="meta.different?.background"
               @value-update="meta.background = $event" />
         </div>
-        <div class="object-cover rounded mx-auto">
-          <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50"  alt="logo">
+        <div class="max-h-[500px] mx-auto rounded object-cover">
+          <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
         </div>
-        <div class="object-cover rounded mx-auto">
-          <img v-if="meta.background" :src="meta.background" class="mt-10 h-50" alt="background">
+        <div class="max-h-[500px] mx-auto rounded object-cover">
+          <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
         </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
@@ -215,6 +218,12 @@ function handleDeleteScript(){
   activeVersion.value = DEFAULT_VERSION
 }
 
+function nameUpdate(event){
+  if(event.target?.value === DEFAULT_SCRIPT_NAME){
+    meta.value.name = ""
+  }
+}
+
 watch(rule, (newVal) => {
   if (newVal && !rules.value.includes(newVal) && rules.value.length < 10) {
     rules.value = [...rules.value, newVal]
@@ -238,12 +247,14 @@ watch(() => pdfMeta.value?.bootlegger, (newVal) => {
 }, { immediate: true })
 
 watch(selectedTag, (val) => {
-  if(val !== '' && !meta.value.tags.includes(val)){
+  console.log(val)
+  console.log(scriptTags.value)
+  if(val !== '' && !scriptTags.value.find(({title}) => title === val)){
     const idx = tags.value.findIndex(({title}) => title === val)
     if(idx !== -1){
       scriptTags.value = [...scriptTags.value, tags.value[idx]]
-      selectedTag.value = ''
     }
   }
+  selectedTag.value = ''
 })
 </script>

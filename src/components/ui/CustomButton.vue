@@ -10,11 +10,13 @@
         <button
             :class="[
                 wrapperClass,
+                'group',
+                { 'bg-[color:var(--color-bg-button-pressed)]' : isPressed },
                 isDisable ? 'cursor-not-allowed' : 'cursor-pointer'
             ]"
             @click="handleTooltip"
             @blur="handleTooltip">
-          <icon-element :name="icon" :size="iconSize" :color="isPressed ? 'fill-[color:var(--color-menu-active)]' : iconColor" />
+            <icon-element :name="icon" :size="iconSize" :color="iconColor" />
           <slot name="transition" />
         </button>
       </template>
@@ -24,9 +26,10 @@
     </tooltip>
     <button v-else :class="[
         wrapperClass,
+        { 'bg-[color:var(--color-bg-button-pressed)]' : isPressed },
         isDisable ? 'cursor-not-allowed' : 'cursor-pointer'
     ]">
-      <icon-element :name="icon" :size="iconSize" :color="isPressed ? 'fill-[color:var(--color-menu-active)]' : iconColor" />
+      <icon-element :name="icon" :size="iconSize" :color="iconColor" />
       <slot name="transition" />
     </button>
   </div>
@@ -50,7 +53,7 @@ const props = defineProps({
   },
   iconColor: {
     type: String,
-    default: 'fill-[color:var(--color-text)] hover:fill-[color:var(--color-border)]'
+    default: 'fill-[color:var(--color-button)] group-hover:fill-[color:var(--color-button-hover)]'
   },
   tooltip: {
     type: String,

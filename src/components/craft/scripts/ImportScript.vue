@@ -17,12 +17,7 @@
     </template>
     <template #header>
       <h2 class="text-2xl font-bold">{{ label }}</h2>
-      <info-tooltip class="mb-1" icon-size="w-5 h-5" text="You can import script. Required fields: &quot;id&quot;, &quot;name&quot;.
-            <br>Minimum requirements for the character in script:
-            <br>&nbsp;&nbsp;&quot;character_id&quot;,
-            <br>{
-            <br>&nbsp;&nbsp;&quot;<strong>id</strong>&quot;: &quot;character_id&quot;,
-            <br>}" />
+      <import-script-tooltip />
     </template>
     <template #content>
       <div class="resize-none">
@@ -122,8 +117,8 @@ import JsonEditorVue from "json-editor-vue";
 import {useLibraryStore} from "@/store/library";
 import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
-import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
+import ImportScriptTooltip from "@/components/craft/scripts/ImportScriptTooltip.vue";
 
 defineOptions({
   name: 'import-script'
@@ -135,11 +130,12 @@ const props = defineProps({
 
 const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
-const { allListsAsOne } = storeToRefs(libraryStore)
-const { theme, themes } = storeToRefs(optionsStore)
 const instance = getCurrentInstance()
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
+const { allListsAsOne } = storeToRefs(libraryStore)
+const { isImportScript } = storeToRefs(craftStore)
+const { theme, themes } = storeToRefs(optionsStore)
 const importContent = ref("")
 const charsList = ref({})
 const errorList = ref([])
@@ -161,6 +157,7 @@ function save(){
     isCanSave.value = false
     indexStore.unfocusWindow()
     activeScriptIndex.value = SET_INDEX.DEFAULT
+    isImportScript.value = false
     return true
   } catch (e){
     return false
@@ -218,23 +215,24 @@ function formalizedList(content){
       const pool = role ? allListsAsOne.value[role] : Object.values(allListsAsOne.value).flat()
       const character = pool.find(c => c.id === id || c.id === id.replaceAll('_', ''))
       if (!character) {
-        addNewError(`Character with ID <strong>${id}</strong> was not found in your library or in the official library.`);
+        addNewError(`Character with <strong>id</strong> ${id} was not found in your library or in the official library.`)
       }
-      return character;
-    };
+
+      return character
+    }
 
     charsList.value = ROLES.reduce((acc, role) => {
       const direct = localList
           .filter(el => el.team === role)
           .map(el => findCharacterById(el.id, role))
-          .filter(Boolean);
+          .filter(Boolean)
 
       const additional = localList
           .filter(el => !el.team)
           .map(el => {
-            const id = typeof el === 'object' && el?.id ? el.id : el;
-            const character = findCharacterById(id);
-            return character && character.team === role ? { id } : null;
+            const id = typeof el === 'object' && el?.id ? el.id : el
+            const character = findCharacterById(id)
+            return character && character.team === role ? { id : character.id } : null
           })
           .filter(Boolean);
 

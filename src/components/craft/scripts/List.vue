@@ -68,6 +68,7 @@
               :is-selected="index === activeScriptIndex"
               :filtered-character-list="filteredCharacters"
               @is-open-options="isOpenOptions = !isOpenOptions"
+              @on-deleting-version="resetList"
               @click="$emit('onSelectScript', index); activeVersion = ZERO_VERSION" />
         </template>
       </draggable-component>
@@ -78,18 +79,17 @@
   </sector-container>
 </template>
 <script setup>
-import SortButtons from "@/components/library/RolesList/SortButtons.vue";
+import SortButtons from "@/components/library/Roles/SortButtons.vue";
 import SectorContainer from "@/components/SectorContainer.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {useCraftStore} from "@/store/craft";
 import {getCurrentInstance, ref, watch} from "vue";
 import {storeToRefs} from "pinia";
 import draggableComponent from "vuedraggable";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT, ZERO_VERSION} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT} from "@/constants/other";
 import {useIndexStore} from "@/store";
 import {isEqual} from "lodash/lang";
 import ScriptElementVersionList from "@/components/craft/scripts/Line.vue";
-import {activeVersion} from "@/store/craft/state";
 import ScriptOptionsPopup from "@/components/craft/scripts/ScriptOptionsPopup.vue";
 import {resetMeta} from "@/store/craft/set";
 import FilterTags from "@/components/craft/scripts/FilterTags.vue";

@@ -60,7 +60,7 @@
               icon="cross"
               icon-size="w-4 h-4"
               icon-color="fill-[color:var(--color-error)]"
-              icon-hover-color="hover:fill-[color:var(--color-button-error)]"
+              icon-hover-color="group-hover:fill-[color:var(--color-button-error)]"
               button-class="w-7 h-7"
               @click.stop="resetList(true)" />
         </div>
@@ -85,6 +85,10 @@
             </template>
           </draggable-component>
       </div>
+      <p v-show="!isLoading && isEmpty(list) && isFiltered"
+         class="text-theme flex justify-center items-center py-5 ml-5 mr-5">
+        No matching characters. Please adjust the filter parameters to update the results.
+      </p>
     </template>
   </sector-container>
 </template>
@@ -95,11 +99,11 @@ import ActionButton from "@/components/ui/ActionButton.vue";
 import SectorContainer from "@/components/SectorContainer.vue";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
-import RoleLine from "@/components/library/RolesList/RoleLine.vue";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT} from "@/constants/other";
-import {cloneDeep, isEqual} from "lodash/lang";
+import RoleLine from "@/components/library/Roles/RoleLine.vue";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, isEqualWithDefault, SORT} from "@/constants/other";
+import {cloneDeep, isEmpty} from "lodash/lang";
 import {useIndexStore} from "@/store";
-import SortButtons from "@/components/library/RolesList/SortButtons.vue";
+import SortButtons from "@/components/library/Roles/SortButtons.vue";
 import {activeCharacter} from "@/store/library/state";
 import {debounce} from "lodash/function";
 import Spinner from "@/components/ui/Spinner.vue";
@@ -112,7 +116,6 @@ const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
 const {activeMeta, activeList, isEditCharacterLibrarySet, isCreateCharacterLibrary, isImportCharacterLibrary } = storeToRefs(libraryStore)
-
 const meta = ref(cloneDeep(activeMeta.value))
 const list = ref(cloneDeep(activeList.value))
 const isCanSave = ref(false)
@@ -163,7 +166,7 @@ const handleClick = (role) => {
 }
 
 watch(list, () => {
-  isCanSave.value = !isEqual(activeList.value, list.value) && !isFiltered.value
+  isCanSave.value = !isEqualWithDefault(activeList.value, list.value) && !isFiltered.value
 }, { deep: true })
 
 watch(activeList, () => {
@@ -227,6 +230,6 @@ watch(searchedQuery, (newVal) => {
   debouncedSearch(newVal)
 })
 watch(activeList, () => {
-  list.value = {...activeList.value}
+  list.value = cloneDeep(activeList.value)
 })
 </script>

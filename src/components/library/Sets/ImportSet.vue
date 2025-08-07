@@ -16,41 +16,14 @@
     </template>
     <template #header>
       <h2 class="text-2xl font-bold">{{ label }}</h2>
-      <div class="absolute left-1/2 transform translate-y-2 -translate-x-1/2 flex w-max bg-[color:var(--color-bg)]">
-        <drag-and-drop
-            text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
-            @json-loaded="loadedContent" />
-      </div>
+      <import-set-tooltip />
     </template>
     <template #content>
       <div class="resize-none">
-        <div class="flex items-center space-x-1 mb-1">
-          <label class="text-lg block font-semibold mb-1 title-theme">Import Content</label>
-          <info-tooltip class="mb-1" icon-size="w-5 h-5" text="You can import set and one or more characters. Required fields for a character: &quot;name&quot;, &quot;team&quot;, &quot;ability&quot;.
-            <br>Parameters that can be processed:
-            <br>{
-            <br>&nbsp;&nbsp;&quot;<strong>id</strong>&quot;: &quot;_meta&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>name</strong>&quot;: &quot;name&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>author</strong>&quot;: &quot;author&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>logo</strong>&quot;: &quot;logo&quot;
-            <br>}
-            <br>{
-            <br>&nbsp;&nbsp;&quot;<strong>id</strong>&quot;: &quot;id&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>name</strong>&quot;: &quot;name&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>team</strong>&quot;: &quot;team&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>ability</strong>&quot;: &quot;ability&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>image</strong>&quot;: [up to 3 elements]
-            <br>&nbsp;&nbsp;(or &quot;<strong>image</strong>&quot;: &quot;image&quot;),
-            <br>&nbsp;&nbsp;&quot;<strong>setup</strong>&quot;: true/false,
-            <br>&nbsp;&nbsp;&quot;<strong>firstNight</strong>&quot;: 0,
-            <br>&nbsp;&nbsp;&quot;<strong>firstNightReminder</strong>&quot;: &quot;reminder&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>otherNight</strong>&quot;: 0,
-            <br>&nbsp;&nbsp;&quot;<strong>otherNightReminder</strong>&quot;: &quot;reminder&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>flavor</strong>&quot;: &quot;flavor&quot;,
-            <br>&nbsp;&nbsp;&quot;<strong>reminders</strong>&quot;: [up to 20 elements],
-            <br>&nbsp;&nbsp;&quot;<strong>remindersGlobal</strong>&quot;: [up to 20 elements],
-            <br>&nbsp;&nbsp;&quot;<strong>jinxes</strong>&quot;: [{id:&quot;&quot;, reason:&quot;&quot;} (any number of elements )]
-            <br>}" />
+        <div class="mb-2">
+          <drag-and-drop
+              text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+              @json-loaded="loadedContent" />
         </div>
         <div class="relative flex mb-2 overflow-auto max-h-160">
           <JsonEditorVue
@@ -122,12 +95,17 @@ import {storeToRefs} from "pinia";
 import { useLibraryStore } from "@/store/library";
 import {useIndexStore} from "@/store";
 import {isEmpty, isEqual} from "lodash/lang";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, toNormalizeString} from "@/constants/other";
+import {
+  DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray,
+  getImageFirstUrl,
+  objectToPrettyJson,
+  toNormalizeString
+} from "@/constants/other";
 import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
 import JsonEditorVue from "json-editor-vue";
-import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import {useOptionsStore} from "@/store/options";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
+import ImportSetTooltip from "@/components/library/Sets/ImportSetTooltip.vue";
 
 defineOptions({
   name: 'import-set'
@@ -169,7 +147,7 @@ const issetImportContent = computed(() =>
 )
 
 function addId(event){
-  const value = event.target?.value ? toNormalizeString(event.target.value) : toNormalizeString(event)
+  const value = typeof event === 'string' ? toNormalizeString(event) : toNormalizeString(event.target.value)
   const idx = metaSets.value.findIndex(el => el.id === value)
   if(idx !== -1){
     if(idx !== activeSetIndex.value){
@@ -204,7 +182,7 @@ function loadedContent(value){
 function formalizedMeta(content){
   meta.value = {...EMPTY_SET}
   if(!isEmpty(content)){
-    const foundMeta = content.find(el => el.id === '_meta')
+    const foundMeta = content.find(el => el.id === '_set')
     if(!!meta){
       meta.value = {...meta.value, ...foundMeta}
       meta.value.id = toNormalizeString(meta.value.name)
@@ -216,7 +194,7 @@ function formalizedList(content){
   charsList.value = {}
   errorList.value = []
   if(!isEmpty(content)){
-    const list = content.filter(el => el.id !== '_meta');
+    const list = content.filter(el => el.id !== '_set');
     charsList.value = ROLES.reduce((acc, role) => {
       acc[role] = list
           .filter(el => el.team === role)
@@ -226,11 +204,37 @@ function formalizedList(content){
                 ...el,
                 id: toNormalizeString(`${el.name}_${meta.value.id}`, 30),
                 edition: toNormalizeString(`${meta.value.id}`, 50),
+                image: getImageArray(el.image || [], el.team),
                 jinxes: getJinxes(el)
               })
           )
       return acc;
     }, {});
+    for (const item of list) {
+      if (!item.team || !item.ability || !item.name) {
+        let missingFields = []
+        if(!item.name) {
+          missingFields.push("<strong>name</strong>")
+        }
+        if(!item.team) {
+          missingFields.push("<strong>team</strong>")
+        }
+        if(!item.ability) {
+          missingFields.push("<strong>ability</strong>")
+        }
+        const fields = missingFields.join(", ")
+        addNewError(`Required field(s) ${fields} not found in record ${objectToPrettyJson(item)}`)
+      }
+
+      if(item.team){
+        const teamExists = ROLES.some(role => {
+          return role === item.team
+        })
+        if (!teamExists) {
+          addNewError(`Unknown team <strong>${item.team}</strong> in record ${objectToPrettyJson(item)}`)
+        }
+      }
+    }
   }
 }
 
@@ -260,7 +264,7 @@ function addNewError(message){
 
 function save(){
   try{
-    libraryStore.saveNewMetaAndList({ ...meta.value }, { ...list.value })
+    libraryStore.saveNewMetaAndList({ ...meta.value }, { ...charsList.value })
     setTimeout(() => {
       isCanSave.value = false
       indexStore.unfocusWindow()

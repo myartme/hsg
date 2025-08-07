@@ -16,11 +16,24 @@
     </template>
     <template #header>
       <h2 class="text-2xl font-semibold">{{ isNew ? 'Create' : 'Edit' }} Character</h2>
+      <action-button v-if="isOfficial"
+               icon="wiki"
+               icon-size="w-7 h-7"
+               button-class="w-10 h-10"
+               tooltip="Go to the Blood on the Clocktower Wiki"
+               @click="optionsStore.openLinkinBrowser(character?.wiki)" />
+      <action-button v-if="!isOfficial && !isNew"
+                     icon="toClipboard"
+                     icon-size="w-7 h-7"
+                     button-class="w-10 h-10"
+                     tooltip="Copy character data to clipboard"
+                     :handle="handleToClipboard"
+                     :is-show-effect="true" />
       <action-button v-if="!isOfficial && !isNew"
                      icon="delete"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
-                     info="Delete this character"
+                     tooltip="Delete this character"
                      @click="isVisibleDeleteDialog = true" />
     </template>
     <template #content>
@@ -161,11 +174,11 @@
 <script setup>
 import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, DEFAULT_ICONS, getImageFirstUrl, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, isEqualWithDefault, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {useIndexStore} from "@/store";
-import {isArray, isEqual} from "lodash/lang";
+import {isArray, isEmpty, isEqual} from "lodash/lang";
 import SectorContainer from "@/components/SectorContainer.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
@@ -194,7 +207,7 @@ const props = defineProps({
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
-const stateStore = useOptionsStore()
+const optionsStore = useOptionsStore()
 const { activeList, activeMeta, activeCharacter, queuePositions, bootlegger } = storeToRefs(libraryStore)
 const errorText = ref(null)
 const isVisibleError = ref(false)
@@ -218,7 +231,7 @@ const setCanSave = (val) => {
 }
 
 const isOfficial = computed(() => {
-  if(stateStore.debugMode) return false
+  if(optionsStore.debugMode) return false
   return activeMeta.value.isOfficial ?? false
 })
 
@@ -276,11 +289,21 @@ function getDefaultQueueCharacter(){
 
   return {
     "id": activeCharacter.value.id,
-    "image": getImageFirstUrl(activeCharacter.value),
+    "image": getImageFirstUrl(activeCharacter.value) || '',
     "name": activeCharacter.value.name,
     "ability": activeCharacter.value.ability,
     "scriptCharacterPriority": 0
   }
+}
+
+function getImage(val){
+  if(isArray(val) && !isEmpty(val)){
+    return val[0]
+  } else if(typeof val === 'string'){
+    return val
+  }
+
+  return ''
 }
 
 function checkName(event) {
@@ -302,7 +325,7 @@ function checkName(event) {
 function saveData(){
   try{
     if(props.isNew){
-      let name = character.value.name;
+      let name = character.value.name
       if(character.value.edition){
         name = `${name}_${character.value.edition}`
       }
@@ -310,20 +333,21 @@ function saveData(){
     }
 
     character.value = stripDefaults(character.value, EMPTY_CHARACTER)
-    if(!getImageFirstUrl(character.value)){
-      if(isArray(character.value.image)){
-        character.value.image[0] = DEFAULT_ICONS[character.value.team]
-      } else {
-        character.value.image = DEFAULT_ICONS[character.value.team]
+
+    const indexQueue = queue.value.findIndex(el => el.id === character?.value.id || el.id === '')
+
+    const queueElement = () => {
+      return {
+        id: character.value.id,
+        image: getImageFirstUrl(character.value),
+        name: character.value.name,
+        ability: character.value.ability,
+        scriptCharacterPriority: queue.value[indexQueue]?.scriptCharacterPriority || 0
       }
     }
 
-    character.value.image = [...character.value.image]
-
-    const indexQueue = queue.value.findIndex(el => el.id === character?.value.id || el.id === 'character_id')
     if(indexQueue >= 0){
-      queue.value[indexQueue].id = character.value.id
-      queuePositions.value[character.value?.team] = queue.value
+      queuePositions.value[character.value?.team][indexQueue] = queueElement()
     }
 
     const indexBootlegger = bootlegger.value[character.value?.team].findIndex(el => el.id === character?.value.id)
@@ -354,6 +378,7 @@ function saveData(){
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
     return true
   } catch (e){
+    console.log(e)
     return false
   }
 }
@@ -372,17 +397,35 @@ function undoUpdate() {
   }
 }
 
+function handleToClipboard(){
+  try {
+    navigator.clipboard.writeText(objectToPrettyJson(character.value))
+    return true
+
+  } catch {
+    return false
+  }
+}
+
 function remove(){
   isVisibleDeleteDialog.value = false
   libraryStore.deleteActiveCharacter()
 }
 
-watch(character, (value) => {
+watch(character, () => {
   if(!character.value.setup){
     delete character.value.setup
   }
 
-  isCanSaveChar.value = !isEqual(value, activeCharacter.value)
+  queueCharacter.value = {
+    "id": character.value.id,
+    "image": getImage(character.value.image),
+    "name": character.value.name,
+    "ability": character.value.ability,
+    "scriptCharacterPriority": queueCharacter.value.scriptCharacterPriority || 0
+  }
+
+  isCanSaveChar.value = !isEqualWithDefault(character.value, activeCharacter.value)
 }, { deep:true })
 
 watch(() => character?.value?.team, (newTeam, oldTeam) => {
@@ -390,8 +433,16 @@ watch(() => character?.value?.team, (newTeam, oldTeam) => {
     queueInit()
   }
 
+  queueCharacter.value = {
+    "id": character.value.id,
+    "image": getImage(character.value.image),
+    "name": character.value.name,
+    "ability": character.value.ability,
+    "scriptCharacterPriority": queueCharacter.value.scriptCharacterPriority || 0
+  }
+
   if(!!newTeam && !getImageFirstUrl(character.value)){
-    character.value.image = DEFAULT_ICONS[newTeam]
+    character.value.image = [...getImageArray(character.value.image, newTeam)]
   }
 })
 

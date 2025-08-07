@@ -5,8 +5,8 @@
           icon="options"
           icon-size="w-8 h-8"
           button-class="w-12 h-12"
-          :icon-color="'fill-[color:var(--color-text)] hover:fill-[color:var(--color-hover-bg)]'"
-          :button-color="'border-[color:var(--color-text)] hover:border-[color:var(--color-hover-bg)]'"
+          :icon-color="'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
+          :button-color="'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
           :handle="handleOptions"
           tooltip="Script options" />
       <action-button
@@ -14,11 +14,11 @@
           icon-size="w-7 h-7"
           button-class="w-12 h-12"
           :icon-color="!isActiveActionButton
-              ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]'
-              : 'fill-[color:var(--color-text)] hover:fill-[color:var(--color-hover-bg)]'"
+              ? 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
+              : 'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
           :button-color="!isActiveActionButton
-              ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
-              : 'border-[color:var(--color-text)] hover:border-[color:var(--color-hover-bg)]'"
+              ? 'border-[color:var(--color-disable-bg)] group-hover:border-[color:var(--color-disable-bg)]'
+              : 'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
           :handle="handleSaveScript"
           :is-disable="!isActiveActionButton"
           :tooltip="tooltipSave"
@@ -27,42 +27,42 @@
           icon="toClipboard"
           icon-size="w-8 h-8"
           button-class="w-12 h-12"
-          :icon-color="!isActiveActionButton
-              ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]'
-              : 'fill-[color:var(--color-text)] hover:fill-[color:var(--color-hover-bg)]'"
-          :button-color="!isActiveActionButton
-              ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
-              : 'border-[color:var(--color-text)] hover:border-[color:var(--color-hover-bg)]'"
+          :icon-color="isEmptyList
+              ? 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
+              : 'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
+          :button-color="isEmptyList
+              ? 'border-[color:var(--color-disable-bg)] group-hover:border-[color:var(--color-disable-bg)]'
+              : 'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
           :handle="handleToClipboard"
-          :is-disable="!isActiveActionButton"
+          :is-disable="isEmptyList"
           :tooltip="tooltipClipboard"
           :is-show-effect="!isEmptyList" />
       <action-button
           icon="downloadPdf"
           icon-size="w-8 h-8"
           button-class="w-12 h-12"
-          :icon-color="!isActiveActionButton
-              ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]'
-              : 'fill-[color:var(--color-text)] hover:fill-[color:var(--color-hover-bg)]'"
-          :button-color="!isActiveActionButton
-              ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
-              : 'border-[color:var(--color-text)] hover:border-[color:var(--color-hover-bg)]'"
+          :icon-color="isEmptyList
+              ? 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
+              : 'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
+          :button-color="isEmptyList
+              ? 'border-[color:var(--color-disable-bg)] group-hover:border-[color:var(--color-disable-bg)]'
+              : 'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
           :handle="handleDownloadPdf"
-          :is-disable="!isActiveActionButton"
+          :is-disable="isEmptyList"
           :tooltip="tooltipPdf"
           :is-show-effect="!isEmptyList" />
       <action-button
           icon="downloadJson"
           icon-size="w-8 h-8"
           button-class="w-12 h-12"
-          :icon-color="!isActiveActionButton
-              ? 'fill-[color:var(--color-disable-bg)] hover:fill-[color:var(--color-disable-bg)]'
-              : 'fill-[color:var(--color-text)] hover:fill-[color:var(--color-hover-bg)]'"
-          :button-color="!isActiveActionButton
-              ? 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
-              : 'border-[color:var(--color-text)] hover:border-[color:var(--color-hover-bg)]'"
+          :icon-color="isEmptyList
+              ? 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
+              : 'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
+          :button-color="isEmptyList
+              ? 'border-[color:var(--color-disable-bg)] group-hover:border-[color:var(--color-disable-bg)]'
+              : 'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
           :handle="handleDownloadJson"
-          :is-disable="!isActiveActionButton"
+          :is-disable="isEmptyList"
           :tooltip="tooltipJson"
           :is-show-effect="!isEmptyList" />
     </div>
@@ -86,21 +86,29 @@ const isActiveActionButton = computed(() => {
   return pdfMeta.value.name !== DEFAULT_SCRIPT_NAME && !isEmptyList.value
 })
 
-const nameCheckTooltip = () => pdfMeta.value.name === DEFAULT_SCRIPT_NAME ? "Not available with default name<br>" : ''
+const nameCheckTooltip = () => {
+  if(pdfMeta.value.name === DEFAULT_SCRIPT_NAME){
+    return "Not available with default name. Change it in the settings<br>"
+  }
+  if(pdfMeta.value.name === ''){
+    return "Not available with empty name. Change it in the settings<br>"
+  }
+  return ''
+}
 const listCheckTooltip = () => isEmptyList.value ? "Not available while script is empty<br>" : ''
 const saveCheckTooltip = () => !isSavedScript.value ? "The script is not saved, so the file will not be saved to the library<br>" : ''
 
 const tooltipSave = computed(() => {
-  return isActiveActionButton.value ? 'Save script to library' : nameCheckTooltip() + listCheckTooltip()
+  return isActiveActionButton.value ? "Save script to library<br>" : nameCheckTooltip() + listCheckTooltip()
 })
 const tooltipClipboard = computed(() => {
-  return !isEmptyList.value ? 'Copy to clipboard' : listCheckTooltip()
+  return !isEmptyList.value ? "Copy to clipboard<br>" : listCheckTooltip()
 })
 const tooltipPdf = computed(() => {
-  return "Download Pdf<br>" + saveCheckTooltip()
+  return !isEmptyList.value ? "Download Pdf<br>" : saveCheckTooltip()
 })
 const tooltipJson = computed(() => {
-  return "Download Json<br>" + saveCheckTooltip()
+  return !isEmptyList.value ? "Download Json<br>" : saveCheckTooltip()
 })
 
 function handleOptions(){
@@ -127,7 +135,7 @@ async function handleSaveScript(){
 }
 
 function handleToClipboard(){
-  if(isEmptyList.value) return
+  if(isEmptyList.value || !isActiveActionButton.value) return
 
   try {
     navigator.clipboard.writeText(craftStore.getJsonCurrentScriptContent())
@@ -138,7 +146,7 @@ function handleToClipboard(){
 }
 
 async function handleDownloadPdf(){
-  if(isEmptyList.value) return
+  if(isEmptyList.value || !isActiveActionButton.value) return
   isWaitingOperation.value = true
   try {
     craftStore.triggerPrintPreparation()
@@ -172,7 +180,7 @@ async function handleDownloadPdf(){
 }
 
 function handleDownloadJson(){
-  if(isEmptyList.value) return
+  if(isEmptyList.value || !isActiveActionButton.value) return
   isWaitingOperation.value = true
 
   try {

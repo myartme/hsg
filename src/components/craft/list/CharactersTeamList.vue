@@ -1,11 +1,8 @@
 <template>
   <div>
-    <h3 class="text-sm ml-5 font-bold uppercase mb-3 pt-3 title-theme"
-        @click="isOpen = !isOpen">
+    <h3 class="text-sm ml-5 font-bold uppercase mb-3 pt-3 title-theme select-none">
       {{ teamName }}{{ teamName !== 'townsfolk' ? 's' : '' }}
-      <span class="text-sm ml-2">{{ isOpen ? '▲' : '▼' }}</span>
     </h3>
-    <template v-if="isOpen">
       <div v-for="character in teamItems"
           class="flex gap-3 ml-5 mr-5 mb-1 list-element hover:bg-[color:var(--color-hover-bg)]"
            :key="character.edition+'-'+character.id"
@@ -19,30 +16,19 @@
         <span class="w-1/4 font-bold title-theme">{{ character.name }}</span>
         <span class="w-3/4 text-xs mr-2 text-theme">{{ character.ability }}</span>
       </div>
-    </template>
   </div>
 </template>
 <script setup>
-import {ref} from "vue";
 import {getImageFirstUrl} from "@/constants/other";
 import {useCraftStore} from "@/store/craft";
 import {isDeletingFromPdfCharacterList} from "@/store/craft/state";
 
 const props = defineProps({
   teamName: String,
-  teamItems: Object,
-  isFiltered: {
-    type: Boolean,
-    default: false
-  },
-  isOpened: {
-    type: Boolean,
-    default: true
-  }
+  teamItems: Array
 });
 
 const craftStore = useCraftStore()
-const isOpen = ref(props.isOpened)
 
 function selectRole(character) {
   craftStore.addElementToSecondList(character, props.teamName)
