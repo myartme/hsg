@@ -151,7 +151,7 @@ import SimpleInputTag from "@/components/ui/SimpleInputTag.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import {isEmpty} from "lodash/lang";
 import ActionButton from "@/components/ui/ActionButton.vue";
-import {DEFAULT_VERSION, SET_INDEX, toNormalizeString} from "@/constants/other";
+import {DEFAULT_VERSION, SET_INDEX} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import router from "@/router";
 import PopupContainer from "@/components/PopupContainer.vue";
