@@ -3,17 +3,18 @@ import {watch} from "vue";
 import {isEmpty} from "lodash/lang";
 import {deleteDataPrint, getDataPrint, setDataPrint} from "@/store";
 import {saveScripts} from "@/store/craft/script";
+import {toNormalizeString} from "@/constants/other";
 
 
 export async function loadPdf(version, name) {
-    const result = await getDataPrint(version, name)
+    const result = await getDataPrint(version, toNormalizeString(name))
     if (result.isSuccess) {
         return result.content
     }
 }
 
 export async function savePdf(content) {
-    const result = await setDataPrint(pdfMeta.value.version, pdfMeta.value.name, content)
+    const result = await setDataPrint(pdfMeta.value.version, toNormalizeString(pdfMeta.value.name), content)
     if (result.isSuccess) {
         const index = pdfMeta.value.list.findIndex(el => el.version === pdfMeta.value.version)
         const list = pdfMeta.value.list[index]
@@ -24,7 +25,7 @@ export async function savePdf(content) {
 }
 
 export async function deletePdf(version, name) {
-    return await deleteDataPrint(version, name)
+    return await deleteDataPrint(version, toNormalizeString(name))
 }
 
 export function fillPdfList(content) {

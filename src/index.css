@@ -38,6 +38,8 @@ html, body, #app {
   --color-disable-placeholder-text: #5C565680;
   --color-bg-button-pressed: #a568fd;
   --color-error: #ff000b;
+  --color-button: #4d5568;
+  --color-button-hover: #000000;
   --color-button-error: #d6313c;
   --color-button-hover-error: #fb2c36;
   --color-bg-error: #ffe2e2;
@@ -60,6 +62,8 @@ html, body, #app {
   --color-disable-placeholder-text: #99a1af;
   --color-bg-button-pressed: #44068CCC;
   --color-error: #fb2c36;
+  --color-button: #99a1af;
+  --color-button-hover: #404959;
   --color-button-error: #95050c;
   --color-button-hover-error: #95050CCC;
   --color-bg-error: #ffe2e2;

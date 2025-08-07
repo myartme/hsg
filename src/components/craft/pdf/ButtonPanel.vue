@@ -86,7 +86,15 @@ const isActiveActionButton = computed(() => {
   return pdfMeta.value.name !== DEFAULT_SCRIPT_NAME && !isEmptyList.value
 })
 
-const nameCheckTooltip = () => pdfMeta.value.name === DEFAULT_SCRIPT_NAME ? "Not available with default name.<br>Change it in the settings.<br>" : ''
+const nameCheckTooltip = () => {
+  if(pdfMeta.value.name === DEFAULT_SCRIPT_NAME){
+    return "Not available with default name. Change it in the settings<br>"
+  }
+  if(pdfMeta.value.name === ''){
+    return "Not available with empty name. Change it in the settings<br>"
+  }
+  return ''
+}
 const listCheckTooltip = () => isEmptyList.value ? "Not available while script is empty<br>" : ''
 const saveCheckTooltip = () => !isSavedScript.value ? "The script is not saved, so the file will not be saved to the library<br>" : ''
 

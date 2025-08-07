@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {isEmpty} from "lodash/lang";
 
 export const DEFAULT_ACTION_BUTTON_ACTIVE_TIME = 500;
 export const DEFAULT_MIN_TIME = 10;
@@ -35,7 +36,7 @@ export const objectToPrettyJson = (data) => {
 }
 
 export const toNormalizeString = (value, limit = 0) => {
-    if(!value) return ''
+    if(isEmpty(value)) return ''
 
     const cyrillicToLatinMap = {
         'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
@@ -46,6 +47,7 @@ export const toNormalizeString = (value, limit = 0) => {
         'ш': 'sh','щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
         'э': 'e', 'ю': 'yu', 'я': 'ya'
     };
+
     const transliterated = value
         .toLowerCase()
         .split('')

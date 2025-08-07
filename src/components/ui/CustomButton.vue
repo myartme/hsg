@@ -53,7 +53,7 @@ const props = defineProps({
   },
   iconColor: {
     type: String,
-    default: 'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-border)]'
+    default: 'fill-[color:var(--color-button)] group-hover:fill-[color:var(--color-button-hover)]'
   },
   tooltip: {
     type: String,

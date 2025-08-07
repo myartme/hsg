@@ -147,7 +147,7 @@ const issetImportContent = computed(() =>
 )
 
 function addId(event){
-  const value = event.target?.value ? toNormalizeString(event.target.value) : toNormalizeString(event)
+  const value = typeof event === 'string' ? toNormalizeString(event) : toNormalizeString(event.target.value)
   const idx = metaSets.value.findIndex(el => el.id === value)
   if(idx !== -1){
     if(idx !== activeSetIndex.value){

@@ -53,13 +53,7 @@ import { computed, getCurrentInstance, ref, watch } from "vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
 import SectorContainer from "@/components/SectorContainer.vue";
-import {
-  DEFAULT_ACTION_BUTTON_ACTIVE_TIME,
-  getImageArray,
-  getImageFirstUrl,
-  objectToPrettyJson,
-  toNormalizeString
-} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {isArray, isEmpty, isEqual} from "lodash/lang";

@@ -100,13 +100,16 @@ export const useOptionsStore = defineStore('options', () => {
     async function importScripts(data, withReplace){
         try {
             const craftStore = useCraftStore()
-            const {scriptList} = storeToRefs(craftStore)
+            const {scriptList, pdfMeta} = storeToRefs(craftStore)
 
             for (const [key, metaEl] of Object.entries(data.meta)) {
                 const idx = scriptList.value.findIndex(el => el.name === metaEl.name)
                 if (idx >= 0) {
                     if (withReplace) {
-                        for (const [listKey, list] of Object.entries(metaEl.list)) {
+                        const { list: metaElementList, ...rest } = metaEl
+                        scriptList.value[idx] = { ...scriptList.value[idx], ...rest }
+
+                        for (const [listKey, list] of Object.entries(metaElementList)) {
                             const versionIdx = scriptList.value[idx].list.findIndex(el => el.version === list.version)
                             if (versionIdx >= 0) {
                                 scriptList.value[idx].list[versionIdx] = list

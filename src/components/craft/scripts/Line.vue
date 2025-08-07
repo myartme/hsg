@@ -36,7 +36,7 @@
                    {'bg-[color:var(--color-list-element)]' : element.version === activeVersion }
           ]">
             <div class="flex justify-between items-center w-full px-3">
-              <span class="p-1 font-bold cursor-pointer text-theme rounded-2xl border-3 border-[color:var(--color-border)] hover:border-[color:var(--color-disable-bg)]"
+              <span class="p-1 font-bold cursor-pointer text-theme rounded-2xl border-3 border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]"
                     @click="(event) => selectScript(element, event)">Open v{{ element?.version }}</span>
               <div class="flex gap-2">
                 <action-button
@@ -88,7 +88,7 @@
     </sector-container>
     <confirm-dialog v-if="isVisibleDeleteDialog"
                     :title="`Deleting ${script.name} v${deletingVersion}`"
-                    description="This action cannot be undone. Are you sure you want to delete this character?"
+                    description="This action cannot be undone. Are you sure you want to delete this script?"
                     @confirm="handleDeleteScript()"
                     @cancel="isVisibleDeleteDialog = false" />
   </div>
@@ -127,7 +127,7 @@ const isVisibleDeleteDialog = ref(false)
 const deletingVersion = ref(DEFAULT_VERSION)
 const index = computed(() => props.scriptData.index)
 const script = computed(() => props.scriptData.script)
-const emits = defineEmits(['isOpenOptions', 'onEmptyList'])
+const emits = defineEmits(['isOpenOptions', 'onEmptyList', 'onDeletingVersion'])
 const getIconClass = (val) => val ? '' : 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
 const getButtonClass = (val) => val ? '' : 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
 
@@ -174,6 +174,7 @@ async function handleDownloadJson(element){
 async function handleToClipboard(element){
   if(element.json){
     const result = await craftStore.loadScript(element.version, script.value.name)
+
     if (result?.isSuccess && result.content) {
       await navigator.clipboard.writeText(objectToPrettyJson(result.content))
       return true
@@ -186,6 +187,7 @@ async function handleToClipboard(element){
 async function handleDeleteScript(){
   isVisibleDeleteDialog.value = false
   await craftStore.deleteScript(deletingVersion.value, script.value.name)
+  emits('onDeletingVersion')
 }
 
 function isOpenOptions(){
@@ -231,4 +233,8 @@ watch(activeScriptIndex, () => {
     list.value = activeScript.value?.list
   }
 }, { immediate: true })
+
+watch(() => props.scriptData, () => {
+  list.value = activeScript.value?.list
+}, {immediate: true})
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 bg-black/90 bg-opacity-50 flex items-center justify-center z-50">
+  <div @click.stop="" class="fixed inset-0 bg-black/90 bg-opacity-50 flex items-center justify-center z-50">
     <div class="rounded-2xl shadow-lg p-5 w-150 text-center bg-[color:var(--color-bg)]">
       <h2 class="text-xl font-semibold mb-10 title-theme">{{ title }}</h2>
       <p class="mb-10 text-theme">{{ description }}</p>

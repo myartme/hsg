@@ -17,6 +17,8 @@
       <simple-input
           v-model:value="meta.name"
           label="Script name"
+          @focusin="nameUpdate"
+          @focusout="nameUpdate"
           :maxlength="50"
           required="This field is required."
           info="Changing this value will be considered a new script!"
@@ -123,11 +125,11 @@
               :value="meta.different?.background"
               @value-update="meta.background = $event" />
         </div>
-        <div class="object-cover rounded mx-auto">
-          <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50"  alt="logo">
+        <div class="mt-2 max-h-[500px] mx-auto rounded object-cover">
+          <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
         </div>
-        <div class="object-cover rounded mx-auto">
-          <img v-if="meta.background" :src="meta.background" class="mt-10 h-50" alt="background">
+        <div class="mt-2 max-h-[500px] mx-auto rounded object-cover">
+          <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
         </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
@@ -149,7 +151,7 @@ import SimpleInputTag from "@/components/ui/SimpleInputTag.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import {isEmpty} from "lodash/lang";
 import ActionButton from "@/components/ui/ActionButton.vue";
-import {DEFAULT_VERSION, SET_INDEX} from "@/constants/other";
+import {DEFAULT_VERSION, SET_INDEX, toNormalizeString} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import router from "@/router";
 import PopupContainer from "@/components/PopupContainer.vue";
@@ -214,6 +216,12 @@ function handleDeleteScript(){
   router.push({ name: 'scriptList' })
   activeScriptIndex.value = SET_INDEX.DEFAULT
   activeVersion.value = DEFAULT_VERSION
+}
+
+function nameUpdate(event){
+  if(event.target?.value === DEFAULT_SCRIPT_NAME){
+    meta.value.name = ""
+  }
 }
 
 watch(rule, (newVal) => {

@@ -230,6 +230,6 @@ watch(searchedQuery, (newVal) => {
   debouncedSearch(newVal)
 })
 watch(activeList, () => {
-  list.value = {...activeList.value}
+  list.value = cloneDeep(activeList.value)
 })
 </script>

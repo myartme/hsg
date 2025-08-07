@@ -161,13 +161,7 @@
 <script setup>
 import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
-import {
-  DEFAULT_ACTION_BUTTON_ACTIVE_TIME,
-  getImageArray,
-  getImageFirstUrl,
-  isEqualWithDefault,
-  toNormalizeString
-} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, isEqualWithDefault, toNormalizeString} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {useIndexStore} from "@/store";
