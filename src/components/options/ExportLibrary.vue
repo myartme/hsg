@@ -34,7 +34,7 @@
       </div>
     </template>
     <spinner v-if="isWaitingOperation"
-             item-class="fixed inset-0 z-50 bg-black/60 pointer-events-auto flex justify-center items-center" :size="15" />
+             item-class="fixed inset-0 z-50 bg-black/60 pointer-events-auto flex justify-center items-center" size="w-20 h-20" />
   </popup-container>
 </template>
 <script setup>

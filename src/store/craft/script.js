@@ -49,44 +49,71 @@ export async function loadScriptWithMetaFilling(version, name, withWaitingOption
 }
 
 export async function saveCurrentScript() {
-    const now = new Date();
-    pdfMeta.value.date = now.toISOString()
-    if(pdfMeta.value.author === DEFAULT_SCRIPT_AUTHOR || pdfMeta.value.author === ''){
-        pdfMeta.value.author = 'Unknown'
-    }
-    if (activeScriptIndex.value >= 0) {
-        const result = await getDataScript(activeVersion.value || DEFAULT_VERSION, toNormalizeString(pdfMeta.value.name))
-        if (result.isSuccess) {
-            const idxMeta = result.content.find(el => el.id === '_meta')
-            result.content.splice(idxMeta, 1)
-            const pdfList = Object.values(pdfListWithParams.value).flat()
-            const sorted1 = sortScriptArray(formatArray(pdfList))
-            const sorted2 = sortScriptArray(formatArray(result.content))
-            const list = scriptList.value[activeScriptIndex.value].list
-            if (!arraysEqual(sorted1, sorted2)) {
-                pdfMeta.value.version = getNextVersion(list.at(-1).version)
-                await saveScript(pdfMeta.value)
-                pdfMeta.value.list.push(
-                    getFormatScriptListElement(
-                        now.toISOString(), {...pdfMeta.value, ...list, json:true }, getCurrentScriptContentToSaveFormat()
-                    )
-                )
-                scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
-            } else {
+    try {
+        const now = new Date();
+        pdfMeta.value.date = now.toISOString()
+        if (pdfMeta.value.author === DEFAULT_SCRIPT_AUTHOR || pdfMeta.value.author === '') {
+            pdfMeta.value.author = 'Unknown'
+        }
+        const idx = scriptList.value.findIndex(el => el.name === pdfMeta.value.name)
+        if (idx !== -1) {
+            activeScriptIndex.value = idx
+        }
 
-                await saveScript(pdfMeta.value)
-                pdfMeta.value.list = list.map(el => {
-                    if(el.version === pdfMeta.value.version){
-                        el = getFormatScriptListElement(
-                            now.toISOString(), {...pdfMeta.value, ...list, json:true }, getCurrentScriptContentToSaveFormat()
+        if (activeScriptIndex.value >= 0) {
+            const result = await getDataScript(activeVersion.value || DEFAULT_VERSION, toNormalizeString(pdfMeta.value.name))
+
+            if (result.isSuccess) {
+                const idxMeta = result.content.find(el => el.id === '_meta')
+                result.content.splice(idxMeta, 1)
+                const pdfList = Object.values(pdfListWithParams.value).flat()
+                const sorted1 = sortScriptArray(formatArray(pdfList))
+                const sorted2 = sortScriptArray(formatArray(result.content))
+                const list = scriptList.value[activeScriptIndex.value].list
+                if (!arraysEqual(sorted1, sorted2)) {
+                    pdfMeta.value = {...pdfMeta.value, ...scriptList.value[activeScriptIndex.value]}
+                    pdfMeta.value.version = getNextVersion(list.at(-1).version)
+                    pdfMeta.value.list.push(
+                        getFormatScriptListElement(
+                            now.toISOString(), {
+                                ...pdfMeta.value, ...list,
+                                json: true
+                            }, getCurrentScriptContentToSaveFormat()
                         )
-                    }
+                    )
+                    await saveScript(pdfMeta.value)
+                    scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
+                } else {
+                    pdfMeta.value.version = list.at(-1).version
+                    pdfMeta.value.list = list.map(el => {
+                        if (el.version === pdfMeta.value.version) {
+                            el = getFormatScriptListElement(
+                                now.toISOString(), {
+                                    ...pdfMeta.value, ...list,
+                                    json: true
+                                }, getCurrentScriptContentToSaveFormat()
+                            )
+                        }
 
-                    return el
-                })
+                        return el
+                    })
 
-                pdfMeta.value.version = list.at(-1).version
-                scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
+                    await saveScript(pdfMeta.value)
+                    scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
+                }
+            } else {
+                pdfMeta.value.version = DEFAULT_VERSION
+                pdfMeta.value = {
+                    ...pdfMeta.value,
+                    version: DEFAULT_VERSION,
+                    list: [
+                        getFormatScriptListElement(
+                            now.toISOString(), {...pdfMeta.value, json: true}, getCurrentScriptContentToSaveFormat()
+                        )
+                    ]
+                }
+                await saveScript(pdfMeta.value)
+                scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
             }
         } else {
             pdfMeta.value.version = DEFAULT_VERSION
@@ -96,33 +123,17 @@ export async function saveCurrentScript() {
                 version: DEFAULT_VERSION,
                 list: [
                     getFormatScriptListElement(
-                        now.toISOString(), { ...pdfMeta.value, json:true }, getCurrentScriptContentToSaveFormat()
+                        now.toISOString(), {...pdfMeta.value, json: true}, getCurrentScriptContentToSaveFormat()
                     )
                 ]
             }
             scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
         }
-    } else {
-        pdfMeta.value.version = DEFAULT_VERSION
-        await saveScript(pdfMeta.value)
-        pdfMeta.value = {
-            ...pdfMeta.value,
-            version: DEFAULT_VERSION,
-            list: [
-                getFormatScriptListElement(
-                    now.toISOString(), { ...pdfMeta.value, json:true }, getCurrentScriptContentToSaveFormat()
-                )
-            ]
-        }
-        scriptList.value.push(filterScriptFileMeta(pdfMeta.value))
-    }
 
-    const idx = scriptList.value.findIndex(el => el.name === pdfMeta.value.name)
-    if(idx !== -1){
-        activeScriptIndex.value = idx
+        await saveScripts()
+    }catch (e){
+        console.log(e)
     }
-
-    await saveScripts()
 }
 
 export async function saveUpdateVersions(meta) {

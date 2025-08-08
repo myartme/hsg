@@ -1,6 +1,6 @@
 <template>
   <div :class="itemClass">
-    <svg :class="`h-${size} w-${size} animate-spin`" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+    <svg :class="[size, 'animate-spin']" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
       <circle
           cx="25"
           cy="25"
@@ -26,9 +26,6 @@
 <script setup>
 const props = defineProps({
   itemClass: String,
-  size: {
-    type: [Number, String],
-    default: 8
-  }
+  size: String
 })
 </script>

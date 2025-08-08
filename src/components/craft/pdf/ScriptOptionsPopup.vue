@@ -168,7 +168,7 @@ const props = defineProps({
 const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
 const { bootlegger } = storeToRefs(libraryStore)
-const { pdfMeta, pdfListWithParams, activeScriptIndex, activeVersion, isSavedScript, tags } = storeToRefs(craftStore)
+const { pdfMeta, pdfListWithParams, activeScriptIndex, activeVersion, isSavedScript, tags, isEditingScript } = storeToRefs(craftStore)
 const scriptTags = ref([])
 const selectedTag = ref('')
 const bootleggerDefault = computed(() => {
@@ -206,6 +206,9 @@ function getDifferentText(value) {
 }
 
 function closeWindow(){
+  if(!isEditingScript.value){
+    isEditingScript.value = true
+  }
   pdfMeta.value['bootlegger'] = rules.value
   pdfMeta.value['tags'] = Object.values(scriptTags.value).map(({title}) => title)
   emits('update:isOpen', !props.isOpen)
@@ -247,8 +250,6 @@ watch(() => pdfMeta.value?.bootlegger, (newVal) => {
 }, { immediate: true })
 
 watch(selectedTag, (val) => {
-  console.log(val)
-  console.log(scriptTags.value)
   if(val !== '' && !scriptTags.value.find(({title}) => title === val)){
     const idx = tags.value.findIndex(({title}) => title === val)
     if(idx !== -1){

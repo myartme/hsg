@@ -28,6 +28,9 @@ export const tags = ref([])
 
 export const isEditScriptTags = ref(false)
 export const isImportScript = ref(false)
+
+export const isEditingScript = ref(false)
+
 export const filteredScriptListTags = ref([])
 export const filteredScriptListCharacters = ref([])
 

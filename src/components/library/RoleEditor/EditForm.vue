@@ -203,7 +203,6 @@ const props = defineProps({
     default: false
   }
 })
-
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()

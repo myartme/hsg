@@ -7,6 +7,7 @@ import AddWithBorderIcon from "@/components/ui/svg/addWithBorder.svg";
 import AlertIcon from "@/components/ui/svg/alert.svg";
 import AuthorDownIcon from "@/components/ui/svg/authorDown.svg";
 import AuthorUpIcon from "@/components/ui/svg/authorUp.svg";
+import BackToListIcon from "@/components/ui/svg/backToList.svg";
 import CheckIcon from "@/components/ui/svg/check.svg";
 import CrossIcon from "@/components/ui/svg/cross.svg";
 import DateDownIcon from "@/components/ui/svg/dateDown.svg";
@@ -35,6 +36,7 @@ import SortWithBorderIcon from "@/components/ui/svg/sortWithBorder.svg";
 import TagsIcon from "@/components/ui/svg/tags.svg";
 import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
+import ViewDiaryIcon from "@/components/ui/svg/viewDiary.svg";
 import WikiIcon from "@/components/ui/svg/wiki.svg";
 
 const props = defineProps({
@@ -52,6 +54,7 @@ const icons = {
   alert : AlertIcon,
   authorDown : AuthorDownIcon,
   authorUp: AuthorUpIcon,
+  backToList: BackToListIcon,
   check: CheckIcon,
   cross: CrossIcon,
   dateDown: DateDownIcon,
@@ -80,6 +83,7 @@ const icons = {
   tags: TagsIcon,
   toClipboard : ToClipboardIcon,
   undo : UndoIcon,
+  viewDiary : ViewDiaryIcon,
   wiki : WikiIcon,
 }
 </script>

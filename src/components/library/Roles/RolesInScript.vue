@@ -67,7 +67,7 @@
       </div>
       <spinner v-show="isLoading"
                item-class="flex justify-center items-center py-5"
-               :size="12" />
+               size="w-12 h-12" />
       <div v-show="!isLoading" v-for="(group, groupIndex) in list" :key="groupIndex">
         <div v-if="group.length > 0" class="text-lg font-bold uppercase tracking-wide mb-3 mt-3 title-theme">
           {{ groupIndex }}{{ groupIndex !== 'townsfolk' ? 'S' : '' }} ({{ group.length }})

@@ -45,7 +45,7 @@
                 />
               </template>
               <template #popper>
-                <div v-html="jinx.ability"></div>
+                <div v-html="jinx.reason"></div>
               </template>
             </tooltip>
           </template>
