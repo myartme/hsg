@@ -33,5 +33,6 @@ const { tooltipDelay } = storeToRefs(optionsStore)
 <style>
 .import-tooltip .v-popper__inner {
   min-width: 740px;
+  overflow: hidden;
 }
 </style>

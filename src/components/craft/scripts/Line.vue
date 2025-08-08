@@ -74,6 +74,27 @@
                     @click.stop=""
                     :tooltip="getPreviewTooltip(element.characters)"
                     button-class="w-9 h-9" />
+                <div v-if="element.note" class="relative">
+                  <tooltip :triggers="['hover', 'focus', 'click']"
+                           placement="top"
+                           :auto-hide="true"
+                           popper-class="import-script-list-tooltip"
+                           :delay="{ show: tooltipDelay.buttonShow, hide: tooltipDelay.buttonHide }"
+                  >
+                    <template #default>
+                      <button
+                          class="w-9 h-9 group flex items-center justify-center border-2 select-none border-[color:var(--color-button)] group-hover:border-[color:var(--color-button-hover)] rounded-full"
+                          @click="$event.currentTarget.blur()"
+                          @blur="$event.currentTarget.blur()">
+                        <icon-element name="viewDiary" size="w-7 h-7" color="fill-[color:var(--color-button)] group-hover:fill-[color:var(--color-button-hover)]" />
+                        <slot name="transition" />
+                      </button>
+                    </template>
+                    <template #popper>
+                      <div style="width: 1000px;">{{ element.note }}</div>
+                    </template>
+                  </tooltip>
+                </div>
                 <action-button
                     icon="delete"
                     icon-size="w-6 h-6"
@@ -104,6 +125,9 @@ import {DEFAULT_VERSION, getImageFirstUrl, objectToPrettyJson} from "@/constants
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import {pdfMeta} from "@/store/craft/state";
 import {useLibraryStore} from "@/store/library";
+import {Tooltip} from "floating-vue";
+import IconElement from "@/components/ui/IconElement.vue";
+import {useOptionsStore} from "@/store/options";
 
 const props = defineProps({
   scriptData: Object,
@@ -119,9 +143,11 @@ const props = defineProps({
 
 const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
+const optionsStore = useOptionsStore()
 const instance = getCurrentInstance()
 const { allListsAsOne } = storeToRefs(libraryStore)
 const { activeScriptIndex, activeScript, activeVersion, isSavedScript } = storeToRefs(craftStore)
+const { tooltipDelay } = storeToRefs(optionsStore)
 const list = ref([])
 const isVisibleDeleteDialog = ref(false)
 const deletingVersion = ref(DEFAULT_VERSION)
@@ -238,3 +264,9 @@ watch(() => props.scriptData, () => {
   list.value = activeScript.value?.list
 }, {immediate: true})
 </script>
+<style>
+.import-script-list-tooltip .v-popper__inner {
+  min-width: 1000px;
+  overflow: hidden;
+}
+</style>

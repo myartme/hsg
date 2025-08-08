@@ -16,9 +16,7 @@
           :icon-color="!isActiveActionButton
               ? 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
               : 'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
-          :button-color="!isActiveActionButton
-              ? 'border-[color:var(--color-disable-bg)] group-hover:border-[color:var(--color-disable-bg)]'
-              : 'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
+          :button-color="getButtonStyle"
           :handle="handleSaveScript"
           :is-disable="!isActiveActionButton"
           :tooltip="tooltipSave"
@@ -65,6 +63,16 @@
           :is-disable="isEmptyList"
           :tooltip="tooltipJson"
           :is-show-effect="!isEmptyList" />
+
+      <action-button
+          icon="backToList"
+          icon-size="w-8 h-8"
+          button-class="w-12 h-12"
+          icon-color="fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]"
+          button-color="border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]"
+          :handle="handleToScriptList"
+          tooltip="Return to script list"
+          class="mt-6" />
     </div>
   </div>
 </template>
@@ -77,13 +85,26 @@ import {isEmpty} from "lodash/lang";
 import {DEFAULT_SCRIPT_NAME} from "@/constants/roles";
 import {DEFAULT_VERSION} from "@/constants/other";
 import ActionButton from "@/components/ui/ActionButton.vue";
+import router from "@/router";
 
 const craftStore = useCraftStore()
-const { pdfMeta, activeVersion, pdfListElement, isOpenPdfOptions, isSavedScript, isWaitingOperation, pdfListWithParams } = storeToRefs(craftStore)
+const { pdfMeta, pdfListElement, isOpenPdfOptions, isSavedScript, isWaitingOperation, pdfListWithParams, isEditingScript } = storeToRefs(craftStore)
 const isEmptyList = computed(() => isEmpty(Object.values(pdfListWithParams.value).flat()))
 
 const isActiveActionButton = computed(() => {
   return pdfMeta.value.name !== DEFAULT_SCRIPT_NAME && !isEmptyList.value
+})
+
+const getButtonStyle = computed(() => {
+  let style = ''
+  if(!isActiveActionButton.value){
+    style += ' border-[color:var(--color-disable-bg)] group-hover:border-[color:var(--color-disable-bg)] '
+  } else {
+    style += ' group-hover:border-[color:var(--color-hover-bg)] '
+    style += isEditingScript.value ? ' border-[color:var(--color-error)] ' : ' border-[color:var(--color-active)] '
+  }
+
+  return style
 })
 
 const nameCheckTooltip = () => {
@@ -121,9 +142,11 @@ async function handleSaveScript(){
   try {
     await craftStore.saveCurrentScript()
     isSavedScript.value = true
-    await craftStore.loadScriptWithMetaFilling(activeVersion.value, pdfMeta.value.name)
     setTimeout(() => {
       isWaitingOperation.value = false
+      if(isEditingScript.value){
+        isEditingScript.value = false
+      }
     }, 1000)
     return true
   } catch {
@@ -200,5 +223,10 @@ function handleDownloadJson(){
     isWaitingOperation.value = false
     return false
   }
+}
+
+async function handleToScriptList(){
+  isEditingScript.value = false
+  await router.replace({ name: 'scriptList' })
 }
 </script>

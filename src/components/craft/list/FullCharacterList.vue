@@ -50,7 +50,7 @@
       </div>
       <spinner v-if="isLoading"
           item-class="flex justify-center items-center py-5"
-          :size="18" />
+          size="w-18 h-18" />
       <template v-else>
         <div v-show="!isEmpty(listFiltered)"
              v-for="(group, team) in listFiltered"

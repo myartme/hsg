@@ -24,8 +24,8 @@ defineOptions({
 
 const instance = getCurrentInstance()
 const menuElements = {
-  "Character Library": "/",
   "Script List": "/scripts",
+  "Character Library": "/library",
   "Options": "/options",
 }
 </script>
