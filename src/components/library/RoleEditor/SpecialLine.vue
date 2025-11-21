@@ -64,8 +64,6 @@
 </template>
 <script setup>
 import {computed, ref, watch} from "vue";
-import { useLibraryStore } from "@/store/library";
-import {useOptionsStore} from "@/store/options";
 import ActionButton from "@/components/ui/ActionButton.vue";
 
 const props = defineProps({

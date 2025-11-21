@@ -66,7 +66,7 @@
 <script setup>
 import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
-import {getImageFirstUrl, getPluralTeam} from "@/constants/other";
+import {getImageFirstUrl} from "@/constants/other";
 import {ref, watch} from "vue";
 import {getBase64Image} from "@/store";
 import NightOrderTable from "@/components/craft/pdf/print/NightOrderTable.vue";
