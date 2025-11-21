@@ -5,7 +5,6 @@ import {deleteDataPrint, getDataPrint, setDataPrint} from "@/store";
 import {saveScripts} from "@/store/craft/script";
 import {toNormalizeString} from "@/constants/other";
 
-
 export async function loadPdf(version, name) {
     const result = await getDataPrint(version, toNormalizeString(name))
     if (result.isSuccess) {

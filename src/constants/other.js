@@ -67,16 +67,24 @@ export const getPluralTeam = (teamName) => {
 }
 
 export const getImageFirstUrl = (character, isOfficial = false) => {
-    if(!character || !character.image) return
+    if(!character) return
     if(isOfficial)
         return `images/icons/icon_${character.id}.png`
 
+    const getDefault = () => {
+        return `images/icons/defaults/default_${character.team ? character.team : 'character'}.png`
+    }
+
     if (Array.isArray(character.image)) {
         if (character.image.length > 0) {
-            return character.image[0]
+            return character.image[0] ? character.image[0] : getDefault()
+        } else {
+            return getDefault()
         }
     } else {
-        return character.image;
+        return character.image
+            ? character.image
+            : getDefault()
     }
 }
 

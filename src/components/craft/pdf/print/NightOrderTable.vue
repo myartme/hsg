@@ -22,13 +22,13 @@
             <img
                 v-if="role.id === 'pdf_minion_info'"
                 class="w-8 h-8 object-contain mx-auto scale-130"
-                src="/images/elements/pdf/minionInfo.png"
+                src="/images/elements/pdf/minioninfo.png"
                 alt="Minion info first night"
             />
             <img
                 v-else-if="role.id === 'pdf_demon_info'"
                 class="w-8 h-8 object-contain mx-auto scale-130"
-                src="/images/elements/pdf/demonInfo.png"
+                src="/images/elements/pdf/demoninfo.png"
                 alt="Demon info first night"
             />
             <img

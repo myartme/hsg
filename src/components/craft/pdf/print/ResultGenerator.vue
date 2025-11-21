@@ -11,7 +11,7 @@
       </div>
       <template v-for="(list, team) in items">
         <div v-if="MAIN_ROLES.find(el => el === team)">
-          <img v-if="list.length > 0" :src="`/images/elements/pdf/team/${getPluralTeam(team)}.png`" :alt="team" class="mt-2" />
+          <img v-if="list.length > 0" :src="teamImages[team]" :alt="team" class="mt-2" />
           <div class="flex items-center space-x-4 -m-1.5 ml-1 p-0.3" v-for="character in list">
             <div class="w-10 h-10 ml-5">
               <img
@@ -45,8 +45,8 @@
     </div>
     <div class="bg-white w-[800px] h-[1100px] overflow-auto relative flex items-start">
       <night-order-table class="w-[250px]"
-          :night="getNightRoles('firstNight')"
-                         banner-src="/images/elements/pdf/first_night_banner.png"
+                         :night="getNightRoles('firstNight')"
+                         :banner-src="firstNightBanner"
                          banner-alt="First Night"
                          :bannerLeftPosition="false" />
       <night-order-middle-table
@@ -55,8 +55,8 @@
           :travellers="items['traveller']"
           :fabled="items['fabled']" />
       <night-order-table class="w-[250px]"
-          :night="getNightRoles('otherNight')"
-                         banner-src="/images/elements/pdf/other_nights_banner.png"
+                         :night="getNightRoles('otherNight')"
+                         :banner-src="otherNightsBanner"
                          banner-alt="Other Night"
                          :bannerLeftPosition="true" />
     </div>
@@ -71,6 +71,12 @@ import {ref, watch} from "vue";
 import {getBase64Image} from "@/store";
 import NightOrderTable from "@/components/craft/pdf/print/NightOrderTable.vue";
 import NightOrderMiddleTable from "@/components/craft/pdf/print/NightOrderMiddleTable.vue";
+import firstNightBanner from '/images/elements/pdf/first_night_banner.png';
+import otherNightsBanner from '/images/elements/pdf/first_night_banner.png';
+import demonImg from '/images/elements/pdf/team/demons.png'
+import minionImg from '/images/elements/pdf/team/minions.png'
+import outsiderImg from '/images/elements/pdf/team/outsiders.png'
+import townsfolkImg from '/images/elements/pdf/team/townsfolk.png'
 import {MAIN_ROLES} from "@/constants/roles";
 
 const props = defineProps({
@@ -84,6 +90,13 @@ const { pdfMeta, pdfListWithParams, pdfListElement } = storeToRefs(craftStore)
 const items = ref({})
 const pdfList = ref(null)
 const jinxes = ref([])
+
+const teamImages = {
+  demon: demonImg,
+  minion: minionImg,
+  outsider: outsiderImg,
+  townsfolk: townsfolkImg
+}
 
 watch(() => craftStore.shouldStartPrintPreparation, async (shouldStart) => {
   if (shouldStart) {

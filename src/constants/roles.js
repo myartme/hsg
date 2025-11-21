@@ -1,5 +1,5 @@
 export const MAIN_ROLES = ['townsfolk', 'outsider', 'minion', 'demon'];
-export const ROLES = [...MAIN_ROLES, 'traveller', 'fabled'];
+export const ROLES = [...MAIN_ROLES, 'traveller', 'fabled', 'loric'];
 
 export const EMPTY_SET = {
     "id": "",
@@ -23,7 +23,9 @@ export const EMPTY_IMPORT_SCRIPT = {
     "logo": "",
     "background": "",
     "hideTitle": false,
-    "almanac": ""
+    "firstNight": [],
+    "otherNight": [],
+    "almanac": "",
 }
 
 export const EMPTY_CHARACTER = {
@@ -40,7 +42,8 @@ export const EMPTY_CHARACTER = {
     "flavor": "",
     "reminders": [],
     "remindersGlobal": [],
-    "jinxes": []
+    "jinxes": [],
+    "specials": []
 }
 
 export function stripDefaults(obj, defaults) {

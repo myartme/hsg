@@ -1,7 +1,5 @@
 import {getDataLibrary, setDataLibrary} from "@/store";
-import {
-    queuePositions
-} from "@/store/library/state";
+import {queuePositions} from "@/store/library/state";
 
 export async function loadQueuePositions(isAppPath = false, isRecursive = false){
     const response = await getDataLibrary('script_character_priority', "", isAppPath)

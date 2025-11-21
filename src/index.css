@@ -42,6 +42,8 @@ html, body, #app {
   --color-button-hover: #000000;
   --color-button-error: #d6313c;
   --color-button-hover-error: #fb2c36;
+  --color-button-success: #3d9c12;
+  --color-button-hover-success: #2b650c;
   --color-bg-error: #ffe2e2;
   --color-border-error: #ffc9c9;
 }
@@ -66,6 +68,8 @@ html, body, #app {
   --color-button-hover: #404959;
   --color-button-error: #95050c;
   --color-button-hover-error: #95050CCC;
+  --color-button-success: #3d9c12;
+  --color-button-hover-success: #2b650c;
   --color-bg-error: #ffe2e2;
   --color-border-error: #ffc9c9;
 }

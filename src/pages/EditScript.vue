@@ -7,6 +7,8 @@
     <script-options-popup
         v-model:is-open="isOpenPdfOptions"
         :isBootleggersEnabled="isBootleggersEnabled" />
+    <script-night-order-popup
+    v-model:is-open="isOpenNightOrder" />
     <spinner v-if="isWaitingOperation"
              item-class="fixed inset-0 z-50 bg-black/60 pointer-events-auto flex justify-center items-center" size="w-20 h-20" />
   </div>
@@ -25,6 +27,7 @@ import {storeToRefs} from "pinia";
 import {useIndexStore} from "@/store";
 import {isEqualWithDefault} from "@/constants/other";
 import {cloneDeep} from "lodash/lang";
+import ScriptNightOrderPopup from "@/components/craft/pdf/ScriptNightOrderPopup.vue";
 
 defineOptions({
   name: 'edit-script'
@@ -32,7 +35,7 @@ defineOptions({
 
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
-const { isOpenPdfOptions, isWaitingOperation, pdfListWithParams, isEditingScript, activeScriptIndex } = storeToRefs(craftStore)
+const { isOpenPdfOptions, isOpenNightOrder, isWaitingOperation, pdfListWithParams, isEditingScript, activeScriptIndex } = storeToRefs(craftStore)
 const elems = ref({})
 
 const isBootleggersEnabled = computed(() => {

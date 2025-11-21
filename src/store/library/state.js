@@ -5,6 +5,7 @@ import {ROLES} from "@/constants/roles";
 export const allData = ref([])
 export const activeSetIndex = ref(SET_INDEX.DEFAULT)
 export const bootlegger = ref({})
+export const nightOrder = ref({"firstNight": [], "otherNight": []})
 export const queuePositions = ref({})
 
 export const activeSet = computed(() =>

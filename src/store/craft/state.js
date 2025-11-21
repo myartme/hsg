@@ -14,6 +14,7 @@ export const pdfListElement = ref(null)
 export const scriptList = ref([])
 export const pdfMeta = ref(EMPTY_SCRIPT)
 export const isOpenPdfOptions = ref(false)
+export const isOpenNightOrder = ref(false)
 export const activeScriptIndex = ref(SET_INDEX.DEFAULT)
 export const activeVersion = ref(ZERO_VERSION)
 

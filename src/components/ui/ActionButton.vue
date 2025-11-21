@@ -2,7 +2,7 @@
   <custom-button
       :icon="icon"
       :tooltip="tooltip"
-      :wrapper-class="localWrapperClass + ' ' + buttonClass + ' ' + localButtonColor + ' ' + (isCircleType ? 'rounded-full' : 'rounded-lg')"
+      :wrapper-class="localWrapperClass + ' ' + localButtonClass + ' ' + localButtonColor + ' ' + (isCircleType ? 'rounded-full' : 'rounded-lg')"
       :icon-size="iconSize"
       :icon-color="localIconColor"
       :is-pressed="isPressed"
@@ -67,9 +67,10 @@ const props = defineProps({
 })
 const showCheck = ref(false)
 const showCross = ref(false)
-const localWrapperClass = computed(() => props.wrapperClass || "flex items-center justify-center border-2 select-none")
-const localIconColor = computed(() => props.iconColor || "fill-[color:var(--color-button)] group-hover:fill-[color:var(--color-button-hover)]")
-const localButtonColor = computed(() => props.buttonColor || "border-[color:var(--color-button)] group-hover:border-[color:var(--color-button-hover)]")
+const localWrapperClass = computed(() => props.wrapperClass ?? "flex items-center justify-center select-none border-2")
+const localIconColor = computed(() => props.iconColor ?? "fill-[color:var(--color-button)] hover:fill-[color:var(--color-button-hover)]")
+const localButtonClass = computed(() => props.buttonClass)
+const localButtonColor = computed(() => props.buttonColor ?? "border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]")
 
 async function handleClick() {
   try {

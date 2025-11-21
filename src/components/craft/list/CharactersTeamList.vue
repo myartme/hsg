@@ -14,7 +14,7 @@
               :alt="character.name" />
         </div>
         <span class="w-1/4 font-bold title-theme">{{ character.name }}</span>
-        <span class="w-3/4 text-xs mr-2 text-theme">{{ character.ability }}</span>
+        <span class="w-3/4 text-xs mr-2 text-theme text-left">{{ character.ability }}</span>
       </div>
   </div>
 </template>

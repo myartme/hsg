@@ -1,15 +1,10 @@
-import {
-    allData,
-    activeSetIndex,
-    metaSets,
-    queuePositions,
-    activeCharacter, bootlegger
-} from "@/store/library/state";
+import {allData, activeSetIndex, metaSets, queuePositions, activeCharacter, bootlegger, nightOrder} from "@/store/library/state";
 import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
 import {loadQueuePositions, saveQueuePositions} from "@/store/library/queue";
 import {SET_INDEX} from "@/constants/other";
 import {ROLES} from "@/constants/roles";
 import {loadBootlegger, saveBootlegger} from "@/store/library/bootlegger";
+import {loadFirstNightOrder,loadOtherNightOrder, saveNightOrder} from "@/store/library/night_order";
 
 export const sets = {
     get: () =>
@@ -168,12 +163,18 @@ export async function deleteSet(name){
                     bootlegger.value[team]?.splice(bootleggerIndex, 1);
                 }
             }
+
+            const nightOrderIndex = nightOrder.value?.findIndex(el => el.id === role.id)
+            if (nightOrderIndex !== -1) {
+                nightOrder.value?.splice(nightOrderIndex, 1);
+            }
         }
     }
 
     await deleteDataLibrary(name, 'sets')
     metaSets.value?.splice(idx, 1)
     await saveSets()
+    await saveNightOrder()
     await saveQueuePositions()
     await saveBootlegger()
     await getSetsFromFile()
@@ -187,13 +188,16 @@ export async function restoreSet(set){
     const setResponse = await getDataLibrary(set.id, "sets", true)
     const setContent = setResponse?.isSuccess ? setResponse.content : null
 
+    const nightOrderResponse = await getDataLibrary('night_order', "", true)
+    const nightOrderContent = nightOrderResponse?.isSuccess ? nightOrderResponse.content : null
+
     const queueResponse = await getDataLibrary('script_character_priority', "", true)
     const queueContent = queueResponse?.isSuccess ? queueResponse.content : null
 
     const bootleggerResponse = await getDataLibrary('bootlegger', "", true)
     const bootleggerContent = bootleggerResponse?.isSuccess ? bootleggerResponse.content : null
 
-    if(setContent && queueContent && bootleggerContent){
+    if(setContent && queueContent && bootleggerContent && nightOrderContent){
         for (const team of ROLES) {
             const teamRoles = setContent[team] || [];
 
@@ -207,19 +211,24 @@ export async function restoreSet(set){
                 if (bootleggerElement) {
                     bootlegger.value[team].push(bootleggerElement)
                 }
+
+                const nightOrderElement = nightOrderContent?.find(el => el.id === role.id)
+                if(nightOrderElement){
+                    nightOrder.value.push(nightOrderElement)
+                }
             }
         }
+
         metaSets.value?.push(set)
         await saveSet(set.id, setContent)
         await saveSets()
+        await saveNightOrder()
         await saveQueuePositions()
         await saveBootlegger()
         await getSetsFromFile()
     }
 
-    /*
-
-    await deleteDataLibrary(name, 'sets')
+    /*await deleteDataLibrary(name, 'sets')
     metaSets.value?.splice(idx, 1)
     await saveSets()
     await saveQueuePositions()
@@ -257,6 +266,8 @@ export async function getOriginalSets(){
 
 export async function loadSets(){
     await getSetsFromFile()
+    await loadFirstNightOrder()
+    await loadOtherNightOrder()
     await loadQueuePositions()
     await loadBootlegger()
 }

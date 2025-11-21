@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100">
     <div class="pl-10 pr-10 pb-5 rounded shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto relative bg-[color:var(--color-bg)] border-[color:var(--color-border)]">
       <div class="sticky top-0 z-10 -mr-1 -ml-1 mb-2 pt-4 pb-2 px-6 border-b flex items-center justify-between bg-[color:var(--color-bg)] border-[color:var(--color-border)]">
         <h2 class="text-xl font-bold title-theme">

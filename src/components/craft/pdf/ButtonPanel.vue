@@ -10,6 +10,14 @@
           :handle="handleOptions"
           tooltip="Script options" />
       <action-button
+          icon="list"
+          icon-size="w-6.5 h-6.5"
+          button-class="w-12 h-12"
+          :icon-color="'fill-[color:var(--color-text)] group-hover:fill-[color:var(--color-hover-bg)]'"
+          :button-color="'border-[color:var(--color-text)] group-hover:border-[color:var(--color-hover-bg)]'"
+          :handle="handleNightOrder"
+          tooltip="Night Order" />
+      <action-button
           icon="save"
           icon-size="w-7 h-7"
           button-class="w-12 h-12"
@@ -88,7 +96,7 @@ import ActionButton from "@/components/ui/ActionButton.vue";
 import router from "@/router";
 
 const craftStore = useCraftStore()
-const { pdfMeta, pdfListElement, isOpenPdfOptions, isSavedScript, isWaitingOperation, pdfListWithParams, isEditingScript } = storeToRefs(craftStore)
+const { pdfMeta, pdfListElement, isOpenPdfOptions, isOpenNightOrder, isSavedScript, isWaitingOperation, pdfListWithParams, isEditingScript } = storeToRefs(craftStore)
 const isEmptyList = computed(() => isEmpty(Object.values(pdfListWithParams.value).flat()))
 
 const isActiveActionButton = computed(() => {
@@ -134,6 +142,10 @@ const tooltipJson = computed(() => {
 
 function handleOptions(){
   isOpenPdfOptions.value = !isOpenPdfOptions.value
+}
+
+function handleNightOrder(){
+  isOpenNightOrder.value = !isOpenNightOrder.value
 }
 
 async function handleSaveScript(){

@@ -151,6 +151,7 @@ function handleDeleteScript(){
   emits('isOpenOptions')
   activeScriptIndex.value = SET_INDEX.DEFAULT
   activeVersion.value = DEFAULT_VERSION
+  isVisibleDeleteDialog.value = false
 }
 
 watch(meta, () => {

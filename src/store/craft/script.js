@@ -1,13 +1,5 @@
 import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDataScript} from "@/store";
-import {
-    activeScriptIndex,
-    activeVersion,
-    isWaitingOperation,
-    pdfListWithParams,
-    pdfMeta,
-    scriptList,
-    tags
-} from "@/store/craft/state";
+import {activeScriptIndex, activeVersion, isWaitingOperation, pdfListWithParams, pdfMeta, scriptList, tags} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
 import {DEFAULT_VERSION, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
@@ -41,6 +33,7 @@ export async function loadScriptWithMetaFilling(version, name, withWaitingOption
             note: listMeta?.note,
             different: checkMetaDifferent(scriptMeta, generalMeta)
         }
+
         fillPdfList(result.content)
     }
     if(withWaitingOptions) {
@@ -337,6 +330,8 @@ function filterScriptMeta(meta){
         ...(meta?.logo ? { logo: meta.logo } : {}),
         ...(meta?.background ? { background: meta.background } : {}),
         ...(meta?.hideTitle ? { hideTitle: meta.hideTitle } : {}),
+        ...(Array.isArray(meta?.firstNight) && meta.firstNight.length ? { firstNight: meta.firstNight } : {}),
+        ...(Array.isArray(meta?.otherNight) && meta.otherNight.length ? { otherNight: meta.otherNight } : {}),
         ...(Array.isArray(meta?.bootlegger) && meta.bootlegger.length ? { bootlegger: meta.bootlegger } : {})
     }
 }

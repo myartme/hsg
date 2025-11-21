@@ -6,17 +6,17 @@
         :required="required"
         :info="info" />
     <div class="relative">
-      <div class="flex flex-wrap gap-2 mb-2 select-none">
+      <div class="flex flex-wrap gap-2 mb-2">
         <span
             v-for="(tag, index) in tags"
-            @click="removeTag(index)"
             :key="index"
             :class="[
                 'tag-theme',
-                disabled ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]' : 'cursor-pointer'
+                disabled ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]' : ''
             ]"
         >
-          {{ tag }} <span v-if="!disabled" class="tag-close-theme">×</span>
+          {{ tag }}
+          <span v-if="!disabled" @click="removeTag(index)" class="tag-close-theme p-0.3">×</span>
         </span>
       </div>
 

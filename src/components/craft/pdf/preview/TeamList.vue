@@ -26,28 +26,26 @@
         <h3 class="text-xs font-medium truncate z-10 title-theme">
           {{ character.name }}
         </h3>
-        <div
-            v-if="character?.jinxes"
-            class="absolute -left-1 top-full -mt-2 flex flex-nowrap overflow-visible z-0 cursor-pointer"
-            style="transform: translateY(-50%);"
-        >
+        <div class="absolute -left-1 top-full -mt-4 flex flex-wrap w-[calc(8rem)] z-0 cursor-pointer">
           <template v-for="jinx in getValidJinxesForCharacter(character)">
-            <tooltip
-                :triggers="['hover', 'focus']"
-                placement="top"
-                :delay="{ show: tooltipDelay.jinxesShow, hide: tooltipDelay.jinxesHide }"
-            >
-              <template #default>
-                <img :key="jinx.id"
-                    :src="jinx.image"
-                    class="w-6 h-6 inline-block align-top -ml-[5px] first:ml-0"
-                    :alt="jinx.name"
-                />
-              </template>
-              <template #popper>
-                <div v-html="jinx.reason"></div>
-              </template>
-            </tooltip>
+            <div class="-ml-1.5 -mb-2 first:ml-0">
+              <tooltip
+                  :triggers="['hover', 'focus']"
+                  placement="top"
+                  :delay="{ show: tooltipDelay.jinxesShow, hide: tooltipDelay.jinxesHide }"
+              >
+                <template #default>
+                  <img :key="jinx.id"
+                       :src="jinx.image"
+                       class="w-6 h-6"
+                       :alt="jinx.name"
+                  />
+                </template>
+                <template #popper>
+                  <div v-html="jinx.reason"></div>
+                </template>
+              </tooltip>
+            </div>
           </template>
         </div>
       </div>

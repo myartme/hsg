@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-      'grid list-element grid-cols-[3rem_3rem_minmax(150px,1fr)_minmax(auto,85%)]',
+      'grid list-element grid-cols-[3rem_3rem_minmax(175px,1fr)_minmax(auto,85%)]',
       isSelected
         ? 'bg-[color:var(--color-list-element)] hover:bg-[color:var(--color-hover-active)]'
         : 'bg-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
@@ -15,7 +15,7 @@
            :alt="role.name" />
     </div>
     <span class="block break-words whitespace-normal font-bold title-theme">{{ role.name }}</span>
-    <span class="text-xs text-theme">{{ role.ability }}</span>
+    <span class="text-xs text-theme text-left">{{ role.ability }}</span>
   </div>
 </template>
 <script setup>

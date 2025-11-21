@@ -8,7 +8,7 @@
           :info="info" />
       <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition text-theme border-[color:var(--color-border)]"
            @click="isOpen = true">
-        <span v-if="value > 0">{{ value }}</span>
+        <span v-if="character[orderField] > 0">{{ character[orderField] }}</span>
         <span v-else>{{ actionText }}</span>
       </div>
     </div>
@@ -23,7 +23,7 @@
         {{ disabled ? 'View' : 'Choose' }} {{ label }}
       </template>
       <template #content>
-        <draggable-component v-model="roles" item-key="id" :move="isMoved" @change="onDragChange">
+        <draggable-component v-model="roles" item-key="id" :move="isMoved" @change="onDragChange" @end="normalizeRoles">
           <template #item="{ element }">
             <div :ref="isCurrent(element) ? 'current' : null">
               <popup-horizontal-list-element
@@ -42,10 +42,7 @@
 <script setup>
 import {nextTick, ref, watch} from "vue";
 import draggableComponent from "vuedraggable";
-import { useLibraryStore } from "@/store/library";
-import {storeToRefs} from "pinia";
-import {DEFAULT_MIN_TIME} from "@/constants/other";
-import {MAIN_ROLES} from "@/constants/roles";
+import {DEFAULT_MIN_TIME, getImageFirstUrl} from "@/constants/other";
 import PopupHorizontalListElement from "@/components/library/RoleEditor/PopupHorizontalListElement.vue";
 import PopupContainer from "@/components/PopupContainer.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
@@ -53,8 +50,8 @@ import {debugMode} from "@/store/options/state";
 
 const props = defineProps({
   label: String,
-  value: Number,
   character: Object,
+  list: Array,
   actionText: String,
   orderField: String,
   divClass: {
@@ -82,14 +79,11 @@ const props = defineProps({
   }
 })
 
-const libraryStore = useLibraryStore()
-const { allListsAsOne } = storeToRefs(libraryStore)
-
 const isOpen = ref(false)
 const orderValue = ref(0)
 const roles = ref([])
 const current = ref(null)
-const emit = defineEmits(['update:value'])
+const emit = defineEmits(['update:character', 'update:list'])
 
 const isCurrent = (role) => role.id === props.character.id
 
@@ -122,82 +116,70 @@ const scrollIfOutOfView = (elRef) => {
   }
 }
 
-function getRoleList() {
-  const arr = [];
-
-  const elems = MAIN_ROLES.map(team => allListsAsOne.value[team].filter(el => el[props.orderField] > 0)).flat()
-  if(!elems.find(el => el.id === props.character.id) && props.character[props.orderField] > 0) {
-      arr.push(...elems, props.character);
-  } else {
-    arr.push(...elems);
+function getElementWithValue(value){
+  let elem = {
+    "id": props.character.id,
+    "image": getImageFirstUrl(props.character),
+    "name": props.character.name,
+    "ability": props.character.ability
+  }
+  if(props.orderField === "firstNight" || props.character?.firstNight){
+    elem = {...elem, "firstNight": props.orderField === "firstNight" ? value : props.character?.firstNight}
+  }
+  if(props.orderField === "otherNight" || props.character?.otherNight){
+    elem = {...elem, "otherNight": props.orderField === "otherNight" ? value : props.character?.otherNight}
   }
 
-  return sortRules(arr)
+  return elem
 }
 
-function watcherValue(val) {
-  let el = roles.value.findIndex(el => el.id === props.character.id)
-  if(el === -1){
-    addToRolesList(props.character)
-    el = roles.value.length - 1
-  }
-  roles.value[el][props.orderField] = val
-  orderValue.value = val
-  roles.value = sortRules(roles.value)
+function normalizeRoles() {
+  roles.value = roles.value
+      .sort((a, b) => a[props.orderField] - b[props.orderField])
+      .map((el, idx) => ({
+        ...el,
+        [props.orderField]: idx + 1,
+      }))
 
   nextTick(() => {
-    scrollIfOutOfView(current);
+    scrollIfOutOfView(current)
   });
 }
 
-function addToRolesList(elem){
-  roles.value.push({ ...elem })
+function addToRolesList(value){
+  let elIdx = roles.value.findIndex(el => el.id === props.character.id)
+  if(elIdx === -1){
+    roles.value.push(getElementWithValue(value - 1))
+  } else {
+    const elemCharPriority = roles.value[elIdx][props.orderField]
+    roles.value.splice(elIdx, 1)
+    roles.value.push(getElementWithValue(value > elemCharPriority ? value : value - 1))
+  }
+  normalizeRoles()
 }
 
 function removeFromRolesList(){
   let el = roles.value.findIndex(el => el.id === props.character.id)
-  if(el !== -1) roles.value.splice(el, 1)
-}
-
-function sortRules(arr) {
-  const teamPriority = {
-    demon: 1,
-    minion: 2,
-    outsider: 3,
-    townsfolk: 4
-  };
-
-  arr.sort((a, b) => {
-    const orderA = a[props.orderField];
-    const orderB = b[props.orderField];
-
-    if (orderA !== orderB) {
-      return orderA - orderB;
-    }
-
-    const teamA = teamPriority[a.team] || 99;
-    const teamB = teamPriority[b.team] || 99;
-
-    if (teamA !== teamB) {
-      return teamA - teamB;
-    }
-
-    return a.name.localeCompare(b.name);
-  });
-
-  return arr
+  if(el !== -1){
+    roles.value.splice(el, 1)
+  }
+  normalizeRoles()
+  for(let idx = el; idx < roles.value.length; idx++){
+    roles.value[idx][props.orderField] = idx + 1
+  }
 }
 
 function closeAndSave(){
-  if(orderValue.value > 0){
-    emit('update:value', orderValue.value)
-  }
+  emit('update:character', getElementWithValue(orderValue.value))
+  emit('update:list', roles.value)
   isOpen.value = false
 }
 
 function onInputChange(event){
-  if(event.target.value > 0){
-    watcherValue(Number(event.target.value))
+  const position = Number(event.target.value)
+  if(position > 1){
+    addToRolesList(position)
+    orderValue.value = position
   } else {
     orderValue.value = 0
     removeFromRolesList()
@@ -209,16 +191,18 @@ function isMoved(evt) {
 }
 
 function onDragChange(event){
-  const newIndex = event.moved.newIndex
-  watcherValue(newIndex - 1 < 0 ? 1 : roles.value[newIndex - 1][props.orderField])
+  const position = event.moved.newIndex + 1
+  addToRolesList(position)
+  orderValue.value = position
+  normalizeRoles()
 }
 
 watch(isOpen, (newVal) => {
   if(newVal) scrollToCurrent()
 })
 
-watch(() => props.value, (newVal) => {
-  orderValue.value = !!newVal ? newVal : 0
-  roles.value = getRoleList()
-}, {immediate: true})
+watch(() => props.character, (val) => {
+  orderValue.value = val[props.orderField] || 0
+  roles.value = props.list
+}, {immediate: true, deep : true})
 </script>

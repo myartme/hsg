@@ -5,6 +5,7 @@
 import AddIcon from "@/components/ui/svg/add.svg";
 import AddWithBorderIcon from "@/components/ui/svg/addWithBorder.svg";
 import AlertIcon from "@/components/ui/svg/alert.svg";
+import ArrowDownIcon from "@/components/ui/svg/arrowDown.svg";
 import AuthorDownIcon from "@/components/ui/svg/authorDown.svg";
 import AuthorUpIcon from "@/components/ui/svg/authorUp.svg";
 import BackToListIcon from "@/components/ui/svg/backToList.svg";
@@ -16,13 +17,16 @@ import DeleteIcon from "@/components/ui/svg/delete.svg";
 import DifferentIcon from "@/components/ui/svg/different.svg";
 import DownloadJsonIcon from "@/components/ui/svg/downloadJson.svg";
 import DownloadPdfIcon from "@/components/ui/svg/downloadPdf.svg";
+import EditIcon from "@/components/ui/svg/edit.svg";
 import EyeIcon from "@/components/ui/svg/eye.svg";
+import FilledCrossIcon from "@/components/ui/svg/filledCross.svg";
 import FilterIcon from "@/components/ui/svg/filter.svg";
 import FirstNightDownIcon from "@/components/ui/svg/firstNightDown.svg";
 import FirstNightUpIcon from "@/components/ui/svg/firstNightUp.svg";
 import ImportIcon from "@/components/ui/svg/import.svg";
 import ImportFromJsonIcon from "@/components/ui/svg/importFromJson.svg";
 import InfoIcon from "@/components/ui/svg/info.svg";
+import ListIcon from "@/components/ui/svg/list.svg";
 import NameDownIcon from "@/components/ui/svg/nameDown.svg";
 import NameUpIcon from "@/components/ui/svg/nameUp.svg";
 import OptionsIcon from "@/components/ui/svg/options.svg";
@@ -52,6 +56,7 @@ const icons = {
   add : AddIcon,
   addWithBorder : AddWithBorderIcon,
   alert : AlertIcon,
+  arrowDown : ArrowDownIcon,
   authorDown : AuthorDownIcon,
   authorUp: AuthorUpIcon,
   backToList: BackToListIcon,
@@ -63,13 +68,16 @@ const icons = {
   different: DifferentIcon,
   downloadJson: DownloadJsonIcon,
   downloadPdf: DownloadPdfIcon,
+  edit: EditIcon,
   eye: EyeIcon,
+  filledCross: FilledCrossIcon,
   filter: FilterIcon,
   firstNightDown: FirstNightDownIcon,
   firstNightUp: FirstNightUpIcon,
   import: ImportIcon,
   importFromJson: ImportFromJsonIcon,
   info: InfoIcon,
+  list: ListIcon,
   nameDown: NameDownIcon,
   nameUp: NameUpIcon,
   options: OptionsIcon,
