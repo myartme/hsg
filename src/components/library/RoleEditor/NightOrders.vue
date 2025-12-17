@@ -164,9 +164,6 @@ function removeFromRolesList(){
     roles.value.splice(el, 1)
   }
   normalizeRoles()
-  for(let idx = el; idx < roles.value.length; idx++){
-    roles.value[idx][props.orderField] = idx
-  }
 }
 
 function closeAndSave(){
@@ -187,7 +184,11 @@ function onInputChange(event){
 }
 
 function isMoved(evt) {
-  return !props.disabled && isCurrent(evt.draggedContext.element)
+  if (props.disabled) return false
+  if (!isCurrent(evt.draggedContext.element)) return false
+  // Запрещаем перетаскивание активного элемента в позицию 0
+  if (evt.draggedContext.futureIndex < 1) return false
+  return true
 }
 
 function onDragChange(event){

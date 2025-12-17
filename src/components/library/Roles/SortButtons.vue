@@ -5,49 +5,49 @@
                  button-class="w-10 h-10"
                  :is-pressed="isShowSort"
                  :is-circle-type="false"
-                 tooltip="Sort"
+                 :tooltip="$t('sort.sort')"
                  @click="isShowSort = !isShowSort" />
   <transition-group name="slide-fade" tag="div" class="flex gap-1">
     <template v-if="isShowSort">
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.NAME)"
                      :icon="getIcon(SORT.NAME)"
                      icon-size="w-6 h-6"
-                     tooltip="By name"
+                     :tooltip="$t('sort.byName')"
                      :is-pressed="sortOptions.key === SORT.NAME"
                      button-class="w-9 h-9"
                      @click="sortListByName" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.SCRIPT_QUEUE)"
                      :icon="getIcon(SORT.SCRIPT_QUEUE)"
                      icon-size="w-7 h-7"
-                     tooltip="By script queue"
+                     :tooltip="$t('sort.byScriptQueue')"
                      :is-pressed="sortOptions.key === SORT.SCRIPT_QUEUE"
                      button-class="w-9 h-9"
                      @click="sortListByQueue" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.FIRST_NIGHT)"
                      :icon="getIcon(SORT.FIRST_NIGHT)"
                      icon-size="w-7 h-7"
-                     tooltip="By first night order"
+                     :tooltip="$t('sort.byFirstNight')"
                      :is-pressed="sortOptions.key === SORT.FIRST_NIGHT"
                      button-class="w-9 h-9"
                      @click="sortListByFirstNight" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.OTHER_NIGHT)"
                      :icon="getIcon(SORT.OTHER_NIGHT)"
                      icon-size="w-7 h-7"
-                     tooltip="By other night order"
+                     :tooltip="$t('sort.byOtherNight')"
                      :is-pressed="sortOptions.key === SORT.OTHER_NIGHT"
                      button-class="w-9 h-9"
                      @click="sortListByOtherNight" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.AUTHOR)"
                      :icon="getIcon(SORT.AUTHOR)"
                      icon-size="w-7 h-7"
-                     tooltip="By author"
+                     :tooltip="$t('sort.byAuthor')"
                      :is-pressed="sortOptions.key === SORT.AUTHOR"
                      button-class="w-9 h-9"
                      @click="sortListByAuthor" />
       <action-button v-if="sortOptionsEnabled.find(el => el === SORT.DATE)"
                      :icon="getIcon(SORT.DATE)"
                      icon-size="w-7 h-7"
-                     tooltip="By date"
+                     :tooltip="$t('sort.byDate')"
                      :is-pressed="sortOptions.key === SORT.DATE"
                      button-class="w-9 h-9"
                      @click="sortListByDate" />
@@ -56,10 +56,13 @@
 </template>
 <script setup>
 import {ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {SORT} from "@/constants/other";
 import {useLibraryStore} from "@/store/library";
 import {storeToRefs} from "pinia";
+
+const { t } = useI18n()
 
 const props = defineProps({
   list: [Object, Array],

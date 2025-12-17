@@ -14,14 +14,14 @@
                      :handle="undo" />
     </template>
     <template #header>
-      <h2 class="text-2xl font-bold">Import Characters</h2>
+      <h2 class="text-2xl font-bold">{{ $t('library.importCharacters') }}</h2>
       <import-character-tooltip />
     </template>
     <template #content>
       <div class="resize-none">
         <div class="mb-2">
           <drag-and-drop
-              text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+              :text="$t('library.dragDropJson')"
               @json-loaded="loadedContent" />
         </div>
         <div class="relative flex mb-2 overflow-auto max-h-160">

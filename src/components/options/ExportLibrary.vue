@@ -3,22 +3,22 @@
       :is-input-visible="false"
       @close="$emit('onClose')">
     <template #header>
-      <p class="title-theme mr-2">Export library data</p>
+      <p class="title-theme mr-2">{{ $t('importExport.exportLibraryData') }}</p>
     </template>
     <template #content>
       <div class="grid grid-cols-[1fr_1fr_1fr]">
         <export-step v-if="steps.includes('categories')"
-                     title="Select categories"
+                     :title="$t('importExport.selectCategories')"
                      :value="categories"
                      :inputs="categoryInputs"
                      @on-update-items="updateCategories" />
         <export-step v-if="steps.includes('sets')"
-                     title="Select sets"
+                     :title="$t('importExport.selectSets')"
                      :value="sets"
                      :inputs="setInputs"
                      @on-update-items="updateSets" />
         <export-step v-if="steps.includes('scripts')"
-                     title="Select scripts"
+                     :title="$t('importExport.selectScripts')"
                      :value="scripts"
                      :inputs="scriptInputs"
                      @on-update-items="updateScripts" />
@@ -29,7 +29,7 @@
             ? 'hover:border-[color:var(--color-active)] cursor-pointer'
             : 'bg-[color:var(--color-disable-placeholder-text)] cursor-not-allowed'
           ]" @click="exportData()">
-          <p class="text-[color:var(--color-placeholder-text)]">Click to export selected</p>
+          <p class="text-[color:var(--color-placeholder-text)]">{{ $t('importExport.clickToExport') }}</p>
           <p class="align-text-bottom text-[color:var(--color-placeholder-text)]" v-html="getExportDescription()"></p>
       </div>
     </template>
@@ -41,6 +41,7 @@
 import PopupContainer from "@/components/PopupContainer.vue";
 import {computed, ref} from "vue";
 import {useLibraryStore} from "@/store/library";
+import {useI18n} from "vue-i18n";
 import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
 import {toNormalizeString} from "@/constants/other";
@@ -48,6 +49,7 @@ import ExportStep from "@/components/options/ExportStep.vue";
 import {useOptionsStore} from "@/store/options";
 import Spinner from "@/components/ui/Spinner.vue";
 
+const { t } = useI18n()
 const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
 const optionsStore = useOptionsStore()
@@ -66,12 +68,12 @@ const isCanExport = computed(() =>
     })
 )
 
-const categoryInputs = {
-  sets: 'Sets',
-  scripts: 'Scripts',
-  scriptTags: 'Script tags',
-  options: 'Options'
-}
+const categoryInputs = computed(() => ({
+  sets: t('importExport.sets'),
+  scripts: t('importExport.scripts'),
+  scriptTags: t('importExport.scriptTagsCategory'),
+  options: t('importExport.optionsCategory')
+}))
 
 const setInputs = computed(() => {
   const result = {}
@@ -112,19 +114,19 @@ function getExportDescription(){
   const scriptLength = scripts.value.length
   steps.value.forEach(el => {
     if(el === 'categories' && categoryLength > 0){
-      text += '<br>Categories: ' + categoryLength
+      text += '<br>' + t('importExport.categories') + ': ' + categoryLength
     }
     if(el === 'sets' && setLength > 0){
-      text += '<br>Sets: ' + setLength
+      text += '<br>' + t('importExport.sets') + ': ' + setLength
     }
     if(el === 'scripts' && scriptLength > 0){
-      text += '<br>Scripts: ' + scriptLength
+      text += '<br>' + t('importExport.scripts') + ': ' + scriptLength
     }
     if(el === 'scriptTags'){
-      text += '<br>Script tags'
+      text += '<br>' + t('importExport.scriptTagsCategory')
     }
     if(el === 'options'){
-      text += '<br>Options'
+      text += '<br>' + t('importExport.optionsCategory')
     }
   })
 

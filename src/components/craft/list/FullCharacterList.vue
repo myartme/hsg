@@ -9,7 +9,7 @@
         <input v-model="searchedQuery"
                class="h-10 ml-3 w-full focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)]"
                type="text"
-               placeholder="Filter by multiple keywords (separate with spaces)"
+               :placeholder="$t('scriptEditor.filterPlaceholder')"
         />
         <div class="flex pr-3 gap-3">
           <div v-click-outside="() => isEditionFilterShow = false">
@@ -61,7 +61,7 @@
         </div>
         <p v-show="isEmpty(listFiltered)"
            class="text-theme flex justify-center items-center py-5 ml-5 mr-5">
-          No matching characters. Please adjust the filter parameters to update the results.
+          {{ $t('scriptEditor.noMatchingCharacters') }}
         </p>
       </template>
     </template>

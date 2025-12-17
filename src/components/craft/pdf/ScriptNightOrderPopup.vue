@@ -4,19 +4,19 @@
                    @close="closeWindow">
     <template #header>
       <div class="flex items-center gap-2 pl-0 pb-1">
-        <h2 class="text-xl font-bold title-theme">Night Order</h2>
+        <h2 class="text-xl font-bold title-theme">{{ $t('nightOrder.title') }}</h2>
       </div>
     </template>
     <template #content>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="align-middle">
           <div class="flex items-center">
-            <h2 class="text-lg font-semibold text-theme">First Night</h2>
+            <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.firstNight') }}</h2>
             <action-button v-if="!isFirstNightDefault"
                            icon="undo"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore default order"
+                           :tooltip="$t('tooltips.restoreDefaultOrder')"
                            :is-show-effect="true"
                            :handle="() => firstNight = defaultResetFirstNight()"
                            class="ml-2" />
@@ -24,14 +24,14 @@
                            icon="undoToSave"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore to last save"
+                           :tooltip="$t('tooltips.restoreToLastSave')"
                            :is-show-effect="true"
                            :handle="resetFirstNightToSave"
                            class="ml-2" />
           </div>
           <div class="flex gap-4 mt-2">
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Current</h3>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.current') }}</h3>
               <draggable-component v-model="firstNight" item-key="id">
                 <template #item="{ element }">
                   <night-order-element :value="getElement(element)" :is-default-element="defaultNightArray.includes(element)" />
@@ -39,7 +39,7 @@
               </draggable-component>
             </div>
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Default</h3>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.default') }}</h3>
               <div class="opacity-50 pointer-events-none">
                 <night-order-element
                     v-for="element in defaultResetFirstNight()"
@@ -52,12 +52,12 @@
         </div>
         <div class="align-middle">
           <div class="flex items-center">
-            <h2 class="text-lg font-semibold text-theme">Other Nights</h2>
+            <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.otherNights') }}</h2>
             <action-button v-if="!isOtherNightDefault"
                            icon="undo"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore default order"
+                           :tooltip="$t('tooltips.restoreDefaultOrder')"
                            :is-show-effect="true"
                            :handle="() => otherNight = defaultResetOtherNight()"
                            class="ml-2" />
@@ -65,14 +65,14 @@
                            icon="undoToSave"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore to last save"
+                           :tooltip="$t('tooltips.restoreToLastSave')"
                            :is-show-effect="true"
                            :handle="resetOtherNightToSave"
                            class="ml-2" />
           </div>
           <div class="flex gap-4 mt-2">
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Current</h3>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.current') }}</h3>
               <draggable-component v-model="otherNight" item-key="id">
                 <template #item="{ element }">
                   <night-order-element :value="getElement(element)" :is-default-element="defaultNightArray.includes(element)" />
@@ -80,7 +80,7 @@
               </draggable-component>
             </div>
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Default</h3>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.default') }}</h3>
               <div class="opacity-50 pointer-events-none">
                 <night-order-element
                     v-for="element in defaultResetOtherNight()"
@@ -97,6 +97,7 @@
 </template>
 <script setup>
 import {computed, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
 import PopupContainer from "@/components/PopupContainer.vue";
@@ -105,6 +106,8 @@ import draggableComponent from "vuedraggable";
 import NightOrderElement from "@/components/craft/pdf/NightOrderElement.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import ActionButton from "@/components/ui/ActionButton.vue";
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: Boolean

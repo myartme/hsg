@@ -25,7 +25,7 @@
           icon="options"
           icon-size="w-7 h-7"
           button-class="w-9 h-9"
-          tooltip="Script common options"
+          :tooltip="$t('scripts.scriptCommonOptions')"
           @click.stop="isOpenOptions" />
     </div>
     <sector-container v-if="isSelected"
@@ -42,7 +42,7 @@
           ]">
             <div class="flex justify-between items-center w-full px-3">
               <span class="p-1 font-bold cursor-pointer text-theme rounded-2xl border-3 border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]"
-                    @click="(event) => selectScript(element, event)">Open v{{ element?.version }}</span>
+                    @click="(event) => selectScript(element, event)">{{ $t('scripts.openVersion', { version: element?.version }) }}</span>
               <div class="flex gap-2">
                 <action-button
                     icon="downloadJson"
@@ -52,7 +52,7 @@
                     :button-color="getButtonClass(element.json)"
                     :is-disable="!element.json"
                     @click.stop="handleDownloadJson(element)"
-                    :tooltip="!element.json ? 'No json file available. You need generate it in script editor.' : 'Download last generated json'" />
+                    :tooltip="!element.json ? $t('scripts.noJsonAvailable') : $t('scripts.downloadLastJson')" />
                 <action-button
                     icon="toClipboard"
                     icon-size="w-6 h-6"
@@ -63,7 +63,7 @@
                     @click.stop=""
                     :handle="async () => await handleToClipboard(element)"
                     :is-show-effect="true"
-                    :tooltip="!element.json ? 'Not available' : 'Copy to clipboard'" />
+                    :tooltip="!element.json ? $t('scripts.notAvailable') : $t('scripts.copyToClipboard')" />
                 <action-button
                     icon="downloadPdf"
                     icon-size="w-6 h-6"
@@ -72,7 +72,7 @@
                     :button-color="getButtonClass(element.pdf)"
                     :is-disable="!element.pdf"
                     @click.stop="handleDownloadPdf(element)"
-                    :tooltip="!element.pdf ? 'No pdf file available. You need generate it in script editor.' : 'Download last generated pdf'" />
+                    :tooltip="!element.pdf ? $t('scripts.noPdfAvailable') : $t('scripts.downloadLastPdf')" />
                 <action-button v-if="element.characters?.length > 0"
                     icon="eye"
                     icon-size="w-7 h-7"
@@ -104,7 +104,7 @@
                     icon="delete"
                     icon-size="w-6 h-6"
                     @click.stop="isVisibleDeleteDialog = true; deletingVersion = element?.version"
-                    tooltip="Delete this version"
+                    :tooltip="$t('scripts.deleteThisVersion')"
                     button-class="w-9 h-9" />
               </div>
             </div>
@@ -113,8 +113,8 @@
       </template>
     </sector-container>
     <confirm-dialog v-if="isVisibleDeleteDialog"
-                    :title="`Deleting ${script.name} v${deletingVersion}`"
-                    description="This action cannot be undone. Are you sure you want to delete this script?"
+                    :title="$t('scripts.deletingVersion', { name: script.name, version: deletingVersion })"
+                    :description="$t('scripts.deleteConfirm')"
                     @confirm="handleDeleteScript()"
                     @cancel="isVisibleDeleteDialog = false" />
   </div>

@@ -31,7 +31,7 @@
       <button @click="applyEditionFilters" :class="[
           buttonClass,
           'bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
-      ]">Apply</button>
+      ]">{{ $t('buttons.apply') }}</button>
       <button @click="resetFilterButton" :class="[
           buttonClass,
           'ml-auto w-30 bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]'
@@ -43,6 +43,7 @@
 import {computed, ref, watch} from "vue";
 import {useLibraryStore} from "@/store/library";
 import {storeToRefs} from "pinia";
+import {useI18n} from "vue-i18n";
 
 const props = defineProps({
   items: Array,
@@ -55,6 +56,7 @@ const props = defineProps({
     default: false
   }
 })
+const { t } = useI18n()
 const libraryStore = useLibraryStore()
 const { metaSets } = storeToRefs(libraryStore)
 const defaultFilterItems = computed(() => {
@@ -71,11 +73,10 @@ const defaultFilterItems = computed(() => {
 
   return result
 })
-const resetFilterTitle = computed(() => {
-      return defaultFilterItems.value.length === localItems.value.length
-          ? 'Uncheck all'
-          : 'Check all'
-    }
+const resetFilterTitle = computed(() =>
+    defaultFilterItems.value.length === localItems.value.length
+        ? t('buttons.uncheckAll')
+        : t('buttons.checkAll')
 )
 const localItems = ref([])
 const localItemsBackup = ref([])

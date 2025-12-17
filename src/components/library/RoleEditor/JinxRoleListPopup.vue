@@ -4,12 +4,12 @@
       :is-input-visible="false"
       @close="emits('update:isOpen', false)">
     <template #header>
-      <h2 class="text-xl font-bold title-theme">Select a Character</h2>
+      <h2 class="text-xl font-bold title-theme">{{ $t('jinx.selectCharacter') }}</h2>
     </template>
     <template #content>
       <template v-for="(list, teamName) in groupedRoles">
         <div class="mb-4 mt-4">
-          <h3 class="text-lg font-semibold capitalize title-theme">{{ teamName }}s</h3>
+          <h3 class="text-lg font-semibold capitalize title-theme">{{ teamName }}</h3>
           <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-10">
             <template v-for="char in list">
               <tooltip
@@ -41,12 +41,15 @@
 <script setup>
 import ImageAnyScript from "@/components/ui/ImageAnyScript.vue";
 import {ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {MAIN_ROLES} from "@/constants/roles.js";
 import { useLibraryStore } from "@/store/library";
 import {storeToRefs} from "pinia";
 import {Tooltip} from "floating-vue";
 import PopupContainer from "@/components/PopupContainer.vue";
 import {useOptionsStore} from "@/store/options";
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: Boolean,

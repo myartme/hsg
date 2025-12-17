@@ -39,7 +39,7 @@
             disabled ? 'text-[color:var(--color-disable-placeholder-text)]' : 'text-[color:var(--color-placeholder-text)]'
         ]">
           <span v-if="input.length">{{ input.length }} / {{ maxlength }}</span>
-          <span v-else>{{ tags.length }} / {{ maxTags }} tokens</span>
+          <span v-else>{{ tags.length }} / {{ maxTags }} {{ $t('tags.tokens') }}</span>
         </div>
       </div>
     </div>
@@ -48,8 +48,11 @@
 
 <script setup>
 import {ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME} from "@/constants/other";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+
+const { t } = useI18n()
 
 const props = defineProps({
   label: String,
@@ -94,7 +97,7 @@ const inputShake = ref(false);
 
 const emits = defineEmits(['update:value'])
 const placeholderText = ((tags) =>
-    props.disabled ? 'Addition not available' : tags.length >= props.maxTags ? 'Limit reached' : 'Press Enter to add'
+    props.disabled ? t('tags.additionNotAvailable') : tags.length >= props.maxTags ? t('tags.limitReached') : t('tags.pressEnterToAdd')
 )
 
 const addTag = () => {

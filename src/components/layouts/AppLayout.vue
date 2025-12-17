@@ -9,8 +9,13 @@
 import AppMenu from "@/components/layouts/AppMenu.vue";
 import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
+import {useDebugMode} from "@/scripts/useDebugMode";
+import {useLocaleSync} from "@/scripts/useLocale";
 
 const optionsStore = useOptionsStore()
 const { theme, themes } = storeToRefs(optionsStore)
 optionsStore.getOptions()
+
+useDebugMode()
+useLocaleSync()
 </script>

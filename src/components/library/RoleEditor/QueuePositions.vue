@@ -158,9 +158,6 @@ function removeFromRolesList(){
     roles.value.splice(el, 1)
   }
   normalizeRoles()
-  for(let idx = el; idx < roles.value.length; idx++){
-    roles.value[idx].scriptCharacterPriority = idx + 1
-  }
 }
 
 function closeAndSave(){
@@ -171,7 +168,7 @@ function closeAndSave(){
 
 function onInputChange(event){
   const position = Number(event.target.value)
-  if(position > 1){
+  if(position >= 1){
     addToRolesList(position)
     orderValue.value = position
   } else {

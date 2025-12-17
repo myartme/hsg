@@ -7,7 +7,7 @@
     </label>
     <div class="gap-3 mt-4 space-x-4">
       <button @click="apply"
-              class="px-4 py-1 rounded-md cursor-pointer bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]">Apply</button>
+              class="px-4 py-1 rounded-md cursor-pointer bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]">{{ $t('buttons.apply') }}</button>
       <button @click="reset"
               class="px-4 py-1 rounded-md cursor-pointer ml-auto w-30 bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]">{{ resetFilterTitle }}</button>
     </div>
@@ -15,7 +15,9 @@
 </template>
 <script setup>
 import {computed, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n()
 const props = defineProps({
   title: String,
   value: Array,
@@ -26,7 +28,7 @@ const items = ref([])
 const maxLength = ref(Object.keys(props.inputs).length)
 const emits = defineEmits(['onUpdateItems'])
 const resetFilterTitle = computed(() =>
-     items.value.length === maxLength.value ? 'Uncheck all' : 'Check all'
+     items.value.length === maxLength.value ? t('buttons.uncheckAll') : t('buttons.checkAll')
 )
 
 function apply(){

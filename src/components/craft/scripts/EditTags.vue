@@ -24,17 +24,17 @@
           <simple-input
               @input="checkTitle"
               v-model:value="title"
-              label="Tag"
+              :label="$t('editTags.tag')"
               :errored="isVisibleError"
-              error-text="Tag already exists"
+              :error-text="$t('editTags.tagAlreadyExists')"
               :maxlength="20"
               class="flex-1"
           />
           <div class="flex items-end gap-4 mt-2 mb-2">
             <simple-checkbox
                 v-model:value="isEnabledColor"
-                label="Custom color"
-                info="Enable to set a custom color for the tag." />
+                :label="$t('editTags.customColor')"
+                :info="$t('editTags.customColorTooltip')" />
             <button
                 @click="addTag"
                 :class="[
@@ -43,12 +43,12 @@
                     ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]'
                     : 'cursor-pointer text-theme bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
                 ]"
-            >Add</button>
+            >{{ $t('buttons.add') }}</button>
           </div>
           <chrome-picker v-if="isEnabledColor" v-model="color" :disable-fields="true" />
         </div>
         <div class="mt-8 ml-5 text-lg">
-          <div class="text-theme font-bold">All tags ({{ localTags.length }})</div>
+          <div class="text-theme font-bold">{{ $t('editTags.allTags') }} ({{ localTags.length }})</div>
           <div v-for="(tag, key) in localTags" :key="key" class="grid grid-cols-1 md:grid-cols-[minmax(0,90%)_1fr] hover:border-[color:var(--color-border)]">
             <p :class="{ 'text-theme' : !tag.customColor }"
                :style="tag.customColor ? { color: tag.customColor } : {}">

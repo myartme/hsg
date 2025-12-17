@@ -6,9 +6,9 @@
         @on-create-script="activeSetIndex = $event" />
     <div class="flex gap-6 flex-grow">
       <edit-set v-if="activeSetIndex === SET_INDEX.CREATE"
-                label="Create Set" />
+                :label="$t('library.createSet')" />
       <import-set v-if="activeSetIndex === SET_INDEX.IMPORT"
-                  label="Import Set" />
+                  :label="$t('library.importSet')" />
       <template v-else>
         <roles-in-script v-if="activeSetIndex >= 0"
                          :key="activeMeta.id"
@@ -26,7 +26,7 @@
                    @create-role="resetRightPanels"
                    class="w-[50%]" />
         <edit-set v-if="isEditCharacterLibrarySet"
-                    label="Edit Script Options" />
+                    :label="$t('library.editSetOptions')" />
       </template>
     </div>
   </div>
@@ -34,6 +34,7 @@
 
 <script setup>
 import {onMounted, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import RolesInScript from "@/components/library/Roles/RolesInScript.vue";
 import EditForm from "@/components/library/RoleEditor/EditForm.vue";
 import EditSet from "@/components/library/Sets/EditSet.vue";
@@ -46,6 +47,7 @@ import ImportForm from "@/components/library/RoleEditor/ImportForm.vue";
 import {EMPTY_CHARACTER} from "@/constants/roles";
 import {isEqual} from "lodash/lang";
 
+const { t } = useI18n()
 const libraryStore = useLibraryStore()
 const { metaSets, activeSetIndex, activeCharacter, activeMeta, isEditCharacterLibrarySet, isCreateCharacterLibrary, isImportCharacterLibrary } = storeToRefs(libraryStore)
 

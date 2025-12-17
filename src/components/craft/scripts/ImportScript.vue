@@ -23,7 +23,7 @@
       <div class="resize-none">
         <div class="mb-2">
           <drag-and-drop
-              text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+              :text="$t('importScript.dragDropJson')"
               @json-loaded="loadedContent" />
         </div>
         <div class="relative flex mb-2 overflow-auto max-h-160">
@@ -48,48 +48,48 @@
       </div>
       <simple-input
           v-model:value="meta.name"
-          label="Name"
+          :label="$t('importScript.name')"
           :maxlength="50"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           class="mb-2" />
       <simple-input
           v-model:value="meta.author"
-          label="Author"
+          :label="$t('importScript.author')"
           :maxlength="50"
-          tooltip="Default version for this field is <b>Unknown</b>"
+          :tooltip="$t('importScript.defaultAuthorTooltip')"
           class="mb-2" />
       <simple-input
           v-model:value="meta.almanac"
-          label="Almanac"
+          :label="$t('importScript.almanac')"
           :maxlength="250"
           class="mb-2" />
       <simple-checkbox
           v-model:value="meta.hideTitle"
-          label="Hide Title"
-          tooltip="You can hide script's title." />
+          :label="$t('importScript.hideTitle')"
+          :tooltip="$t('importScript.hideTitleTooltip')" />
         <simple-input-tag
             v-model:value="meta.bootlegger"
             div-class="mt-2"
-            label="Bootlegger rules"
+            :label="$t('importScript.bootleggerRules')"
             :max-tags="10"
             :maxlength="250"
-            tooltip="Bootlegger rules for this script." />
+            :tooltip="$t('importScript.bootleggerRulesTooltip')" />
       <simple-textarea
           v-model:value="meta.note"
-          label="Note"
+          :label="$t('importScript.note')"
           :maxlength="5000"
           rows="6"
           class="mt-2"
-          tooltip="Your custom notes." />
+          :tooltip="$t('importScript.noteTooltip')" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <simple-input
             v-model:value="meta.logo"
-            label="Logo"
+            :label="$t('importScript.logo')"
             :maxlength="250"
             class="mb-2" />
         <simple-input
             v-model:value="meta.background"
-            label="Background"
+            :label="$t('importScript.background')"
             :maxlength="250"
             class="mb-2" />
         <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50 object-cover rounded mx-auto" alt="logo">

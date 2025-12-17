@@ -14,10 +14,10 @@
       </template>
       <template #popper>
         <div style="width: 740px;">
-          You can import one or more characters. Required fields for a character: "name", "team", "ability".
+          <span v-html="$t('importCharacter.info')"></span>
           <div class="mt-2 text-yellow-400">
-            Note: The "firstNight" and "otherNight" fields are deprecated.
-            <br />After import, please verify the character's position in the night order.
+            {{ $t('importCharacter.noteDeprecated') }}
+            <br />{{ $t('importCharacter.noteVerify') }}
           </div>
           <img src="/images/elements/ui/character_options.png" alt="Character options" />
         </div>

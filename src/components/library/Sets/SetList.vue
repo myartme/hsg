@@ -12,12 +12,12 @@
                    :selected="key === activeSetIndex"
                    @click="selectScript(file, key)" />
       <set-icon
-          name="Import Set"
+          :name="$t('library.importSet')"
           :half-size="true"
           :selected="activeSetIndex === SET_INDEX.IMPORT"
           @click="$emit('onCreateScript', SET_INDEX.IMPORT)" />
       <set-icon
-          name="Create Set"
+          :name="$t('library.createSet')"
           :half-size="true"
           :selected="activeSetIndex === SET_INDEX.CREATE"
           @click="$emit('onCreateScript', SET_INDEX.CREATE)" />

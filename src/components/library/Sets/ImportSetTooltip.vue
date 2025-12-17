@@ -14,7 +14,7 @@
       </template>
       <template #popper>
         <div style="width: 770px;">
-          You can import one or more characters. Required fields for a character: "name", "team", "ability".
+          <span v-html="$t('importCharacter.info')"></span>
           <img src="/images/elements/ui/set_options.png" alt="Set options" />
         </div>
       </template>

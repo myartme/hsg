@@ -15,25 +15,25 @@
           :handle="undoUpdate" />
     </template>
     <template #header>
-      <h2 class="text-2xl font-semibold">{{ isNew ? 'Create' : 'Edit' }} Character</h2>
+      <h2 class="text-2xl font-semibold">{{ isNew ? $t('character.createCharacter') : $t('character.editCharacter') }}</h2>
       <action-button v-if="isOfficial"
                icon="wiki"
                icon-size="w-7 h-7"
                button-class="w-10 h-10"
-               tooltip="Go to the Blood on the Clocktower Wiki"
+               :tooltip="$t('character.goToWiki')"
                @click="optionsStore.openLinkinBrowser(character?.wiki)" />
       <action-button v-if="!isNew"
                      icon="toClipboard"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
-                     tooltip="Copy character data to clipboard"
+                     :tooltip="$t('character.copyToClipboard')"
                      :handle="handleToClipboard"
                      :is-show-effect="true" />
       <action-button v-if="!isOfficial && !isNew"
                      icon="delete"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
-                     tooltip="Delete this character"
+                     :tooltip="$t('character.deleteCharacter')"
                      @click="isVisibleDeleteDialog = true" />
     </template>
     <template #content>
@@ -41,29 +41,29 @@
         <simple-input
             @input="checkName"
             v-model:value="character.name"
-            label="Name"
+            :label="$t('character.name')"
             :disabled="isOfficial || !isNew"
-            required="This field is required. After saving, changing the name is not available."
+            :required="$t('validation.fieldRequiredNoEdit')"
             :errored="isVisibleError"
             :error-text="errorText"
             :maxlength="30" />
         <simple-dropdown
             v-model:value="character.team"
-            label="Team"
+            :label="$t('character.team')"
             :list="ROLES"
             :disabled="isOfficial"
-            required="This field is required."
-            default-value="Select Role Type..." />
+            :required="$t('validation.fieldRequired')"
+            :default-value="$t('character.selectRoleType')" />
         <simple-textarea
             v-model:value="character.ability"
-            label="Ability"
+            :label="$t('character.ability')"
             :disabled="isOfficial"
             rows="6"
-            required="This field is required."
+            :required="$t('validation.fieldRequired')"
             :maxlength="250" />
         <simple-textarea
             v-model:value="character.flavor"
-            label="Flavor text"
+            :label="$t('character.flavorText')"
             :disabled="isOfficial"
             rows="6"
             :maxlength="500" />
@@ -71,20 +71,20 @@
             v-if="!isEmpty(character.name)"
             v-model:character="firstNightCharacter"
             v-model:list="firstNightOrderList"
-            :action-text="isOfficial ? 'Click to view first night priority' : 'Click to set first night priority'"
-            label="First Night Priority"
+            :action-text="isOfficial ? $t('character.clickToViewFirstNight') : $t('character.clickToSetFirstNight')"
+            :label="$t('character.firstNightPriority')"
             input-class="border border-gray-300 rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm focus:ring-violet-500 form-input"
-            info="First night wake-up priority. &quot;0&quot; means this character doesn't wake during the first night."
+            :info="$t('info.firstNightPriority')"
             :disabled="isOfficial"
             order-field="firstNight" />
         <night-orders
             v-if="!isEmpty(character.name)"
             v-model:character="otherNightCharacter"
             v-model:list="otherNightOrderList"
-            :action-text="isOfficial ? 'Click to view other night priority' : 'Click to set other night priority'"
-            label="Other Night Priority"
+            :action-text="isOfficial ? $t('character.clickToViewOtherNight') : $t('character.clickToSetOtherNight')"
+            :label="$t('character.otherNightPriority')"
             input-class="border border-gray-300 rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm focus:ring-violet-500 form-input"
-            info="Other nights wake-up priority. &quot;0&quot; means this character doesn't wake during other nights."
+            :info="$t('info.otherNightPriority')"
             :disabled="isOfficial"
             order-field="otherNight" />
       </div>
@@ -92,84 +92,84 @@
         <simple-input-tag
             v-model:value="character.reminders"
             div-class="mb-4"
-            label="Reminders"
+            :label="$t('character.reminders')"
             :max-tags="20"
             :disabled="isOfficial"
-            info="Character reminder tokens." />
+            :info="$t('info.reminders')" />
         <simple-input-tag
             v-model:value="character.remindersGlobal"
             div-class="mb-4"
-            label="Reminders Global"
+            :label="$t('character.remindersGlobal')"
             :max-tags="20"
             :disabled="isOfficial"
-            info="Global character reminder tokens, which will be selectable even when the character is not in play." />
+            :info="$t('info.remindersGlobal')" />
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <simple-textarea
             v-model:value="character.firstNightReminder"
-            label="First Night Reminder"
+            :label="$t('character.firstNightReminder')"
             :maxlength="500"
             :disabled="isOfficial"
             rows="10"
-            info="First night Storyteller reminder." />
+            :info="$t('info.firstNightReminder')" />
         <simple-textarea
             v-model:value="character.otherNightReminder"
-            label="Other Night Reminder"
+            :label="$t('character.otherNightReminder')"
             :maxlength="500"
             :disabled="isOfficial"
             rows="10"
-            info="Other night Storyteller reminder." />
+            :info="$t('info.otherNightReminder')" />
       </div>
       <simple-input
           v-model:value="character.edition"
           div-class="mb-4 mt-3"
           :disabled="true"
-          label="Edition" />
+          :label="$t('character.edition')" />
       <simple-checkbox
           v-model:value="character.setup"
-          label="Setup"
+          :label="$t('character.setup')"
           :disabled="isOfficial"
-          info="Whether this character has a ability that is relevant for the game setup." />
+          :info="$t('info.setup')" />
       <group-images
           v-if="!isImagesDisabled"
           v-model:value="character.image"
           :team-name="character.team"
           :key="character.id"
           div-class="pt-3 pb-3"
-          label="Icons"
+          :label="$t('character.icons')"
           :disabled="isOfficial"
-          info="For non-traveller characters, the icons should be regular alignment and flipped alignment, for travellers they should be unaligned, good alignment and evil alignment." />
+          :info="$t('info.icons')" />
       <queue-positions-input
           v-if="!isQueuePositionDisabled"
           v-model:character="queueCharacter"
           v-model:list="queueList"
-          :action-text="isOfficial ? 'Click to view script queue position' : 'Click to set script queue position'"
-          label="Script Character Priority"
+          :action-text="isOfficial ? $t('character.clickToViewScriptPriority') : $t('character.clickToSetScriptPriority')"
+          :label="$t('character.scriptCharacterPriority')"
           :team-name="character.team"
-          info="The priority of this character on the script sheet. The &quot;Team&quot; field is required for this field."
-          required="This field is required."
+          :info="$t('info.scriptCharacterPriority')"
+          :required="$t('validation.fieldRequired')"
           :disabled="isOfficial" />
       <specials v-if="!isOfficial"
                 v-model:value="specials"
-                label="Special app integration features"
+                :label="$t('character.specials')"
                 @on-update-specials="specials = [...$event]"
-                action-text="Click to edit"/>
+                :action-text="$t('character.clickToEditSpecials')"/>
       <group-jinx
           v-model:value="character.jinxes"
-          label="Jinxes"
+          :label="$t('character.jinxes')"
           :maxlength="500"
           :disabled="isOfficial"
-          info="Jinxes with other characters on this script." />
+          :info="$t('info.jinxes')" />
       <simple-input-tag
           v-model:value="rules"
           div-class="mt-4"
-          label="Bootlegger rules"
+          :label="$t('character.bootleggerRules')"
           :max-tags="10"
           :maxlength="250"
-          info="Bootlegger rules for this character.<br>Don't forget to add bootlegger fabled in the script to see the bootlegger rules in options." />
+          :info="$t('info.bootleggerRules')" />
       <confirm-dialog v-if="isVisibleDeleteDialog"
-                      :title="`Deleting ${character.name}`"
-                      description="This action cannot be undone. Are you sure you want to delete this character?"
+                      :title="$t('character.deletingCharacter', { name: character.name })"
+                      :description="$t('character.deleteCharacterConfirm')"
                       @confirm="remove"
                       @cancel="isVisibleDeleteDialog = false" />
     </template>
@@ -178,6 +178,7 @@
 
 <script setup>
 import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
+import {useI18n} from "vue-i18n";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, objectToPrettyJson, toNormalizeString, validateName} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
@@ -209,6 +210,7 @@ const props = defineProps({
     default: false
   }
 })
+const { t } = useI18n()
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
@@ -379,7 +381,7 @@ function checkName(event) {
 
   if (isDuplicate) {
     isVisibleError.value = true
-    errorText.value = "There is already a character with this name"
+    errorText.value = t('validation.characterExists')
     return
   }
 
@@ -427,6 +429,10 @@ function saveData(){
 function undoUpdate() {
   try {
     characterInit()
+    nightOrderListInit()
+    firstNightOrderInit()
+    otherNightOrderInit()
+    queueListInit()
     queueInit()
     bootleggerInit()
     specialsInit()

@@ -20,7 +20,7 @@
                      icon="delete"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
-                     tooltip="Delete this set"
+                     :tooltip="$t('library.deleteThisSet')"
                      :is-show-effect="false"
                      @click="isVisibleDeleteDialog = true" />
     </template>
@@ -28,29 +28,29 @@
       <simple-input
           @focusout="addId"
           v-model:value="meta.id"
-          label="ID"
+          :label="$t('library.setId')"
           :maxlength="30"
           :errored="isVisibleError"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           :disabled="activeSetIndex >= 0"
-          error-text="There is already a set with this ID in your library"
+          :error-text="$t('library.setIdExists')"
           class="mb-2" />
       <simple-input
           v-model:value="meta.name"
-          label="Name"
+          :label="$t('library.setName')"
           :maxlength="50"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           :disabled="activeSetIndex >= 0"
           class="mb-2" />
       <simple-input
           v-model:value="meta.author"
-          label="Author"
+          :label="$t('library.setAuthor')"
           :maxlength="50"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           class="mb-2" />
       <simple-input
           v-model:value="meta.logo"
-          label="Logo"
+          :label="$t('library.setLogo')"
           :maxlength="250"
           class="mb-2" />
       <img
@@ -59,8 +59,8 @@
           class="mt-10 h-50 object-cover rounded mx-auto"
           alt="logo" />
       <confirm-dialog v-if="isVisibleDeleteDialog"
-                      :title="`Deleting ${meta.name}`"
-                      description="This action cannot be undone. Are you sure you want to delete this set?"
+                      :title="$t('library.deletingSet', { name: meta.name })"
+                      :description="$t('library.deleteSetConfirm')"
                       @confirm="remove"
                       @cancel="isVisibleDeleteDialog = false" />
     </template>

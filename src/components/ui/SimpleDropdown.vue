@@ -54,7 +54,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const model = defineModel('value')
 
 const props = defineProps({
@@ -97,7 +99,7 @@ function selectOption(role) {
 }
 
 const selectedLabel = computed(() => {
-  return model.value || props.defaultValue || "Select an option"
+  return model.value || props.defaultValue || t('common.selectAnOption')
 })
 </script>
 

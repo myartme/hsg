@@ -4,8 +4,8 @@
       @close="$emit('onClose'); messages = []">
     <template #header>
       <div class="flex">
-        <p class="title-theme mr-2">Import library data</p>
-        <info-tooltip class="mt-1" icon-size="w-5 h-5" text="<strong>Merge mode:</strong><br> - New sets are added to your library <br> - New characters are added to existing sets<br> - New scripts are added to your script list<br> - New script versions are added to your script list<br> - New options are added<br><br><strong>Replace mode:</strong><br> - Includes merge mode <br> - Existing characters in sets are replaced<br> - Existing versions in scripts are replaced" />
+        <p class="title-theme mr-2">{{ $t('importExport.importLibraryData') }}</p>
+        <info-tooltip class="mt-1" icon-size="w-5 h-5" :text="$t('importExport.importMergeInfo')" />
       </div>
     </template>
     <template #content>
@@ -13,12 +13,12 @@
         <div class="grid grid-cols-[1fr_1fr] justify-items-center items-center gap-4">
           <drag-and-drop
               class="w-[80%]"
-              :text="`${inputPlaceholder}<br><strong>Merge mode</strong>`"
+              :text="`${$t('importExport.dragDropHsgl')}<br><strong>${$t('importExport.mergeMode')}</strong>`"
               :formats="['hsgl']"
               @json-loaded="loadedContentWithMerge" />
           <drag-and-drop
               class="w-[80%]"
-              :text="`${inputPlaceholder}<br><strong>Replace mode</strong>`"
+              :text="`${$t('importExport.dragDropHsgl')}<br><strong>${$t('importExport.replaceMode')}</strong>`"
               :formats="['hsgl']"
               @json-loaded="loadedContentWithReplace" />
         </div>
@@ -38,14 +38,16 @@ import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import PopupContainer from "@/components/PopupContainer.vue";
 import {ref} from "vue";
 import {useOptionsStore} from "@/store/options";
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n()
 const props = defineProps({
   title: String
 })
 const optionsStore = useOptionsStore()
 const messages = ref([])
 const emits = defineEmits(['onClose'])
-const inputPlaceholder = "Click to choose a HSGL file / drag a HSGL file here"
+
 function loadedContentWithMerge(value){
   textareaValueChange({ text: value, withReplace: false })
 }
@@ -66,19 +68,19 @@ function textareaValueChange({ text, withReplace }){
 async function formalizedList(content, withReplace){
   if(content.sets){
     let isOk = await optionsStore.importSets(content.sets, withReplace)
-    messages.value.push(isOk ? 'Sets imported.' : 'An error occurred while importing the sets.')
+    messages.value.push(isOk ? t('importExport.setsImported') : t('importExport.errorImportingSets'))
   }
   if(content.scripts){
     let isOk = await optionsStore.importScripts(content.scripts, withReplace)
-    messages.value.push(isOk ? 'Scripts imported.' : 'An error occurred while importing the scripts.')
+    messages.value.push(isOk ? t('importExport.scriptsImported') : t('importExport.errorImportingScripts'))
   }
   if(content.scriptTags){
     let isOk = await optionsStore.importScriptTags(content.scriptTags, withReplace)
-    messages.value.push(isOk ? 'Script tags imported.' : 'An error occurred while importing the script tags.')
+    messages.value.push(isOk ? t('importExport.scriptTagsImported') : t('importExport.errorImportingScriptTags'))
   }
   if(content.options){
     let isOk = await optionsStore.importOptions(content.options)
-    messages.value.push(isOk ? 'Options imported.' : 'An error occurred while importing the options.')
+    messages.value.push(isOk ? t('importExport.optionsImported') : t('importExport.errorImportingOptions'))
   }
 }
 </script>
