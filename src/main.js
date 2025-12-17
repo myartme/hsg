@@ -39,6 +39,15 @@ const menuLabels = {
   }
 }
 
+const aboutCredits = {
+  en: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +
+      'The application uses images from the official website: http://bloodontheclocktower.com. All trademarks and assets belong to their respective owners.\n' +
+      'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.',
+  ru: 'Это неофициальная библиотека персонажей и скриптов для игры Blood on the Clocktower.\n' +
+      'Приложение использует изображения с официального сайта: http://bloodontheclocktower.com. Все торговые марки и материалы принадлежат их владельцам.\n' +
+      'Этот проект не связан с создателями Blood on the Clocktower и не одобрен ими.'
+}
+
 let currentLanguage = 'en'
 let mainWindow = null
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -149,9 +158,23 @@ ipcMain.handle('setLanguage', async (event, lang) => {
   currentLanguage = lang
   if (mainWindow) {
     buildMenu()
+    updateAboutPanel()
   }
   return true
 })
+
+function updateAboutPanel() {
+  if (process.platform === 'darwin') {
+    app.setAboutPanelOptions({
+      applicationName: 'BotC HSG',
+      applicationVersion: '1.7.0',
+      version: '1.7.0',
+      copyright: '© 2025 Artem Chendey',
+      iconPath: path.join(__dirname, 'icon.icns'),
+      credits: aboutCredits[currentLanguage] || aboutCredits.en
+    })
+  }
+}
 
 function buildMenu() {
   const labels = menuLabels[currentLanguage] || menuLabels.en
@@ -226,7 +249,7 @@ function buildMenu() {
           submenu: [
             {
               label: labels.about,
-              click: () => mainWindow.webContents.send('show-about')
+              click: () => mainWindow.webContents.send('show-about', currentLanguage)
             }
           ]
         }
@@ -270,18 +293,7 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  if (process.platform === 'darwin') {
-    app.setAboutPanelOptions({
-      applicationName: 'BotC HSG',
-      applicationVersion: '1.7.0',
-      version: '1.7.0',
-      copyright: '© 2025 Artem Chendey',
-      iconPath: path.join(__dirname, 'icon.icns'),
-      credits: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +
-          'The application uses images from the official website: http://bloodontheclocktower.com. All trademarks and assets belong to their respective owners.\n' +
-          'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.'
-    });
-  }
+  updateAboutPanel()
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the
