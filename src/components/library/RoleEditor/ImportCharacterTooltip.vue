@@ -15,6 +15,10 @@
       <template #popper>
         <div style="width: 740px;">
           You can import one or more characters. Required fields for a character: "name", "team", "ability".
+          <div class="mt-2 text-yellow-400">
+            Note: The "firstNight" and "otherNight" fields are deprecated.
+            <br />After import, please verify the character's position in the night order.
+          </div>
           <img src="/images/elements/ui/character_options.png" alt="Character options" />
         </div>
       </template>

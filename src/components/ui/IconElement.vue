@@ -8,6 +8,7 @@ import AlertIcon from "@/components/ui/svg/alert.svg";
 import ArrowDownIcon from "@/components/ui/svg/arrowDown.svg";
 import AuthorDownIcon from "@/components/ui/svg/authorDown.svg";
 import AuthorUpIcon from "@/components/ui/svg/authorUp.svg";
+import BackIcon from "@/components/ui/svg/back.svg";
 import BackToListIcon from "@/components/ui/svg/backToList.svg";
 import CheckIcon from "@/components/ui/svg/check.svg";
 import CrossIcon from "@/components/ui/svg/cross.svg";
@@ -40,6 +41,7 @@ import SortWithBorderIcon from "@/components/ui/svg/sortWithBorder.svg";
 import TagsIcon from "@/components/ui/svg/tags.svg";
 import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
+import UndoToSave from "@/components/ui/svg/undoToSave.svg"
 import ViewDiaryIcon from "@/components/ui/svg/viewDiary.svg";
 import WikiIcon from "@/components/ui/svg/wiki.svg";
 
@@ -53,12 +55,13 @@ const props = defineProps({
 })
 
 const icons = {
-  add : AddIcon,
-  addWithBorder : AddWithBorderIcon,
-  alert : AlertIcon,
-  arrowDown : ArrowDownIcon,
-  authorDown : AuthorDownIcon,
+  add: AddIcon,
+  addWithBorder: AddWithBorderIcon,
+  alert: AlertIcon,
+  arrowDown: ArrowDownIcon,
+  authorDown: AuthorDownIcon,
   authorUp: AuthorUpIcon,
+  backIcon: BackIcon,
   backToList: BackToListIcon,
   check: CheckIcon,
   cross: CrossIcon,
@@ -83,15 +86,16 @@ const icons = {
   options: OptionsIcon,
   otherNightDown: OtherNightDownIcon,
   otherNightUp: OtherNightUpIcon,
-  save : SaveIcon,
+  save: SaveIcon,
   scriptQueueDown: ScriptQueueDownIcon,
   scriptQueueUp: ScriptQueueUpIcon,
   sort: SortIcon,
   sortWithBorder: SortWithBorderIcon,
   tags: TagsIcon,
-  toClipboard : ToClipboardIcon,
-  undo : UndoIcon,
-  viewDiary : ViewDiaryIcon,
-  wiki : WikiIcon,
+  toClipboard: ToClipboardIcon,
+  undo: UndoIcon,
+  undoToSave: UndoToSave,
+  viewDiary: ViewDiaryIcon,
+  wiki: WikiIcon,
 }
 </script>

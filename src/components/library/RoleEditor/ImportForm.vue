@@ -53,7 +53,7 @@ import { computed, getCurrentInstance, ref, watch } from "vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
 import SectorContainer from "@/components/SectorContainer.vue";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, objectToPrettyJson, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, toNormalizeString, sanitizeName, validateName} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {isArray, isEmpty, isEqual} from "lodash/lang";
@@ -114,7 +114,22 @@ function formalizedList(content){
     charsList.value = ROLES.reduce((acc, role) => {
       acc[role] = list
           .filter(listElement => listElement.team === role)
+          .map(listElement => {
+            const validation = validateName(listElement.name)
+            if (!validation.valid) {
+              addNewError(`Character <strong>${listElement.name}</strong>: ${validation.error}`)
+            }
+            return {
+              ...listElement,
+              name: validation.sanitized
+            }
+          })
           .filter(listElement => {
+            if (!listElement.name) {
+              addNewError(`Character name is empty or contains only invalid characters`);
+              return false
+            }
+
             const duplicate = activeList.value[role].some(el =>
                 el.name === listElement.name
             );
@@ -153,7 +168,7 @@ function formalizedList(content){
           missingFields.push("<strong>ability</strong>")
         }
         const fields = missingFields.join(", ")
-        addNewError(`Required field(s) ${fields} not found in record ${objectToPrettyJson(item)}`)
+        addNewError(`Required field(s) ${fields} not found in ${getShortItemInfo(item)}`)
       }
 
       if(item.team){
@@ -161,7 +176,7 @@ function formalizedList(content){
           return role === item.team
         })
         if (!teamExists) {
-          addNewError(`Unknown team <strong>${item.team}</strong> in record ${objectToPrettyJson(item)}`)
+          addNewError(`Unknown team <strong>${item.team}</strong> in ${getShortItemInfo(item)}`)
         }
       }
     }
@@ -170,6 +185,12 @@ function formalizedList(content){
 
 function addNewError(message){
   errorList.value.push(message)
+}
+
+function getShortItemInfo(item) {
+  if (item.name) return `"<strong>${item.name}</strong>"`
+  if (item.id) return `id: "<strong>${item.id}</strong>"`
+  return `"<strong>${item.ability?.substring(0, 30)}...</strong>"`
 }
 
 function getJinxes(element){

@@ -138,7 +138,7 @@ function normalizeRoles() {
       .sort((a, b) => a[props.orderField] - b[props.orderField])
       .map((el, idx) => ({
         ...el,
-        [props.orderField]: idx + 1,
+        [props.orderField]: idx,
       }))
 
   nextTick(() => {
@@ -165,7 +165,7 @@ function removeFromRolesList(){
   }
   normalizeRoles()
   for(let idx = el; idx < roles.value.length; idx++){
-    roles.value[idx][props.orderField] = idx + 1
+    roles.value[idx][props.orderField] = idx
   }
 }
 
@@ -177,7 +177,7 @@ function closeAndSave(){
 
 function onInputChange(event){
   const position = Number(event.target.value)
-  if(position > 1){
+  if(position >= 1){
     addToRolesList(position)
     orderValue.value = position
   } else {
@@ -191,7 +191,7 @@ function isMoved(evt) {
 }
 
 function onDragChange(event){
-  const position = event.moved.newIndex + 1
+  const position = event.moved.newIndex
   addToRolesList(position)
   orderValue.value = position
   normalizeRoles()

@@ -26,9 +26,9 @@
         <h3 class="text-xs font-medium truncate z-10 title-theme">
           {{ character.name }}
         </h3>
-        <div class="absolute -left-1 top-full -mt-4 flex flex-wrap w-[calc(8rem)] z-0 cursor-pointer">
+        <div class="absolute -left-1 top-full -mt-4 flex flex-wrap w-[calc(8rem)] z-20">
           <template v-for="jinx in getValidJinxesForCharacter(character)">
-            <div class="-ml-1.5 -mb-2 first:ml-0">
+            <div class="-ml-1.5 -mb-2 first:ml-0 cursor-pointer">
               <tooltip
                   :triggers="['hover', 'focus']"
                   placement="top"

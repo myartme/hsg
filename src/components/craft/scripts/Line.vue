@@ -162,11 +162,11 @@ const emits = defineEmits(['isOpenOptions', 'onEmptyList', 'onDeletingVersion'])
 const getIconClass = (val) => val ? 'fill-[color:var(--color-button)] hover:fill-[color:var(--color-button-hover)]' : 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
 const getButtonClass = (val) => val ? 'border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]' : 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
 
-function selectScript(element, event){
+async function selectScript(element, event){
   event.stopPropagation()
   activeVersion.value = element.version
   isSavedScript.value = true
-  craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name, true)
+  await craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name, true)
   router.push({ name: 'scriptEdit' })
 }
 
@@ -255,7 +255,7 @@ function getPreviewTooltip(elements){
 
 function getColorTag(color){
   const colorTag = tags.value.find(el => el.title === color)
-  if(colorTag !== null){
+  if(colorTag){
     return "color: " + colorTag.customColor
   }
 

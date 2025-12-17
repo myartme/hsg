@@ -52,14 +52,53 @@ export const toNormalizeString = (value, limit = 0) => {
         .toLowerCase()
         .split('')
         .map(char => {
+            if (char === '*') return '_st';
             return cyrillicToLatinMap[char] ?? char;
         })
         .join('')
         .replace(/[^a-z0-9_\s]/gi, '')
         .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
         .replace(/^_+|_+$/g, '');
 
     return limit > 0 ? transliterated.slice(0, limit) : transliterated;
+}
+
+export const sanitizeName = (value) => {
+    if (isEmpty(value)) return ''
+    // Оставляем только буквы (любого языка), пробелы и звёздочку (только в конце)
+    return value
+        .replace(/[^\p{L}\s*]/gu, '')  // Убираем всё кроме букв, пробелов и *
+        .replace(/\*(?!$)/g, '')        // Убираем * если она не в конце
+        .replace(/\s+/g, ' ')
+        .trim()
+}
+
+export const validateName = (value) => {
+    if (isEmpty(value)) return { valid: true, sanitized: '' }
+
+    const sanitized = sanitizeName(value)
+
+    // Проверка на недопустимые символы (всё кроме букв, пробелов и *)
+    const invalidChars = value.match(/[^\p{L}\s*]/gu)
+    if (invalidChars) {
+        return {
+            valid: false,
+            sanitized,
+            error: `Invalid characters: "${[...new Set(invalidChars)].join('')}"\nOnly letters, spaces and * (at the end) are allowed`
+        }
+    }
+
+    // Проверка на * не в конце
+    if (/\*(?!$)/.test(value)) {
+        return {
+            valid: false,
+            sanitized,
+            error: `The "*" symbol is only allowed at the end of the name`
+        }
+    }
+
+    return { valid: true, sanitized }
 }
 
 export const getPluralTeam = (teamName) => {

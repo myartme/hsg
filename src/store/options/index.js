@@ -5,6 +5,7 @@ import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
 import {objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import router from "@/router";
+import {normalizeQueuePositions} from "@/store/library/queue";
 
 export const useOptionsStore = defineStore('options', () => {
     async function importSets(data, withReplace){
@@ -87,6 +88,7 @@ export const useOptionsStore = defineStore('options', () => {
                 }
             }
             await libraryStore.saveSets()
+            normalizeQueuePositions()
             await libraryStore.saveQueuePositions()
             await libraryStore.saveBootlegger()
 

@@ -179,7 +179,7 @@
 <script setup>
 import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, objectToPrettyJson, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, objectToPrettyJson, toNormalizeString, validateName} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {useIndexStore} from "@/store";
@@ -234,17 +234,7 @@ const otherNightOrderList = ref([])
 const otherNightCharacter = ref([])
 const emits = defineEmits(['createRole'])
 
-const isCanSave = computed(() => {
-  console.log(
-      `isCanSaveChar ${isCanSaveChar.value}`,
-      `isCanSaveTags ${isCanSaveTags.value}`,
-      `isCanSaveRules ${isCanSaveRules.value}`,
-      `isCanSaveQueue ${isCanSaveQueue.value}`,
-      `isCanSaveNight ${isCanSaveNight.value}`,
-      `isCanSaveSpecial ${isCanSaveSpecial.value}`
-  )
-  return isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value || isCanSaveNight.value || isCanSaveSpecial.value
-})
+const isCanSave = computed(() => isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value || isCanSaveNight.value || isCanSaveSpecial.value)
 const setCanSave = (val) => {
   isCanSaveChar.value = val
   isCanSaveTags.value = val
@@ -369,8 +359,21 @@ function getDefaultRules(){
 
 function checkName(event) {
   const str = event.target.value
-  if (str === activeCharacter.value.name) return
 
+  // Валидация имени (недопустимые символы, * не в конце)
+  const validation = validateName(str)
+  if (!validation.valid) {
+    isVisibleError.value = true
+    errorText.value = validation.error
+    return
+  }
+
+  if (str === activeCharacter.value?.name) {
+    isVisibleError.value = false
+    return
+  }
+
+  // Проверка дубликата
   const isDuplicate = Object.values(activeList.value)
       .some(roleList => roleList.some(el => el.name === str))
 
@@ -456,25 +459,27 @@ watch(character, () => {
 }, { deep:true })
 
 watch(queueCharacter, () => {
-  isCanSaveQueue.value = !isEqual(
-      queueCharacter.value,
-      queuePositions.value[character.value.team]?.find(el => el.id === character.value.id)
-  )
+  const stored = queuePositions.value[character.value.team]?.find(el => el.id === character.value.id)
+  isCanSaveQueue.value = !isEqual(queueCharacter.value, stored)
 }, { deep:true })
 
-watch(firstNightCharacter, () => {
-  isCanSaveNight.value = !isEqual(
-      firstNightCharacter.value,
-      nightOrder.value?.firstNight.find(el => el.id === character.value.id)
-  )
-}, { deep:true })
+const checkNightOrderChanged = () => {
+  const firstNightStored = nightOrder.value?.firstNight.find(el => el.id === character.value.id)
+  const otherNightStored = nightOrder.value?.otherNight.find(el => el.id === character.value.id)
 
-watch(otherNightCharacter, () => {
-  isCanSaveNight.value = !isEqual(
-      otherNightCharacter.value,
-      nightOrder.value?.otherNight.find(el => el.id === character.value.id)
-  )
-}, { deep:true })
+  const firstChanged = firstNightCharacter.value?.firstNight > 0 || firstNightStored
+      ? !isEqual(firstNightCharacter.value, firstNightStored)
+      : false
+
+  const otherChanged = otherNightCharacter.value?.otherNight > 0 || otherNightStored
+      ? !isEqual(otherNightCharacter.value, otherNightStored)
+      : false
+
+  isCanSaveNight.value = firstChanged || otherChanged
+}
+
+watch(firstNightCharacter, checkNightOrderChanged, { deep: true })
+watch(otherNightCharacter, checkNightOrderChanged, { deep: true })
 
 watch(rules, () => {
   isCanSaveRules.value = !isEqual(rules.value, getDefaultRules())

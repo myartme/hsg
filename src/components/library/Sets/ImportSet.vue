@@ -47,7 +47,7 @@
       </div>
       <simple-input
           v-if="activeSetIndex < 0"
-          @input="addId"
+          @focusout="addId"
           v-model:value="meta.id"
           label="ID"
           :maxlength="30"
@@ -98,7 +98,6 @@ import {isEmpty, isEqual} from "lodash/lang";
 import {
   DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray,
   getImageFirstUrl,
-  objectToPrettyJson,
   toNormalizeString
 } from "@/constants/other";
 import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
@@ -223,7 +222,7 @@ function formalizedList(content){
           missingFields.push("<strong>ability</strong>")
         }
         const fields = missingFields.join(", ")
-        addNewError(`Required field(s) ${fields} not found in record ${objectToPrettyJson(item)}`)
+        addNewError(`Required field(s) ${fields} not found in ${getShortItemInfo(item)}`)
       }
 
       if(item.team){
@@ -231,7 +230,7 @@ function formalizedList(content){
           return role === item.team
         })
         if (!teamExists) {
-          addNewError(`Unknown team <strong>${item.team}</strong> in record ${objectToPrettyJson(item)}`)
+          addNewError(`Unknown team <strong>${item.team}</strong> in ${getShortItemInfo(item)}`)
         }
       }
     }
@@ -260,6 +259,12 @@ function getJinxes(element){
 
 function addNewError(message){
   errorList.value.push(message)
+}
+
+function getShortItemInfo(item) {
+  if (item.name) return `"<strong>${item.name}</strong>"`
+  if (item.id) return `id: "<strong>${item.id}</strong>"`
+  return `"<strong>${item.ability?.substring(0, 30)}...</strong>"`
 }
 
 function save(){

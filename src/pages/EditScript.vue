@@ -39,7 +39,7 @@ const { isOpenPdfOptions, isOpenNightOrder, isWaitingOperation, pdfListWithParam
 const elems = ref({})
 
 const isBootleggersEnabled = computed(() => {
-  return pdfListWithParams.value['fabled'].find(el => el.id === 'bootlegger') !== undefined
+  return pdfListWithParams.value['loric']?.find(el => el.id === 'bootlegger') !== undefined
 })
 
 watch(pdfListWithParams, (val) => {

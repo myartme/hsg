@@ -67,12 +67,19 @@
             :ref="el => roleRefs[idx] = el"
             class="mb-3"
         >
-          <div class="border rounded-md flex flex-1 p-3 items-center gap-3 transition border-[color:var(--color-border)]">
-            <img :src="item.image" class="w-10 h-10 rounded" alt="image" />
+          <div :class="[
+              'border rounded-md flex flex-1 p-3 items-center gap-3 transition border-[color:var(--color-border)]',
+              !isRoleExists(item.id) && 'opacity-50'
+          ]">
+            <div class="flex flex-col items-center">
+              <img :src="item.image" class="w-10 h-10 rounded" alt="image" />
+              <span v-if="!isRoleExists(item.id)" class="text-xs text-red-500 mt-1">Character deleted</span>
+            </div>
             <div class="text-theme">{{ item.name }}</div>
             <div class="text-xs text-theme">{{ item.reason }}</div>
             <div v-if="!disabled" class="flex gap-2 ml-auto">
               <button
+                  v-if="isRoleExists(item.id)"
                   class="text-sm rounded-xl p-2 pl-3 pr-3 cursor-pointer text-theme border-[color:var(--color-border)] bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]"
                   @click="editRole(idx)"
               >Edit</button>
@@ -99,6 +106,8 @@ import ImageAnyScript from "@/components/ui/ImageAnyScript.vue";
 import JinxRoleListPopup from "@/components/library/RoleEditor/JinxRoleListPopup.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+import {useLibraryStore} from "@/store/library";
+import {storeToRefs} from "pinia";
 
 const props = defineProps({
   label: String,
@@ -135,6 +144,9 @@ const props = defineProps({
     default: false
   }
 })
+const libraryStore = useLibraryStore()
+const { allListsAsOne } = storeToRefs(libraryStore)
+
 const input = ref("")
 const isOpenPopup = ref(false)
 const isEditMode = ref(false)
@@ -144,6 +156,12 @@ const roleRefs = ref([])
 const top = ref(null)
 const bottom = ref(null)
 const emits = defineEmits(['update:value'])
+
+const isRoleExists = (roleId) => {
+  return Object.values(allListsAsOne.value)
+      .flat()
+      .some(role => role?.id === roleId)
+}
 
 const formatRole = (role) => {
   if(!role){
