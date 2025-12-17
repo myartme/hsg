@@ -7,6 +7,8 @@ export function useLocaleSync() {
 
   watch(language, (newLang) => {
     locale.value = newLang
+    // Update Electron menu language
+    window.electronAPI?.setLanguage?.(newLang)
   }, { immediate: true })
 
   return { locale }

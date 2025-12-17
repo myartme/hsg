@@ -65,6 +65,10 @@ contextBridge.exposeInMainWorld(
 
         deleteAllData: () => {
             return ipcRenderer.invoke('deleteAllData')
+        },
+
+        setLanguage: (lang) => {
+            return ipcRenderer.invoke('setLanguage', lang)
         }
     }
 )

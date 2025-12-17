@@ -3,6 +3,44 @@ import path from 'node:path';
 import { rm } from 'fs/promises';
 import started from 'electron-squirrel-startup';
 import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64 } from '/src/helpers/files.js'
+
+const menuLabels = {
+  en: {
+    about: 'About',
+    quit: 'Quit',
+    edit: 'Edit',
+    undo: 'Undo',
+    redo: 'Redo',
+    cut: 'Cut',
+    copy: 'Copy',
+    paste: 'Paste',
+    selectAll: 'Select All',
+    view: 'View',
+    reload: 'Reload',
+    toggleDevTools: 'Toggle Developer Tools',
+    toggleFullscreen: 'Toggle Fullscreen',
+    help: 'Help'
+  },
+  ru: {
+    about: 'О программе',
+    quit: 'Выход',
+    edit: 'Редактирование',
+    undo: 'Отменить',
+    redo: 'Повторить',
+    cut: 'Вырезать',
+    copy: 'Копировать',
+    paste: 'Вставить',
+    selectAll: 'Выделить всё',
+    view: 'Вид',
+    reload: 'Перезагрузить',
+    toggleDevTools: 'Инструменты разработчика',
+    toggleFullscreen: 'Полноэкранный режим',
+    help: 'Справка'
+  }
+}
+
+let currentLanguage = 'en'
+let mainWindow = null
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
@@ -107,8 +145,100 @@ ipcMain.handle('deleteAllData', async () => {
   return false
 })
 
+ipcMain.handle('setLanguage', async (event, lang) => {
+  currentLanguage = lang
+  if (mainWindow) {
+    buildMenu()
+  }
+  return true
+})
+
+function buildMenu() {
+  const labels = menuLabels[currentLanguage] || menuLabels.en
+  const template = []
+
+  if (process.platform === 'darwin') {
+    // macOS
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            {
+              label: labels.about,
+              click: () => {
+                app.showAboutPanel()
+              }
+            },
+            { type: 'separator' },
+            { role: 'quit', label: labels.quit }
+          ]
+        },
+        {
+          label: labels.edit,
+          submenu: [
+            { role: 'undo', label: labels.undo },
+            { role: 'redo', label: labels.redo },
+            { type: 'separator' },
+            { role: 'cut', label: labels.cut },
+            { role: 'copy', label: labels.copy },
+            { role: 'paste', label: labels.paste },
+            { role: 'selectAll', label: labels.selectAll }
+          ]
+        },
+        {
+          label: labels.view,
+          submenu: [
+            { role: 'reload', label: labels.reload },
+            { role: 'toggledevtools', label: labels.toggleDevTools },
+            { role: 'togglefullscreen', label: labels.toggleFullscreen }
+          ]
+        }
+    )
+  } else {
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            { role: 'quit', label: labels.quit }
+          ]
+        },
+        {
+          label: labels.edit,
+          submenu: [
+            { role: 'undo', label: labels.undo },
+            { role: 'redo', label: labels.redo },
+            { type: 'separator' },
+            { role: 'cut', label: labels.cut },
+            { role: 'copy', label: labels.copy },
+            { role: 'paste', label: labels.paste },
+            { role: 'selectAll', label: labels.selectAll }
+          ]
+        },
+        {
+          label: labels.view,
+          submenu: [
+            { role: 'reload', label: labels.reload },
+            { role: 'togglefullscreen', label: labels.toggleFullscreen }
+          ]
+        },
+        {
+          label: labels.help,
+          submenu: [
+            {
+              label: labels.about,
+              click: () => mainWindow.webContents.send('show-about')
+            }
+          ]
+        }
+    )
+  }
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}
+
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     show: false,
@@ -133,86 +263,7 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  const template = [];
-
-  if (process.platform === 'darwin') {
-    // macOS
-    template.push(
-        {
-          label: app.name,
-          submenu: [
-            {
-              label: 'About',
-              click: () => {
-                app.showAboutPanel();
-              }
-            },
-            { type: 'separator' },
-            { role: 'quit' }
-          ]
-        },
-        {
-          label: 'Edit',
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'selectAll' }
-          ]
-        },
-        {
-          label: 'View',
-          submenu: [
-            { role: 'reload' },
-            { role: 'toggledevtools' },
-            { role: 'togglefullscreen' }
-          ]
-        }
-    );
-  } else {
-    template.push(
-        {
-          label: app.name,
-          submenu: [
-            { role: 'quit' }
-          ]
-        },
-        {
-          label: 'Edit',
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'selectAll' }
-          ]
-        },
-        {
-          label: 'View',
-          submenu: [
-            { role: 'reload' },
-            { role: 'togglefullscreen' }
-          ]
-        },
-        {
-          label: 'Help',
-          submenu: [
-            {
-              label: 'About',
-              click: () => mainWindow.webContents.send('show-about')
-            }
-          ]
-        }
-    )
-  }
-
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+  buildMenu();
 };
 
 // This method will be called when Electron has finished
