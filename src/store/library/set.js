@@ -1,15 +1,10 @@
-import {
-    allData,
-    activeSetIndex,
-    metaSets,
-    queuePositions,
-    activeCharacter, bootlegger
-} from "@/store/library/state";
+import {allData, activeSetIndex, metaSets, queuePositions, activeCharacter, bootlegger} from "@/store/library/state";
 import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
-import {loadQueuePositions, saveQueuePositions} from "@/store/library/queue";
-import {SET_INDEX} from "@/constants/other";
-import {ROLES} from "@/constants/roles";
+import {loadQueuePositions, saveQueuePositions, normalizeQueuePositions} from "@/store/library/queue";
+import {SET_INDEX, getImageFirstUrl} from "@/constants/other";
+import {ROLES, MAIN_ROLES} from "@/constants/roles";
 import {loadBootlegger, saveBootlegger} from "@/store/library/bootlegger";
+import {loadFirstNightOrder, loadOtherNightOrder, saveNightOrder, addToNightOrder, removeFromNightOrder, normalizeNightOrder} from "@/store/library/night_order";
 
 export const sets = {
     get: () =>
@@ -128,7 +123,41 @@ export async function saveCharactersToList(list){
     }, {})
     sets.elem(activeSetIndex.value).list.set(newList)
 
+    for (const team of ROLES) {
+        const teamRoles = list[team] || []
+        for (const role of teamRoles) {
+            const baseElement = {
+                id: role.id,
+                image: getImageFirstUrl(role),
+                name: role.name,
+                ability: role.ability
+            }
+
+            if (role.firstNight > 0) {
+                addToNightOrder({ ...baseElement, firstNight: role.firstNight }, 'firstNight')
+            }
+            if (role.otherNight > 0) {
+                addToNightOrder({ ...baseElement, otherNight: role.otherNight }, 'otherNight')
+            }
+
+            if (MAIN_ROLES.includes(team)) {
+                const existingQueue = queuePositions.value[team]?.find(el => el.id === role.id)
+                if (!existingQueue) {
+                    if (!queuePositions.value[team]) {
+                        queuePositions.value[team] = []
+                    }
+                    queuePositions.value[team].push({
+                        ...baseElement,
+                        scriptCharacterPriority: queuePositions.value[team].length + 1
+                    })
+                }
+            }
+        }
+    }
+
     await saveSet(sets.elem(activeSetIndex.value).meta.get().id, newList)
+    await saveNightOrder()
+    await saveQueuePositions()
     activeCharacter.value = null
 }
 
@@ -168,12 +197,18 @@ export async function deleteSet(name){
                     bootlegger.value[team]?.splice(bootleggerIndex, 1);
                 }
             }
+
+            removeFromNightOrder(role.id)
         }
     }
+
+    normalizeNightOrder()
+    normalizeQueuePositions()
 
     await deleteDataLibrary(name, 'sets')
     metaSets.value?.splice(idx, 1)
     await saveSets()
+    await saveNightOrder()
     await saveQueuePositions()
     await saveBootlegger()
     await getSetsFromFile()
@@ -187,13 +222,19 @@ export async function restoreSet(set){
     const setResponse = await getDataLibrary(set.id, "sets", true)
     const setContent = setResponse?.isSuccess ? setResponse.content : null
 
+    const firstNightResponse = await getDataLibrary('first_night_order', "", true)
+    const firstNightContent = firstNightResponse?.isSuccess ? firstNightResponse.content : null
+
+    const otherNightResponse = await getDataLibrary('other_night_order', "", true)
+    const otherNightContent = otherNightResponse?.isSuccess ? otherNightResponse.content : null
+
     const queueResponse = await getDataLibrary('script_character_priority', "", true)
     const queueContent = queueResponse?.isSuccess ? queueResponse.content : null
 
     const bootleggerResponse = await getDataLibrary('bootlegger', "", true)
     const bootleggerContent = bootleggerResponse?.isSuccess ? bootleggerResponse.content : null
 
-    if(setContent && queueContent && bootleggerContent){
+    if(setContent && queueContent && bootleggerContent && firstNightContent && otherNightContent){
         for (const team of ROLES) {
             const teamRoles = setContent[team] || [];
 
@@ -207,19 +248,29 @@ export async function restoreSet(set){
                 if (bootleggerElement) {
                     bootlegger.value[team].push(bootleggerElement)
                 }
+
+                const firstNightElement = firstNightContent?.find(el => el.id === role.id)
+                if(firstNightElement){
+                    addToNightOrder(firstNightElement, 'firstNight')
+                }
+
+                const otherNightElement = otherNightContent?.find(el => el.id === role.id)
+                if(otherNightElement){
+                    addToNightOrder(otherNightElement, 'otherNight')
+                }
             }
         }
+
         metaSets.value?.push(set)
         await saveSet(set.id, setContent)
         await saveSets()
+        await saveNightOrder()
         await saveQueuePositions()
         await saveBootlegger()
         await getSetsFromFile()
     }
 
-    /*
-
-    await deleteDataLibrary(name, 'sets')
+    /*await deleteDataLibrary(name, 'sets')
     metaSets.value?.splice(idx, 1)
     await saveSets()
     await saveQueuePositions()
@@ -257,6 +308,8 @@ export async function getOriginalSets(){
 
 export async function loadSets(){
     await getSetsFromFile()
+    await loadFirstNightOrder()
+    await loadOtherNightOrder()
     await loadQueuePositions()
     await loadBootlegger()
 }

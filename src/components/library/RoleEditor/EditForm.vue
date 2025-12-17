@@ -22,7 +22,7 @@
                button-class="w-10 h-10"
                tooltip="Go to the Blood on the Clocktower Wiki"
                @click="optionsStore.openLinkinBrowser(character?.wiki)" />
-      <action-button v-if="!isOfficial && !isNew"
+      <action-button v-if="!isNew"
                      icon="toClipboard"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
@@ -68,8 +68,9 @@
             rows="6"
             :maxlength="500" />
         <night-orders
-            v-model:value="character.firstNight"
-            :character="character"
+            v-if="!isEmpty(character.name)"
+            v-model:character="firstNightCharacter"
+            v-model:list="firstNightOrderList"
             :action-text="isOfficial ? 'Click to view first night priority' : 'Click to set first night priority'"
             label="First Night Priority"
             input-class="border border-gray-300 rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm focus:ring-violet-500 form-input"
@@ -77,8 +78,9 @@
             :disabled="isOfficial"
             order-field="firstNight" />
         <night-orders
-            v-model:value="character.otherNight"
-            :character="character"
+            v-if="!isEmpty(character.name)"
+            v-model:character="otherNightCharacter"
+            v-model:list="otherNightOrderList"
             :action-text="isOfficial ? 'Click to view other night priority' : 'Click to set other night priority'"
             label="Other Night Priority"
             input-class="border border-gray-300 rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm focus:ring-violet-500 form-input"
@@ -139,16 +141,19 @@
           info="For non-traveller characters, the icons should be regular alignment and flipped alignment, for travellers they should be unaligned, good alignment and evil alignment." />
       <queue-positions-input
           v-if="!isQueuePositionDisabled"
+          v-model:character="queueCharacter"
+          v-model:list="queueList"
           :action-text="isOfficial ? 'Click to view script queue position' : 'Click to set script queue position'"
           label="Script Character Priority"
-          :character="queueCharacter"
           :team-name="character.team"
-          :queue="queue"
-          info="The priority of this character on the script sheet. The &quot;Team&quot; field is required fot this field."
+          info="The priority of this character on the script sheet. The &quot;Team&quot; field is required for this field."
           required="This field is required."
-          :disabled="isOfficial"
-          @update-character="queueCharacter = $event"
-          @update-queue="queue = $event" />
+          :disabled="isOfficial" />
+      <specials v-if="!isOfficial"
+                v-model:value="specials"
+                label="Special app integration features"
+                @on-update-specials="specials = [...$event]"
+                action-text="Click to edit"/>
       <group-jinx
           v-model:value="character.jinxes"
           label="Jinxes"
@@ -174,7 +179,7 @@
 <script setup>
 import {computed, getCurrentInstance, ref, watch, watchEffect} from "vue";
 import {EMPTY_CHARACTER, MAIN_ROLES, ROLES, stripDefaults} from "@/constants/roles.js";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageArray, getImageFirstUrl, isEqualWithDefault, objectToPrettyJson, toNormalizeString} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, getImageFirstUrl, objectToPrettyJson, toNormalizeString, validateName} from "@/constants/other";
 import { useLibraryStore } from "@/store/library";
 import { storeToRefs } from "pinia";
 import {useIndexStore} from "@/store";
@@ -192,6 +197,7 @@ import GroupImages from "@/components/library/RoleEditor/GroupImages.vue";
 import GroupJinx from "@/components/library/RoleEditor/GroupJinx.vue";
 import QueuePositionsInput from "@/components/library/RoleEditor/QueuePositions.vue";
 import {useOptionsStore} from "@/store/options";
+import Specials from "@/components/library/RoleEditor/Specials.vue";
 
 defineOptions({
   name: 'edit-form'
@@ -207,7 +213,7 @@ const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
-const { activeList, activeMeta, activeCharacter, queuePositions, bootlegger } = storeToRefs(libraryStore)
+const { activeList, activeMeta, activeCharacter, nightOrder, queuePositions, bootlegger } = storeToRefs(libraryStore)
 const errorText = ref(null)
 const isVisibleError = ref(false)
 const character = ref(null)
@@ -216,17 +222,26 @@ const isCanSaveChar = ref(false)
 const isCanSaveTags = ref(false)
 const isCanSaveRules = ref(false)
 const isCanSaveQueue = ref(false)
+const isCanSaveNight = ref(false)
+const isCanSaveSpecial = ref(false)
 const rules = ref(null)
-const queueCharacter = ref(null)
-const queue = ref(null)
+const specials = ref(null)
+const queueList = ref([])
+const queueCharacter = ref({})
+const firstNightOrderList = ref([])
+const firstNightCharacter = ref([])
+const otherNightOrderList = ref([])
+const otherNightCharacter = ref([])
 const emits = defineEmits(['createRole'])
 
-const isCanSave = computed(() => isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value)
+const isCanSave = computed(() => isCanSaveChar.value || isCanSaveTags.value || isCanSaveRules.value || isCanSaveQueue.value || isCanSaveNight.value || isCanSaveSpecial.value)
 const setCanSave = (val) => {
   isCanSaveChar.value = val
   isCanSaveTags.value = val
   isCanSaveRules.value = val
   isCanSaveQueue.value = val
+  isCanSaveNight.value = val
+  isCanSaveSpecial.value = val
 }
 
 const isOfficial = computed(() => {
@@ -235,7 +250,7 @@ const isOfficial = computed(() => {
 })
 
 const isQueuePositionDisabled = computed(() => {
-  return !MAIN_ROLES.find(el => el === character.value?.team)
+  return !MAIN_ROLES.find(el => el === character.value?.team) || isEmpty(character.value?.name)
 })
 
 const isImagesDisabled = computed(() => {
@@ -247,9 +262,11 @@ const isFullData = computed(() => {
   character.value.name !== '' &&
   character.value.team !== '' &&
   character.value.ability !== '' &&
-  ['townsfolk', 'outsider', 'minion', 'demon'].includes(character.value.team)
-      ? queueCharacter.value?.scriptCharacterPriority > 0
-      : ['traveller', 'fabled'].includes(character.value.team)
+  (
+      ['townsfolk', 'outsider', 'minion', 'demon'].includes(character.value.team)
+      ? queueCharacter.value.scriptCharacterPriority > 0
+      : true
+  )
 })
 
 const characterInit = () => {
@@ -260,14 +277,74 @@ const bootleggerInit = () => {
   rules.value = getDefaultRules()
 }
 
-const queueInit = () => {
-  queueCharacter.value = getDefaultQueueCharacter()
-
-  if(queuePositions.value && character.value?.team && MAIN_ROLES.find(el => el === character.value?.team)){
-    queue.value = [...queuePositions.value[character.value?.team] || []]
-  } else {
-    queue.value = []
+const nightOrderListInit = () => {
+  if(isArray(nightOrder.value?.firstNight)){
+    firstNightOrderList.value = [...nightOrder.value.firstNight]
   }
+  if(isArray(nightOrder.value?.otherNight)){
+    otherNightOrderList.value = [...nightOrder.value.otherNight]
+  }
+}
+
+const queueListInit = () => {
+  if(isArray(queuePositions.value[character.value.team])){
+    queueList.value = [...queuePositions.value[character.value.team]]
+  }
+}
+
+const firstNightOrderInit = () => {
+  if(firstNightOrderList.value){
+    const elem = firstNightOrderList.value?.find(el => el.id === character.value.id)
+    if(elem){
+      firstNightCharacter.value = elem
+      return
+    }
+  }
+
+  firstNightCharacter.value = {
+    "id": character.value.id,
+    "image": getImageFirstUrl(character.value),
+    "name": character.value.name,
+    "ability": character.value.ability,
+  }
+}
+const otherNightOrderInit = () => {
+  if(otherNightOrderList.value){
+    const elem = otherNightOrderList.value?.find(el => el.id === character.value.id)
+    if(elem){
+      otherNightCharacter.value = elem
+      return
+    }
+  }
+
+  otherNightCharacter.value = {
+    "id": character.value.id,
+    "image": getImageFirstUrl(character.value),
+    "name": character.value.name,
+    "ability": character.value.ability,
+  }
+}
+
+const queueInit = () => {
+  if(queueList.value){
+    const elemIdx = queueList.value?.findIndex(el => el.id === character.value.id)
+    if(elemIdx !== -1){
+      queueCharacter.value = queueList.value[elemIdx]
+      return
+    }
+  }
+
+  queueCharacter.value = {
+    "id": character.value.id,
+    "image": getImageFirstUrl(character.value),
+    "name": character.value.name,
+    "ability": character.value.ability,
+    "scriptCharacterPriority": 0
+  }
+}
+
+const specialsInit = () => {
+  specials.value = activeCharacter.value.specials || []
 }
 
 function getDefaultRules(){
@@ -280,35 +357,23 @@ function getDefaultRules(){
   return []
 }
 
-function getDefaultQueueCharacter(){
-  if(activeCharacter.value && MAIN_ROLES.includes(activeCharacter.value.team)){
-    const elem = queuePositions.value[activeCharacter.value.team]?.find(el => el.id === activeCharacter.value.id)
-    if(elem) return {...elem, ...{image:getImageFirstUrl(elem)} }
-  }
-
-  return {
-    "id": activeCharacter.value.id,
-    "image": getImageFirstUrl(activeCharacter.value) || '',
-    "name": activeCharacter.value.name,
-    "ability": activeCharacter.value.ability,
-    "scriptCharacterPriority": 0
-  }
-}
-
-function getImage(val){
-  if(isArray(val) && !isEmpty(val)){
-    return val[0]
-  } else if(typeof val === 'string'){
-    return val
-  }
-
-  return ''
-}
-
 function checkName(event) {
   const str = event.target.value
-  if (str === activeCharacter.value.name) return
 
+  // Валидация имени (недопустимые символы, * не в конце)
+  const validation = validateName(str)
+  if (!validation.valid) {
+    isVisibleError.value = true
+    errorText.value = validation.error
+    return
+  }
+
+  if (str === activeCharacter.value?.name) {
+    isVisibleError.value = false
+    return
+  }
+
+  // Проверка дубликата
   const isDuplicate = Object.values(activeList.value)
       .some(roleList => roleList.some(el => el.name === str))
 
@@ -323,34 +388,11 @@ function checkName(event) {
 
 function saveData(){
   try{
-    if(props.isNew){
-      let name = character.value.name
-      if(character.value.edition){
-        name = `${name}_${character.value.edition}`
-      }
-      character.value.id = toNormalizeString(name, 30)
-    }
-
     character.value = stripDefaults(character.value, EMPTY_CHARACTER)
-
-    const indexQueue = queue.value.findIndex(el => el.id === character?.value.id || el.id === '')
-
-    const queueElement = () => {
-      return {
-        id: character.value.id,
-        image: getImageFirstUrl(character.value),
-        name: character.value.name,
-        ability: character.value.ability,
-        scriptCharacterPriority: queue.value[indexQueue]?.scriptCharacterPriority || 0
-      }
-    }
-
-    if(indexQueue >= 0){
-      queuePositions.value[character.value?.team][indexQueue] = queueElement()
-    }
+    queuePositions.value[character.value.team] = [...queueList.value]
+    nightOrder.value = {"firstNight": firstNightOrderList.value, "otherNight": otherNightOrderList.value}
 
     const indexBootlegger = bootlegger.value[character.value?.team].findIndex(el => el.id === character?.value.id)
-
     const bootleggerElement = () => {
       return {
         id: character.value.id,
@@ -387,6 +429,7 @@ function undoUpdate() {
     characterInit()
     queueInit()
     bootleggerInit()
+    specialsInit()
     setTimeout(() => {
       setCanSave(false)
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
@@ -412,51 +455,108 @@ function remove(){
 }
 
 watch(character, () => {
-  if(!character.value.setup){
-    delete character.value.setup
-  }
-
-  queueCharacter.value = {
-    "id": character.value.id,
-    "image": getImage(character.value.image),
-    "name": character.value.name,
-    "ability": character.value.ability,
-    "scriptCharacterPriority": queueCharacter.value.scriptCharacterPriority || 0
-  }
-
-  isCanSaveChar.value = !isEqualWithDefault(character.value, activeCharacter.value)
+  isCanSaveChar.value = !isEqual(character.value, activeCharacter.value)
 }, { deep:true })
 
-watch(() => character?.value?.team, (newTeam, oldTeam) => {
-  if(newTeam !== oldTeam){
-    queueInit()
-  }
+watch(queueCharacter, () => {
+  const stored = queuePositions.value[character.value.team]?.find(el => el.id === character.value.id)
+  isCanSaveQueue.value = !isEqual(queueCharacter.value, stored)
+}, { deep:true })
 
-  queueCharacter.value = {
-    "id": character.value.id,
-    "image": getImage(character.value.image),
-    "name": character.value.name,
-    "ability": character.value.ability,
-    "scriptCharacterPriority": queueCharacter.value.scriptCharacterPriority || 0
-  }
+const checkNightOrderChanged = () => {
+  const firstNightStored = nightOrder.value?.firstNight.find(el => el.id === character.value.id)
+  const otherNightStored = nightOrder.value?.otherNight.find(el => el.id === character.value.id)
 
-  if(!!newTeam && !getImageFirstUrl(character.value)){
-    character.value.image = [...getImageArray(character.value.image, newTeam)]
-  }
-})
+  const firstChanged = firstNightCharacter.value?.firstNight > 0 || firstNightStored
+      ? !isEqual(firstNightCharacter.value, firstNightStored)
+      : false
+
+  const otherChanged = otherNightCharacter.value?.otherNight > 0 || otherNightStored
+      ? !isEqual(otherNightCharacter.value, otherNightStored)
+      : false
+
+  isCanSaveNight.value = firstChanged || otherChanged
+}
+
+watch(firstNightCharacter, checkNightOrderChanged, { deep: true })
+watch(otherNightCharacter, checkNightOrderChanged, { deep: true })
 
 watch(rules, () => {
   isCanSaveRules.value = !isEqual(rules.value, getDefaultRules())
 }, { deep:true })
 
-watch(queueCharacter, () => {
-  isCanSaveQueue.value = !isEqual(queueCharacter.value, getDefaultQueueCharacter())
-}, { deep:true })
+watch(() => character.value?.name, (newVal) => {
+  if(!newVal) return
+  if(props.isNew){
+    let name = character.value.name
+    if(character.value.edition){
+      name = `${name}_${character.value.edition}`
+    }
+    character.value.id = toNormalizeString(name, 30)
+  }
+
+  if(queueCharacter.value){
+    const elemIdx = queueList.value.findIndex(el => el.id === queueCharacter.value.id)
+    queueCharacter.value = {...queueCharacter.value, "id": character.value.id, "name": newVal}
+    queueList.value[elemIdx] = queueCharacter.value
+  }
+  if(firstNightOrderList.value){
+    const elemIdx = firstNightOrderList.value.findIndex(el => el.id === firstNightCharacter.value.id)
+    firstNightCharacter.value = {...firstNightCharacter.value, "id": character.value.id, "name": newVal}
+    firstNightOrderList.value[elemIdx] = firstNightCharacter.value
+  }
+  if(otherNightOrderList.value){
+    const elemIdx = otherNightOrderList.value.findIndex(el => el.id === otherNightOrderList.value.id)
+    firstNightCharacter.value = {...firstNightCharacter.value, "id": character.value.id, "name": newVal}
+    otherNightOrderList.value[elemIdx] = otherNightOrderList.value
+  }
+})
+
+watch(() => character.value?.ability, (newVal) => {
+  if(!newVal) return
+  if(queueCharacter.value){
+    queueCharacter.value.ability = newVal
+  }
+  if(firstNightCharacter.value){
+    firstNightCharacter.value.ability = newVal
+  }
+  if(otherNightCharacter.value){
+    otherNightCharacter.value.ability = newVal
+  }
+})
+
+watch(() => character.value?.image, (newVal) => {
+  if(!newVal) return
+  const image = getImageFirstUrl(character.value)
+  if(queueCharacter.value){
+    queueCharacter.value.image = image
+  }
+  if(firstNightCharacter.value){
+    firstNightCharacter.value.image = image
+  }
+  if(otherNightCharacter.value){
+    otherNightCharacter.value.image = image
+  }
+}, {deep: true})
+
+watch(() => character.value?.team, (newVal, lastVal) => {
+  if(newVal !== lastVal){
+    queueListInit()
+  }
+  firstNightCharacter.value.image = getImageFirstUrl(character.value)
+  otherNightCharacter.value.image = getImageFirstUrl(character.value)
+
+})
 
 watch(activeCharacter, () => {
   characterInit()
+  nightOrderListInit()
+  firstNightOrderInit()
+  otherNightOrderInit()
+  queueListInit()
   queueInit()
   bootleggerInit()
+  specialsInit()
 }, { deep:true, immediate:true })
 
 watchEffect(() => {

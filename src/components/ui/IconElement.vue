@@ -5,8 +5,10 @@
 import AddIcon from "@/components/ui/svg/add.svg";
 import AddWithBorderIcon from "@/components/ui/svg/addWithBorder.svg";
 import AlertIcon from "@/components/ui/svg/alert.svg";
+import ArrowDownIcon from "@/components/ui/svg/arrowDown.svg";
 import AuthorDownIcon from "@/components/ui/svg/authorDown.svg";
 import AuthorUpIcon from "@/components/ui/svg/authorUp.svg";
+import BackIcon from "@/components/ui/svg/back.svg";
 import BackToListIcon from "@/components/ui/svg/backToList.svg";
 import CheckIcon from "@/components/ui/svg/check.svg";
 import CrossIcon from "@/components/ui/svg/cross.svg";
@@ -16,13 +18,16 @@ import DeleteIcon from "@/components/ui/svg/delete.svg";
 import DifferentIcon from "@/components/ui/svg/different.svg";
 import DownloadJsonIcon from "@/components/ui/svg/downloadJson.svg";
 import DownloadPdfIcon from "@/components/ui/svg/downloadPdf.svg";
+import EditIcon from "@/components/ui/svg/edit.svg";
 import EyeIcon from "@/components/ui/svg/eye.svg";
+import FilledCrossIcon from "@/components/ui/svg/filledCross.svg";
 import FilterIcon from "@/components/ui/svg/filter.svg";
 import FirstNightDownIcon from "@/components/ui/svg/firstNightDown.svg";
 import FirstNightUpIcon from "@/components/ui/svg/firstNightUp.svg";
 import ImportIcon from "@/components/ui/svg/import.svg";
 import ImportFromJsonIcon from "@/components/ui/svg/importFromJson.svg";
 import InfoIcon from "@/components/ui/svg/info.svg";
+import ListIcon from "@/components/ui/svg/list.svg";
 import NameDownIcon from "@/components/ui/svg/nameDown.svg";
 import NameUpIcon from "@/components/ui/svg/nameUp.svg";
 import OptionsIcon from "@/components/ui/svg/options.svg";
@@ -36,6 +41,7 @@ import SortWithBorderIcon from "@/components/ui/svg/sortWithBorder.svg";
 import TagsIcon from "@/components/ui/svg/tags.svg";
 import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
+import UndoToSave from "@/components/ui/svg/undoToSave.svg"
 import ViewDiaryIcon from "@/components/ui/svg/viewDiary.svg";
 import WikiIcon from "@/components/ui/svg/wiki.svg";
 
@@ -49,11 +55,13 @@ const props = defineProps({
 })
 
 const icons = {
-  add : AddIcon,
-  addWithBorder : AddWithBorderIcon,
-  alert : AlertIcon,
-  authorDown : AuthorDownIcon,
+  add: AddIcon,
+  addWithBorder: AddWithBorderIcon,
+  alert: AlertIcon,
+  arrowDown: ArrowDownIcon,
+  authorDown: AuthorDownIcon,
   authorUp: AuthorUpIcon,
+  backIcon: BackIcon,
   backToList: BackToListIcon,
   check: CheckIcon,
   cross: CrossIcon,
@@ -63,27 +71,31 @@ const icons = {
   different: DifferentIcon,
   downloadJson: DownloadJsonIcon,
   downloadPdf: DownloadPdfIcon,
+  edit: EditIcon,
   eye: EyeIcon,
+  filledCross: FilledCrossIcon,
   filter: FilterIcon,
   firstNightDown: FirstNightDownIcon,
   firstNightUp: FirstNightUpIcon,
   import: ImportIcon,
   importFromJson: ImportFromJsonIcon,
   info: InfoIcon,
+  list: ListIcon,
   nameDown: NameDownIcon,
   nameUp: NameUpIcon,
   options: OptionsIcon,
   otherNightDown: OtherNightDownIcon,
   otherNightUp: OtherNightUpIcon,
-  save : SaveIcon,
+  save: SaveIcon,
   scriptQueueDown: ScriptQueueDownIcon,
   scriptQueueUp: ScriptQueueUpIcon,
   sort: SortIcon,
   sortWithBorder: SortWithBorderIcon,
   tags: TagsIcon,
-  toClipboard : ToClipboardIcon,
-  undo : UndoIcon,
-  viewDiary : ViewDiaryIcon,
-  wiki : WikiIcon,
+  toClipboard: ToClipboardIcon,
+  undo: UndoIcon,
+  undoToSave: UndoToSave,
+  viewDiary: ViewDiaryIcon,
+  wiki: WikiIcon,
 }
 </script>

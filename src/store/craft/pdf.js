@@ -5,7 +5,6 @@ import {deleteDataPrint, getDataPrint, setDataPrint} from "@/store";
 import {saveScripts} from "@/store/craft/script";
 import {toNormalizeString} from "@/constants/other";
 
-
 export async function loadPdf(version, name) {
     const result = await getDataPrint(version, toNormalizeString(name))
     if (result.isSuccess) {
@@ -29,16 +28,20 @@ export async function deletePdf(version, name) {
 }
 
 export function fillPdfList(content) {
-    return content.forEach(elContent => {
+    // Batch update: собираем все изменения, сортируем только в конце
+    content.forEach(elContent => {
         const id = elContent.id ? elContent.id : elContent
         for (const [groupKey, groupArray] of Object.entries(characterListWithParams.value)) {
             const index = groupArray.findIndex(char => char.id === id);
             if (index !== -1) {
-                addElementToSecondList(groupArray[index], groupKey, index)
+                addElementToSecondList(groupArray[index], groupKey, index, true)
                 break;
             }
         }
     })
+    // Сортируем один раз после всех добавлений
+    sortCharacterListWithParams()
+    sortPdfListWithParams()
 }
 
 export function addElementToFirstList(element, team, key = -1) {
@@ -51,14 +54,16 @@ export function addElementToFirstList(element, team, key = -1) {
     sortPdfListWithParams()
 }
 
-export function addElementToSecondList(element, team, key = -1) {
+export function addElementToSecondList(element, team, key = -1, skipSort = false) {
     if (key === -1) {
         key = characterListWithParams.value[team].findIndex(el => element.id === el.id)
     }
     characterListWithParams.value[team].splice(key, 1)
     pdfListWithParams.value[team].push(element)
-    sortCharacterListWithParams()
-    sortPdfListWithParams()
+    if (!skipSort) {
+        sortCharacterListWithParams()
+        sortPdfListWithParams()
+    }
 }
 
 function sortCharacterListWithParams() {

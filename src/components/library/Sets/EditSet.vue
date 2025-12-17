@@ -26,7 +26,7 @@
     </template>
     <template #content>
       <simple-input
-          @input="addId"
+          @focusout="addId"
           v-model:value="meta.id"
           label="ID"
           :maxlength="30"

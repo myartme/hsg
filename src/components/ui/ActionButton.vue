@@ -1,14 +1,15 @@
 <template>
-  <custom-button
-      :icon="icon"
-      :tooltip="tooltip"
-      :wrapper-class="localWrapperClass + ' ' + buttonClass + ' ' + localButtonColor + ' ' + (isCircleType ? 'rounded-full' : 'rounded-lg')"
-      :icon-size="iconSize"
-      :icon-color="localIconColor"
-      :is-pressed="isPressed"
-      :is-disable="isDisable"
-      @click="handleClick" >
-    <template #transition>
+  <div class="relative">
+    <custom-button
+        :icon="icon"
+        :tooltip="tooltip"
+        :wrapper-class="localWrapperClass + ' ' + localButtonClass + ' ' + localButtonColor + ' ' + (isCircleType ? 'rounded-full' : 'rounded-lg')"
+        :icon-size="iconSize"
+        :icon-color="localIconColor"
+        :is-pressed="isPressed"
+        :is-disable="isDisable"
+        @click="handleClick" >
+      <template #transition>
       <transition name="fade-check">
         <svg
             v-if="showCheck"
@@ -30,11 +31,32 @@
       </transition>
     </template>
   </custom-button>
+    <tooltip v-if="warningTooltip"
+             :triggers="['hover', 'focus']"
+             placement="right"
+             :auto-hide="true"
+             :delay="{ show: tooltipDelay.buttonShow, hide: tooltipDelay.buttonHide }">
+      <template #default>
+        <div class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center cursor-help z-50 pointer-events-auto">
+          <span class="text-xs text-black font-bold">!</span>
+        </div>
+      </template>
+      <template #popper>
+        <div v-html="warningTooltip"></div>
+      </template>
+    </tooltip>
+  </div>
 </template>
 <script setup>
 import {computed, ref} from 'vue'
 import CustomButton from "@/components/ui/CustomButton.vue";
+import {Tooltip} from "floating-vue";
+import {useOptionsStore} from "@/store/options";
+import {storeToRefs} from "pinia";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME} from "@/constants/other";
+
+const optionsStore = useOptionsStore()
+const { tooltipDelay } = storeToRefs(optionsStore)
 
 const props = defineProps({
   icon: String,
@@ -61,15 +83,20 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  warningTooltip: {
+    type: String,
+    default: "",
+  },
   buttonClass: String,
   buttonColor: String,
   wrapperClass: String
 })
 const showCheck = ref(false)
 const showCross = ref(false)
-const localWrapperClass = computed(() => props.wrapperClass || "flex items-center justify-center border-2 select-none")
-const localIconColor = computed(() => props.iconColor || "fill-[color:var(--color-button)] group-hover:fill-[color:var(--color-button-hover)]")
-const localButtonColor = computed(() => props.buttonColor || "border-[color:var(--color-button)] group-hover:border-[color:var(--color-button-hover)]")
+const localWrapperClass = computed(() => props.wrapperClass ?? "flex items-center justify-center select-none border-2")
+const localIconColor = computed(() => props.iconColor ?? "fill-[color:var(--color-button)] hover:fill-[color:var(--color-button-hover)]")
+const localButtonClass = computed(() => props.buttonClass)
+const localButtonColor = computed(() => props.buttonColor ?? "border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]")
 
 async function handleClick() {
   try {

@@ -32,7 +32,7 @@
       </div>
     </div>
     <p v-if="errored"
-       class="text-xs mt-1 ml-1 text-[color:var(--color-button-error)]">
+       class="text-xs mt-1 ml-1 text-[color:var(--color-button-error)] whitespace-pre-line">
       {{ errorText }}
     </p>
   </div>

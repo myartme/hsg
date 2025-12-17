@@ -86,7 +86,7 @@ import {useCraftStore} from "@/store/craft";
 import {getCurrentInstance, ref, watch} from "vue";
 import {storeToRefs} from "pinia";
 import draggableComponent from "vuedraggable";
-import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT} from "@/constants/other";
+import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT, ZERO_VERSION} from "@/constants/other";
 import {useIndexStore} from "@/store";
 import {isEqual} from "lodash/lang";
 import ScriptElementVersionList from "@/components/craft/scripts/Line.vue";
@@ -101,7 +101,7 @@ defineOptions({
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
 const instance = getCurrentInstance()
-const { activeScriptIndex, scriptList, isEditScriptTags, isImportScript } = storeToRefs(craftStore)
+const { activeVersion, activeScriptIndex, scriptList, isEditScriptTags, isImportScript } = storeToRefs(craftStore)
 const localScriptList = ref([])
 const filteredCharacters = ref([])
 const filteredTags = ref([])

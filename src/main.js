@@ -1,142 +1,11 @@
 import { Menu, app, BrowserWindow, ipcMain, shell } from 'electron';
-const https = require('https');
 import path from 'node:path';
-import fs from 'node:fs'
-import { rm, mkdir, writeFile, readFile, unlink, readdir, rmdir, access, rename } from 'fs/promises';
+import { rm } from 'fs/promises';
 import started from 'electron-squirrel-startup';
+import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64 } from '/src/helpers/files.js'
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
-}
-
-const getFilePath = (filename, directory) => {
-  if (!fs.existsSync(directory)) fs.mkdirSync(directory)
-  return path.join(directory, filename)
-}
-
-const getCurrentFilePath = (filename, isAppPath) => {
-  if(isAppPath){
-    if (app.isPackaged) {
-      return path.join(app.getAppPath(), '.vite', 'build', 'data', filename);
-    } else {
-      return path.join(app.getAppPath(), 'public', 'data', filename);
-    }
-  } else {
-    return getFilePath(filename, path.join(app.getPath('userData'), 'data'))
-  }
-}
-
-const downloadImageAsBase64 = (url) => {
-  return new Promise((resolve, reject) => {
-    https.get(url, (resp) => {
-      let data = [];
-      resp.on('data', chunk => data.push(chunk));
-      resp.on('end', () => {
-        const buffer = Buffer.concat(data);
-        const base64 = `data:${resp.headers['content-type']};base64,${buffer.toString('base64')}`;
-        resolve(base64);
-      });
-    }).on('error', reject);
-  });
-}
-
-const getFormat = (isJson) => isJson ? 'json' : 'pdf'
-
-const saveContent = async (filename, content, isAppPath, isJson = true) => {
-  try {
-    const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, isAppPath)
-    const dir = path.dirname(filePath)
-    await mkdir(dir, { recursive: true })
-    if(isJson){
-      await writeFile(filePath, content, 'utf8')
-    } else {
-      await writeFile(filePath, content)
-    }
-
-    return {
-      isSuccess: true,
-      content: `Saved to: ${filePath}`
-    }
-  } catch (error) {
-    return {
-      isSuccess: false,
-      error: {
-        code: error.code,
-        message: error.message,
-        stack: error.stack
-      }
-    }
-  }
-}
-
-const loadContent = async (filename, isAppPath, isJson = true) => {
-  try {
-    const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, isAppPath)
-    const raw = isJson
-        ? await readFile(filePath, 'utf8')
-        : await readFile(filePath)
-    return {
-      isSuccess: true,
-      content: isJson ? JSON.parse(raw) : raw.toString('base64')
-    }
-  } catch (error) {
-    return {
-      isSuccess: false,
-      error: {
-        code: error.code,
-        message: error.message,
-        stack: error.stack
-      }
-    }
-  }
-}
-
-const deleteContent = async (filename, isJson = true) => {
-  try {
-    const filePath = getCurrentFilePath(`${filename}.${getFormat(isJson)}`, false)
-    const dirPath = path.dirname(filePath)
-    await unlink(filePath)
-    const remainingFiles = await readdir(dirPath)
-    if (remainingFiles.length === 0) {
-      await rmdir(dirPath)
-    }
-    return {
-      isSuccess: true
-    }
-  } catch (err) {
-    return {
-      isSuccess: false,
-      error: {
-        code: err.code,
-        message: err.message,
-        stack: err.stack
-      }
-    }
-  }
-}
-
-const renameFile = async(oldFilename, newFilename, isAppPath) => {
-  try {
-    const oldFilePath = getCurrentFilePath(`${oldFilename}`, isAppPath)
-    const newFilePath = getCurrentFilePath(`${newFilename}`, isAppPath)
-
-    await access(oldFilePath);
-    await rename(oldFilePath, newFilePath);
-
-    return {
-      isSuccess: true,
-      content: `File ${oldFilePath} was renamed to ${newFilePath}`
-    }
-  } catch (err) {
-    return {
-      isSuccess: false,
-      error: {
-        code: err.code,
-        message: err.message,
-        stack: err.stack
-      }
-    }
-  }
 }
 
 ipcMain.handle("saveContentLibrary",
@@ -353,8 +222,8 @@ app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     app.setAboutPanelOptions({
       applicationName: 'BotC HSG',
-      applicationVersion: '1.6.0',
-      version: '1.6.0',
+      applicationVersion: '1.7.0',
+      version: '1.7.0',
       copyright: '© 2025 Artem Chendey',
       iconPath: path.join(__dirname, 'icon.icns'),
       credits: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +

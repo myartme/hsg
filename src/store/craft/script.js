@@ -1,13 +1,5 @@
 import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDataScript} from "@/store";
-import {
-    activeScriptIndex,
-    activeVersion,
-    isWaitingOperation,
-    pdfListWithParams,
-    pdfMeta,
-    scriptList,
-    tags
-} from "@/store/craft/state";
+import {activeScriptIndex, activeVersion, isWaitingOperation, pdfListWithParams, pdfMeta, scriptList, tags} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
 import {DEFAULT_VERSION, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
@@ -41,6 +33,7 @@ export async function loadScriptWithMetaFilling(version, name, withWaitingOption
             note: listMeta?.note,
             different: checkMetaDifferent(scriptMeta, generalMeta)
         }
+
         fillPdfList(result.content)
     }
     if(withWaitingOptions) {
@@ -84,9 +77,10 @@ export async function saveCurrentScript() {
                     await saveScript(pdfMeta.value)
                     scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
                 } else {
-                    pdfMeta.value.version = list.at(-1).version
+                    const targetVersion = activeVersion.value || pdfMeta.value.version
+                    pdfMeta.value.version = targetVersion
                     pdfMeta.value.list = list.map(el => {
-                        if (el.version === pdfMeta.value.version) {
+                        if (el.version === targetVersion) {
                             el = getFormatScriptListElement(
                                 now.toISOString(), {
                                     ...pdfMeta.value, ...list,
@@ -304,11 +298,8 @@ function getCurrentScriptContentToSaveFormat(){
         if (el.isOfficial) {
             return { id: el.id }
         } else {
-            delete el.base64Image
-            delete el.isOfficial
-            delete el.scriptCharacterPriority
-
-            return el
+            const { base64Image, isOfficial, scriptCharacterPriority, ...rest } = el
+            return rest
         }
     })
 }
@@ -337,7 +328,9 @@ function filterScriptMeta(meta){
         ...(meta?.logo ? { logo: meta.logo } : {}),
         ...(meta?.background ? { background: meta.background } : {}),
         ...(meta?.hideTitle ? { hideTitle: meta.hideTitle } : {}),
-        ...(Array.isArray(meta?.bootlegger) && meta.bootlegger.length ? { bootlegger: meta.bootlegger } : {})
+        ...(Array.isArray(meta?.firstNight) && meta.firstNight.length ? { firstNight: [...meta.firstNight] } : {}),
+        ...(Array.isArray(meta?.otherNight) && meta.otherNight.length ? { otherNight: [...meta.otherNight] } : {}),
+        ...(Array.isArray(meta?.bootlegger) && meta.bootlegger.length ? { bootlegger: [...meta.bootlegger] } : {})
     }
 }
 

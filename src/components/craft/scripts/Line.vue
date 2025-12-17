@@ -1,7 +1,7 @@
 <template>
   <div>
     <div :class="[
-        'grid list-element grid-cols-[3rem_3rem_minmax(auto,50%)_minmax(150px,1fr)_3rem_3rem] h-14',
+        'grid list-element grid-cols-[3rem_3rem_1.5fr_0.75fr_0.75fr_3rem_3rem] h-14',
          isSelected
             ? 'bg-[color:var(--color-list-element)] group-hover:bg-[color:var(--color-hover-active)]'
             : 'bg-[color:var(--color-bg)] group-hover:bg-[color:var(--color-hover-bg)]'
@@ -13,8 +13,13 @@
              :src="script.logo"
              :alt="script.name" />
       </div>
-      <span class="block break-words whitespace-normal font-bold title-theme">{{ script?.name }}</span>
-      <span class="text-xs text-theme">{{ script?.author }}</span>
+      <span class="block break-words whitespace-normal text-left font-bold title-theme pl-5">{{ script?.name }}</span>
+      <div class="text-left flex gap-2 mr-3 select-none overflow-x-auto whitespace-nowrap scrollbar-hidden">
+        <div class="tag-theme" v-for="tag in script?.tags">
+          <span :style="getColorTag(tag)">{{tag}}</span>
+        </div>
+      </div>
+      <span class="text-xs text-theme text-left">{{ script?.author }}</span>
       <span class="text-xs text-theme">{{ script?.list?.length }}({{ script?.version }})</span>
       <action-button
           icon="options"
@@ -146,7 +151,7 @@ const craftStore = useCraftStore()
 const optionsStore = useOptionsStore()
 const instance = getCurrentInstance()
 const { allListsAsOne } = storeToRefs(libraryStore)
-const { activeScriptIndex, activeScript, activeVersion, isSavedScript } = storeToRefs(craftStore)
+const { activeScriptIndex, tags, activeScript, activeVersion, isSavedScript } = storeToRefs(craftStore)
 const { tooltipDelay } = storeToRefs(optionsStore)
 const list = ref([])
 const isVisibleDeleteDialog = ref(false)
@@ -154,14 +159,14 @@ const deletingVersion = ref(DEFAULT_VERSION)
 const index = computed(() => props.scriptData.index)
 const script = computed(() => props.scriptData.script)
 const emits = defineEmits(['isOpenOptions', 'onEmptyList', 'onDeletingVersion'])
-const getIconClass = (val) => val ? '' : 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
-const getButtonClass = (val) => val ? '' : 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
+const getIconClass = (val) => val ? 'fill-[color:var(--color-button)] hover:fill-[color:var(--color-button-hover)]' : 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
+const getButtonClass = (val) => val ? 'border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]' : 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
 
-function selectScript(element, event){
+async function selectScript(element, event){
   event.stopPropagation()
   activeVersion.value = element.version
   isSavedScript.value = true
-  craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name, true)
+  await craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name, true)
   router.push({ name: 'scriptEdit' })
 }
 
@@ -248,6 +253,15 @@ function getPreviewTooltip(elements){
   return result
 }
 
+function getColorTag(color){
+  const colorTag = tags.value.find(el => el.title === color)
+  if(colorTag){
+    return "color: " + colorTag.customColor
+  }
+
+  return ""
+}
+
 watch(activeScriptIndex, () => {
   if(props.filteredCharacterList?.length > 0){
     if(activeScript.value?.list) {
@@ -268,5 +282,14 @@ watch(() => props.scriptData, () => {
 .import-script-list-tooltip .v-popper__inner {
   min-width: 1000px;
   overflow: hidden;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

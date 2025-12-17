@@ -3,20 +3,20 @@
     <div class="flex-1">
       <input-title-block
           :label-class="labelClass"
-          :model-length="queuePosition > 0 ? queuePosition : 0"
+          :model-length="character.scriptCharacterPriority > 0 ? character.scriptCharacterPriority : 0"
           :label="label"
           :required="required"
           :info="info" />
       <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
            @click="isOpen = true">
-        <span v-if="queuePosition > 0">{{ queuePosition }}</span>
+        <span v-if="character.scriptCharacterPriority > 0">{{ character.scriptCharacterPriority }}</span>
         <span v-else>{{ actionText }}</span>
       </div>
     </div>
     <popup-container
         v-if="isOpen"
         :is-input-visible="!disabled || debugMode"
-        :input-value="queuePosition"
+        :input-value="orderValue"
         :is-disabled="disabled"
         @close="closeAndSave"
         @on-input-change="onInputChange">
@@ -24,9 +24,9 @@
         {{ disabled ? 'View' : 'Choose' }} {{ label }}
       </template>
       <template #content>
-        <draggable-component v-model="roles" item-key="id" :move="isMoved" @change="onDragChange">
+        <draggable-component v-model="roles" item-key="id" :move="isMoved" @change="onDragChange" @end="normalizeRoles">
           <template #item="{ element }">
-            <div :ref="isCurrent(element) ? 'currentForScroll' : null">
+            <div :ref="isCurrent(element) ? 'current' : null">
               <popup-horizontal-list-element
                   :name="element.name"
                   :ability="element.ability"
@@ -41,11 +41,9 @@
   </div>
 </template>
 <script setup>
-import {computed, nextTick, ref, watch} from "vue";
+import {nextTick, ref, watch} from "vue";
 import draggableComponent from "vuedraggable";
 import {DEFAULT_MIN_TIME} from "@/constants/other";
-import {MAIN_ROLES} from "@/constants/roles";
-import {isEqual} from "lodash/lang";
 import PopupHorizontalListElement from "@/components/library/RoleEditor/PopupHorizontalListElement.vue";
 import PopupContainer from "@/components/PopupContainer.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
@@ -53,10 +51,10 @@ import {debugMode} from "@/store/options/state";
 
 const props = defineProps({
   label: String,
+  character: Object,
+  list: Array,
   actionText: String,
   teamName: String,
-  character: Object,
-  queue: Object,
   divClass: {
     type: String
   },
@@ -83,22 +81,18 @@ const props = defineProps({
 })
 
 const isOpen = ref(false)
-const orderChar = ref({})
+const orderValue = ref(0)
 const roles = ref([])
-const currentForScroll = ref(null)
-const emits = defineEmits(['updateCharacter', 'updateQueue'])
+const current = ref(null)
+const emit = defineEmits(['update:character', 'update:list'])
 
 const isCurrent = (role) => role.id === props.character.id
-const queuePosition = computed({
-  get: () => orderChar.value.scriptCharacterPriority,
-  set: (val) => { orderChar.value.scriptCharacterPriority = val }
-})
 
 const scrollToCurrent = () => {
   nextTick(() => {
     setTimeout(() => {
-      if (isOpen.value && currentForScroll.value) {
-        currentForScroll.value.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      if (isOpen.value && current.value) {
+        current.value.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
       }
     }, DEFAULT_MIN_TIME)
   })
@@ -123,116 +117,86 @@ const scrollIfOutOfView = (elRef) => {
   }
 }
 
-function getRoleList() {
-  if(!MAIN_ROLES.find(el => el === props.teamName)) return []
-  return props.queue
-      .slice()
-      .sort((a, b) => a.scriptCharacterPriority - b.scriptCharacterPriority)
-      .map((el, i) => ({ ...el, scriptCharacterPriority: i + 1 }))
+function getElementWithValue(value){
+  return {
+    "id": props.character.id,
+    "image": props.character.image,
+    "name": props.character.name,
+    "ability": props.character.ability,
+    "scriptCharacterPriority": value
+  }
 }
 
-function getPosition() {
-  if(!MAIN_ROLES.find(el => el === props.teamName) || !props.character || !Array.isArray(props.queue)) return 0;
-  const elem = props.queue.find(el => {
-    return el.id === props.character.id
-  })
-
-  return elem === undefined ? 0 : elem.scriptCharacterPriority
-}
-
-function updateRolesAndPositions(){
-  roles.value
-      .sort((a, b) => a.scriptCharacterPriority - b.scriptCharacterPriority)
-      .forEach((el, i) => {
-        el.scriptCharacterPriority = i + 1
-      })
+function normalizeRoles() {
+  roles.value = roles.value
+      .sort((a, b) => a?.scriptCharacterPriority - b?.scriptCharacterPriority)
+      .map((el, idx) => ({
+        ...el,
+        scriptCharacterPriority: idx + 1,
+      }))
 
   nextTick(() => {
-    scrollIfOutOfView(currentForScroll);
+    scrollIfOutOfView(current)
   });
 }
 
+function addToRolesList(value){
+  let elIdx = roles.value.findIndex(el => el.id === props.character.id)
+  if(elIdx === -1){
+    roles.value.push(getElementWithValue(value - 1))
+  } else {
+    const elemCharPriority = roles.value[elIdx].scriptCharacterPriority
+    roles.value.splice(elIdx, 1)
+    roles.value.push(getElementWithValue(value > elemCharPriority ? value : value - 1))
+  }
+  normalizeRoles()
+}
+
+function removeFromRolesList(){
+  let el = roles.value.findIndex(el => el.id === props.character.id)
+  if(el !== -1){
+    roles.value.splice(el, 1)
+  }
+  normalizeRoles()
+  for(let idx = el; idx < roles.value.length; idx++){
+    roles.value[idx].scriptCharacterPriority = idx + 1
+  }
+}
+
 function closeAndSave(){
-  emits('updateCharacter', orderChar.value)
-  emits('updateQueue', roles.value)
+  emit('update:character', getElementWithValue(orderValue.value))
+  emit('update:list', roles.value)
   isOpen.value = false
+}
+
+function onInputChange(event){
+  const position = Number(event.target.value)
+  if(position > 1){
+    addToRolesList(position)
+    orderValue.value = position
+  } else {
+    orderValue.value = 0
+    removeFromRolesList()
+  }
 }
 
 function isMoved(evt) {
   return !props.disabled && isCurrent(evt.draggedContext.element)
 }
 
-function setOrderChar(){
-  orderChar.value = props.character
-  queuePosition.value = getPosition()
-  roles.value = getRoleList()
-  const index = roles.value.findIndex(el => el.id === orderChar.value.id)
-  if(index !== -1){
-    roles.value[index] = orderChar.value
-  }
-}
-
-function onInputChange(event){
-  const oldIndex = roles.value.findIndex(el => el.id === orderChar.value.id)
-  let eventValue = Number(event.target.value)
-  queuePosition.value = eventValue > 0 ? eventValue : 0
-  if(eventValue > 0){
-    if (oldIndex === -1) {
-      addValue(orderChar.value)
-    } else {
-      watcherValue(queuePosition.value - 1, oldIndex)
-    }
-  } else {
-    removeValue(oldIndex);
-  }
-
-  event.target.value = queuePosition.value;
-}
-
-function addValue(index){
-  roles.value.unshift(index);
-  updateRolesAndPositions()
-}
-
-function watcherValue(newIndex, oldIndex) {
-  if(newIndex > oldIndex){
-    for(let i = oldIndex; i < newIndex; i++){
-      roles.value[i] = roles.value[i + 1]
-    }
-  } else {
-    for(let i = oldIndex; i > newIndex; i--){
-      roles.value[i] = roles.value[i - 1]
-    }
-  }
-  roles.value[newIndex] = orderChar.value
-
-  updateRolesAndPositions()
-}
-
-function removeValue(index){
-  roles.value.splice(index, 1);
-  updateRolesAndPositions()
-}
-
 function onDragChange(event){
-  const { newIndex } = event.moved
-  roles.value.forEach((el, i) => {
-    el.scriptCharacterPriority = i + 1
-  })
-
-  queuePosition.value = newIndex + 1
+  const position = event.moved.newIndex + 1
+  addToRolesList(position)
+  orderValue.value = position
+  normalizeRoles()
 }
 
 watch(isOpen, (newVal) => {
   if(newVal) scrollToCurrent()
 })
 
-watch(() => props.character, () => {
-  if(isEqual(orderChar.value, props.character)) return
-  setOrderChar()
-}, {immediate:true, deep:true})
-
-watch(() => props.teamName, () => {
-  setOrderChar()
-}, {immediate:true})
+watch(() => props.character, (val) => {
+  orderValue.value = val.scriptCharacterPriority
+  roles.value = props.list
+}, {immediate: true, deep : true})
 </script>

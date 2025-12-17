@@ -6,7 +6,7 @@
 
 </template>
 <script setup>
-import AppMenu from "@/pages/layouts/AppMenu.vue";
+import AppMenu from "@/components/layouts/AppMenu.vue";
 import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
 

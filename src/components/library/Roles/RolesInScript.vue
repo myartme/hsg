@@ -65,12 +65,23 @@
               @click.stop="resetList(true)" />
         </div>
       </div>
+      <div v-show="!isCanSave" class="flex flex-wrap ml-5 mt-3 mr-5 gap-3">
+        <template v-for="elem in ROLES" :key="elem">
+          <div :class="[
+              'cursor-pointer select-none rounded-lg border-3 border-[color:var(--color-border)]',
+              { 'bg-[color:var(--color-active)]' : teamFilter === elem }
+              ]"
+               @click="changeRoleFilter(elem)">
+            <p class="text-theme p-1 mr-3 ml-3">{{ elem }}</p>
+          </div>
+        </template>
+      </div>
       <spinner v-show="isLoading"
                item-class="flex justify-center items-center py-5"
                size="w-12 h-12" />
       <div v-show="!isLoading" v-for="(group, groupIndex) in list" :key="groupIndex">
         <div v-if="group.length > 0" class="text-lg font-bold uppercase tracking-wide mb-3 mt-3 title-theme">
-          {{ groupIndex }}{{ groupIndex !== 'townsfolk' ? 'S' : '' }} ({{ group.length }})
+          {{ groupIndex }} ({{ group.length }})
         </div>
           <draggable-component
               :list="group"
@@ -102,6 +113,7 @@ import { storeToRefs } from "pinia";
 import RoleLine from "@/components/library/Roles/RoleLine.vue";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, isEqualWithDefault, SORT} from "@/constants/other";
 import {cloneDeep, isEmpty} from "lodash/lang";
+import {ROLES} from "@/constants/roles";
 import {useIndexStore} from "@/store";
 import SortButtons from "@/components/library/Roles/SortButtons.vue";
 import {activeCharacter} from "@/store/library/state";
@@ -155,6 +167,7 @@ function resetList(isClick){
   isLoading.value = true
   list.value = cloneDeep(activeList.value)
   searchedQuery.value = ''
+  teamFilter.value = ''
   debounce(() => {
     isResetSort.value = true
     isLoading.value = false
@@ -182,6 +195,7 @@ const searchedQuery = ref("")
 const lastSearchedQuery = ref("")
 const isLoading = ref(false)
 const isFiltered = ref(false)
+const teamFilter = ref("")
 
 
 const debouncedSearch = debounce(async (val) => {
@@ -197,7 +211,8 @@ const debouncedSearch = debounce(async (val) => {
 }, 500)
 
 function getFilteredQuery(query){
-  return Object.entries(activeList.value).reduce((acc, [team, characters]) => {
+  const sourceList = getFilteredTeam(activeList.value)
+  return Object.entries(sourceList).reduce((acc, [team, characters]) => {
     const filteredCharacters = characters.filter(character => {
       return filterTextMethod(character, query)
     });
@@ -208,6 +223,23 @@ function getFilteredQuery(query){
 
     return acc;
   }, {});
+}
+
+function getFilteredTeam(characterList = {}){
+  if(teamFilter.value){
+    return { [teamFilter.value]: characterList[teamFilter.value] ?? [] }
+  }
+  return characterList
+}
+
+function changeRoleFilter(role){
+  if(teamFilter.value === role){
+    teamFilter.value = ''
+  } else {
+    teamFilter.value = role
+  }
+  isFiltered.value = searchedQuery.value !== '' || teamFilter.value !== ''
+  list.value = getFilteredQuery(searchedQuery.value)
 }
 
 function filterTextMethod(character, query){
@@ -226,7 +258,7 @@ function filterTextMethod(character, query){
 }
 
 watch(searchedQuery, (newVal) => {
-  isFiltered.value = newVal !== ''
+  isFiltered.value = newVal !== '' || teamFilter.value !== ''
   debouncedSearch(newVal)
 })
 watch(activeList, () => {

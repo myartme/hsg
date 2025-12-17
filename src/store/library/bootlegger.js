@@ -1,7 +1,5 @@
 import {getDataLibrary, setDataLibrary} from "@/store";
-import {
-    bootlegger
-} from "@/store/library/state";
+import {bootlegger} from "@/store/library/state";
 
 export async function loadBootlegger(isAppPath = false, isRecursive = false){
     const response = await getDataLibrary('bootlegger', "", isAppPath)
