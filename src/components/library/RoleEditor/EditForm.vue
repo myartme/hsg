@@ -465,6 +465,10 @@ watch(character, () => {
 }, { deep:true })
 
 watch(queueCharacter, () => {
+  if(!MAIN_ROLES.includes(character.value.team)) {
+    isCanSaveQueue.value = false
+    return
+  }
   const stored = queuePositions.value[character.value.team]?.find(el => el.id === character.value.id)
   isCanSaveQueue.value = !isEqual(queueCharacter.value, stored)
 }, { deep:true })

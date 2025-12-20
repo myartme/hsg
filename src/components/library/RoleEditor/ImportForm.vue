@@ -27,7 +27,7 @@
         <div class="relative flex mb-2 overflow-auto max-h-160">
           <JsonEditorVue
               :class="[
-                  'border-2 rounded-md w-full focus:outline-none shadow-sm border-[color:var(--color:border)]',
+                  'border-2 rounded-md w-full focus:outline-none shadow-sm border-[color:var(--color-border)]',
                   { 'jse-theme-dark' : theme === themes?.dark }
               ]"
               v-model="importContent"

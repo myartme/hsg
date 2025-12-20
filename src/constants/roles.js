@@ -1,5 +1,6 @@
 export const MAIN_ROLES = ['townsfolk', 'outsider', 'minion', 'demon'];
-export const ROLES = [...MAIN_ROLES, 'traveller', 'fabled', 'loric'];
+export const NPC_ROLES = ['fabled', 'loric'];
+export const ROLES = [...MAIN_ROLES, 'traveller', ...NPC_ROLES];
 
 export const EMPTY_SET = {
     "id": "",

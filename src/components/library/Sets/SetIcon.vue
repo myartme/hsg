@@ -8,12 +8,11 @@
         class="absolute inset-0 bg-cover bg-center z-0"
         :style="logo && { backgroundImage : `url(${logo})`}"
     ></div>
+    <div class="absolute inset-0 z-1 bg-[color:var(--color-bg)]/50"></div>
 
-    <div class="relative w-full h-full rounded-md overflow-hidden">
-      <span class="absolute inset-0 flex items-center justify-center text-sm font-semibold z-10 px-2 text-center rounded-md title-theme bg-[color:var(--color-bg)]/50">
-        {{ name }}
-      </span>
-    </div>
+    <span :class="['relative z-10 text-sm font-semibold px-2 py-1 text-center rounded title-theme', halfSize ? '' : 'bg-[color:var(--color-bg)]']">
+      {{ name }}
+    </span>
   </div>
 </template>
 <script setup>

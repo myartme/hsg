@@ -163,6 +163,17 @@ ipcMain.handle('setLanguage', async (event, lang) => {
   return true
 })
 
+ipcMain.handle('toggleDevTools', async (event, isOpen) => {
+  if (mainWindow) {
+    if (isOpen) {
+      mainWindow.webContents.openDevTools()
+    } else {
+      mainWindow.webContents.closeDevTools()
+    }
+  }
+  return true
+})
+
 function updateAboutPanel() {
   if (process.platform === 'darwin') {
     app.setAboutPanelOptions({

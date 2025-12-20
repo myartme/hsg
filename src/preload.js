@@ -69,6 +69,10 @@ contextBridge.exposeInMainWorld(
 
         setLanguage: (lang) => {
             return ipcRenderer.invoke('setLanguage', lang)
+        },
+
+        toggleDevTools: (isOpen) => {
+            return ipcRenderer.invoke('toggleDevTools', isOpen)
         }
     }
 )

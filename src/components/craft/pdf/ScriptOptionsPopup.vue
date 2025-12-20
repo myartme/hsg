@@ -60,23 +60,7 @@
             :value="meta.different?.hideTitle"
             @value-update="meta.hideTitle = $event" />
       </div>
-      <template v-if="isBootleggersEnabled">
-        <simple-input-tag
-            v-model:value="rules"
-            div-class="mt-2"
-            :label="$t('scriptEditor.bootleggerRules')"
-            :max-tags="10"
-            :maxlength="250"
-            :info="$t('scriptEditor.bootleggerRulesInfo')" />
-        <simple-dropdown
-            v-if="!isEmpty(bootleggerOptions)"
-            :label="$t('scriptEditor.bootleggerList')"
-            :info="$t('scriptEditor.bootleggerListInfo')"
-            div-class="mt-2"
-            v-model:value="rule"
-            :list="bootleggerOptions"
-            :default-value="$t('scriptEditor.addBootlegger')" />
-      </template>
+      <bootlegger-fields v-if="isBootleggersEnabled" />
       <input-color-tag v-if="scriptTags.length > 0"
                        v-model:value="scriptTags"
                        div-class="mt-2"
@@ -148,15 +132,14 @@ import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
 import SimpleCheckbox from "@/components/ui/SimpleCheckbox.vue";
 import SimpleTextarea from "@/components/ui/SimpleTextarea.vue";
-import SimpleInputTag from "@/components/ui/SimpleInputTag.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import {isEmpty} from "lodash/lang";
 import ActionButton from "@/components/ui/ActionButton.vue";
+import BootleggerFields from "@/components/craft/pdf/BootleggerFields.vue";
 import {DEFAULT_VERSION, SET_INDEX} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import router from "@/router";
 import PopupContainer from "@/components/PopupContainer.vue";
-import {useLibraryStore} from "@/store/library";
 import {DEFAULT_SCRIPT_NAME} from "@/constants/roles";
 import ActionButtonInScriptOptionPopup from "@/components/craft/pdf/ActionButtonInScriptOptionPopup.vue";
 import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
@@ -168,15 +151,10 @@ const props = defineProps({
   isBootleggersEnabled: Boolean
 })
 
-const libraryStore = useLibraryStore()
 const craftStore = useCraftStore()
-const { bootlegger } = storeToRefs(libraryStore)
-const { pdfMeta, pdfListWithParams, activeScriptIndex, activeVersion, isSavedScript, tags, isEditingScript } = storeToRefs(craftStore)
+const { pdfMeta, activeScriptIndex, activeVersion, isSavedScript, tags, isEditingScript } = storeToRefs(craftStore)
 const scriptTags = ref([])
 const selectedTag = ref('')
-const bootleggerDefault = computed(() => {
-  return pdfMeta.value.bootlegger || []
-})
 
 const deletingVersions = computed(() => {
   let result = ""
@@ -194,15 +172,8 @@ const deletingVersions = computed(() => {
   return result
 })
 const meta = ref({})
-const rules = ref([...bootleggerDefault.value])
 const isVisibleDeleteDialog = ref(false)
-const rule = ref('')
 const emits = defineEmits(['update:isOpen'])
-const bootleggerOptions = computed(() => {
-  return Object.values(pdfListWithParams.value)
-      .flat()
-      .flatMap(el => bootlegger.value[el.team].find(boot => boot.id === el.id)?.rules || [])
-})
 
 function getDifferentText(value) {
   return value === false ? t('scriptEditor.differentValueInfo') : ""
@@ -212,7 +183,6 @@ function closeWindow(){
   if(!isEditingScript.value){
     isEditingScript.value = true
   }
-  pdfMeta.value['bootlegger'] = rules.value
   pdfMeta.value['tags'] = Object.values(scriptTags.value).map(({title}) => title)
   emits('update:isOpen', !props.isOpen)
 }
@@ -230,13 +200,6 @@ function nameUpdate(event){
   }
 }
 
-watch(rule, (newVal) => {
-  if (newVal && !rules.value.includes(newVal) && rules.value.length < 10) {
-    rules.value = [...rules.value, newVal]
-    rule.value = ""
-  }
-})
-
 watch(pdfMeta, (newVal) => {
   meta.value = newVal
   if(!isEmpty(meta.value.tags)){
@@ -247,10 +210,6 @@ watch(pdfMeta, (newVal) => {
     scriptTags.value = []
   }
 },{ immediate: true, deep: true})
-
-watch(() => pdfMeta.value?.bootlegger, (newVal) => {
-  rules.value = Array.isArray(newVal) ? [...newVal] : []
-}, { immediate: true })
 
 watch(selectedTag, (val) => {
   if(val !== '' && !scriptTags.value.find(({title}) => title === val)){

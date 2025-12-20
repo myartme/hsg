@@ -72,7 +72,7 @@ import {getBase64Image} from "@/store";
 import NightOrderTable from "@/components/craft/pdf/print/NightOrderTable.vue";
 import NightOrderMiddleTable from "@/components/craft/pdf/print/NightOrderMiddleTable.vue";
 import firstNightBanner from '/images/elements/pdf/first_night_banner.png';
-import otherNightsBanner from '/images/elements/pdf/first_night_banner.png';
+import otherNightsBanner from '/images/elements/pdf/other_nights_banner.png';
 import demonImg from '/images/elements/pdf/team/demons.png'
 import minionImg from '/images/elements/pdf/team/minions.png'
 import outsiderImg from '/images/elements/pdf/team/outsiders.png'
@@ -100,8 +100,12 @@ const teamImages = {
 
 watch(() => craftStore.shouldStartPrintPreparation, async (shouldStart) => {
   if (shouldStart) {
-    items.value = await getListElements(pdfListWithParams.value)
-    craftStore.markReadyToPrint()
+    try {
+      items.value = await getListElements(pdfListWithParams.value)
+      craftStore.markReadyToPrint()
+    } catch (error) {
+      craftStore.markPrintError(error)
+    }
   }
 })
 

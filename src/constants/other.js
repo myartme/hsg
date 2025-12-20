@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import {isEmpty} from "lodash/lang";
+import {NPC_ROLES} from "@/constants/roles.js";
 
 export const DEFAULT_ACTION_BUTTON_ACTIVE_TIME = 500;
 export const DEFAULT_MIN_TIME = 10;
@@ -129,7 +130,7 @@ export const getImageFirstUrl = (character, isOfficial = false) => {
 
 export const getImageArray = (data, team) => {
     let length = 2
-    if(team === 'fabled'){
+    if(NPC_ROLES.includes(team)){
         length = 1
     }
     if(team === 'traveller'){

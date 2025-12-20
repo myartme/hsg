@@ -189,6 +189,9 @@
     "edition": "Edition",
     "setup": "Setup",
     "icons": "Icons",
+    "iconRegular": "Regular",
+    "iconGood": "Good",
+    "iconEvil": "Evil",
     "scriptCharacterPriority": "Script Character Priority",
     "clickToSetScriptPriority": "Click to set script queue position",
     "clickToViewScriptPriority": "Click to view script queue position",
@@ -249,10 +252,11 @@
     "copyToClipboard": "Copy to clipboard",
     "downloadPdf": "Download Pdf",
     "downloadJson": "Download Json",
+    "bootleggerRules": "Bootlegger rules",
     "notAvailableEmptyScript": "Not available while script is empty",
-    "notSavedToLibrary": "The script is not saved, so the file will not be saved to the library",
-    "notAvailableDefaultName": "Not available with default name. Change it in the settings or on the script list.",
-    "notAvailableEmptyName": "Not available with empty name. Change it in the settings or on the script list.",
+    "notSavedToLibrary": "Script not saved. Generated file won't be added to the library.",
+    "notAvailableDefaultName": "Not available with default name. Change it in the current script settings or in the added characters list.",
+    "notAvailableEmptyName": "Not available with empty name. Change it in the current script settings or in the added characters list.",
     "nightOrderMissing": "Night order was missing and filled with default values. You can change them in the corresponding section. Resave the script to fix it.",
     "nightOrderMismatch": "Script has been changed, please check the Night Order."
   },
@@ -265,11 +269,15 @@
   },
   "importCharacter": {
     "info": "You can import one or more characters. Required fields for a character: \"name\", \"team\", \"ability\".",
-    "noteDeprecated": "Note: The \"firstNight\" and \"otherNight\" fields are deprecated.",
-    "noteVerify": "After import, please verify the character's position in the night order."
+    "noteName": "After importing a character, you will not be able to change its name.",
+    "noteDeprecated": "Note: The \"firstNight\" and \"otherNight\" fields are deprecated. After import, please verify the character's position in the night order."
   },
   "importScriptTooltip": {
     "info": "You can import a script. Note that characters missing from your library will cause errors. Add them to the character library first. Minimum required fields:"
+  },
+  "errors": {
+    "pdfGenerationTitle": "PDF Generation Error",
+    "pdfGenerationDesc": "Something went wrong while generating the PDF. Please try again later."
   },
   "scriptEditor": {
     "by": "by",

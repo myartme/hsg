@@ -2,14 +2,17 @@
   <sector-container container-class="h-[70px] items-center border-b-2 title-theme border-[color:var(--color-border)] select-none" content-class="" :is-background-enabled="false" :name="instance?.type.name">
     <template #content>
       <nav class="flex justify-between items-center h-16 px-8 py-4">
-        <div class="text-2xl font-bold tracking-wide">{{ $t('menu.appTitle') }}</div>
+        <div class="flex items-center gap-3">
+          <img src="/images/logo.png" alt="Logo" class="w-10 h-10 rounded-lg opacity-70 saturate-[0.7]" />
+          <div class="text-2xl font-bold tracking-wide">{{ $t('menu.appTitle') }}</div>
+        </div>
         <div v-if="debugMode" class="text-2xl font-bold text-[color:var(--color-button-error)]">DEBUG TRUE</div>
-        <div class="flex space-x-20 text-sm font-medium">
+        <div class="flex gap-2">
           <router-link v-for="item in menuElements"
                        :key="item.path"
                        :to="item.path"
-                       class="text-lg"
-                       active-class="font-bold text-[color:var(--color-menu-active)]">{{ item.label }}</router-link>
+                       class="px-4 py-2 rounded-full text-base font-medium transition-all duration-200 hover:bg-[color:var(--color-list-element)]"
+                       active-class="!bg-[color:var(--color-menu-active)] !text-white">{{ item.label }}</router-link>
         </div>
       </nav>
     </template>

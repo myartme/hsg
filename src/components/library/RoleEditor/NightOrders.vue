@@ -25,7 +25,7 @@
       <template #content>
         <draggable-component v-model="roles" item-key="id" :move="isMoved" @change="onDragChange" @end="normalizeRoles">
           <template #item="{ element }">
-            <div :ref="isCurrent(element) ? 'current' : null">
+            <div :data-current="isCurrent(element) ? 'true' : null">
               <popup-horizontal-list-element
                   :name="element.name"
                   :ability="element.ability"
@@ -42,7 +42,7 @@
 <script setup>
 import {nextTick, ref, watch} from "vue";
 import draggableComponent from "vuedraggable";
-import {DEFAULT_MIN_TIME, getImageFirstUrl} from "@/constants/other";
+import {getImageFirstUrl} from "@/constants/other";
 import PopupHorizontalListElement from "@/components/library/RoleEditor/PopupHorizontalListElement.vue";
 import PopupContainer from "@/components/PopupContainer.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
@@ -82,7 +82,6 @@ const props = defineProps({
 const isOpen = ref(false)
 const orderValue = ref(0)
 const roles = ref([])
-const current = ref(null)
 const emit = defineEmits(['update:character', 'update:list'])
 
 const isCurrent = (role) => role.id === props.character.id
@@ -90,15 +89,16 @@ const isCurrent = (role) => role.id === props.character.id
 const scrollToCurrent = () => {
   nextTick(() => {
     setTimeout(() => {
-      if (isOpen.value && current.value) {
-        current.value.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+      const currentEl = document.querySelector('[data-current="true"]')
+      if (isOpen.value && currentEl) {
+        currentEl.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
       }
-    }, DEFAULT_MIN_TIME)
+    }, 100)
   })
 }
 
-const scrollIfOutOfView = (elRef) => {
-  const el = Array.isArray(elRef?.value) ? elRef.value[0] : elRef?.value;
+const scrollIfOutOfView = () => {
+  const el = document.querySelector('[data-current="true"]')
 
   if (!el || typeof el.getBoundingClientRect !== "function") {
     return;
@@ -142,7 +142,7 @@ function normalizeRoles() {
       }))
 
   nextTick(() => {
-    scrollIfOutOfView(current)
+    scrollIfOutOfView()
   });
 }
 

@@ -35,7 +35,7 @@
       <transition name="fade">
         <ul
             v-if="isOpen"
-            class="absolute z-50 mt-1 w-full border bg-[color:var(--color-bg)] border-[color:var(--color-border)] text-theme rounded-md min-h-18 max-h-63 overflow-auto"
+            class="absolute z-50 mt-1 w-full border bg-[color:var(--color-bg)] border-[color:var(--color-border)] text-theme rounded-md max-h-63 overflow-auto"
         >
           <li
               v-for="(role, i) in list"

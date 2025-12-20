@@ -13,7 +13,7 @@
         </div>
       </template>
       <template #popper>
-        <div style="width: 770px;">
+        <div style="width: 770px; padding-right: 12px;">
           <span v-html="$t('importCharacter.info')"></span>
           <img src="/images/elements/ui/set_options.png" alt="Set options" />
         </div>

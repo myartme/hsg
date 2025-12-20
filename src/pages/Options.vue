@@ -24,7 +24,7 @@
               <button
                   @click="selectedLanguage = languages.en"
                   :class="[
-                    'w-10 h-8 rounded-md transition cursor-pointer flex items-center justify-center text-xl',
+                    'w-10 h-8 rounded-md transition cursor-pointer flex items-center justify-center text-xl text-theme',
                     selectedLanguage === languages.en
                       ? 'bg-[color:var(--color-list-element)]'
                       : 'hover:bg-[color:var(--color-border)]'
@@ -35,7 +35,7 @@
               <button
                   @click="selectedLanguage = languages.ru"
                   :class="[
-                    'w-10 h-8 rounded-md transition cursor-pointer flex items-center justify-center text-xl',
+                    'w-10 h-8 rounded-md transition cursor-pointer flex items-center justify-center text-xl text-theme',
                     selectedLanguage === languages.ru
                       ? 'bg-[color:var(--color-list-element)]'
                       : 'hover:bg-[color:var(--color-border)]'

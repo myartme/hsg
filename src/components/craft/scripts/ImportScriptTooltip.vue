@@ -13,7 +13,7 @@
         </div>
       </template>
       <template #popper>
-        <div style="width: 420px;">{{ $t('importScriptTooltip.info') }}
+        <div style="width: 420px; padding-right: 12px;">{{ $t('importScriptTooltip.info') }}
           <img src="/images/elements/ui/script_options.png" alt="Script options" />
         </div>
       </template>

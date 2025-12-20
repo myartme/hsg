@@ -48,31 +48,31 @@
                     icon="downloadJson"
                     icon-size="w-6 h-6"
                     button-class="w-9 h-9"
-                    :icon-color="getIconClass(element.json)"
-                    :button-color="getButtonClass(element.json)"
-                    :is-disable="!element.json"
+                    :icon-color="getIconClass(!isButtonDisabled(element, element.json))"
+                    :button-color="getButtonClass(!isButtonDisabled(element, element.json))"
+                    :is-disable="isButtonDisabled(element, element.json)"
                     @click.stop="handleDownloadJson(element)"
-                    :tooltip="!element.json ? $t('scripts.noJsonAvailable') : $t('scripts.downloadLastJson')" />
+                    :tooltip="isEmptyScript(element) ? $t('tooltips.notAvailableEmptyScript') : (!element.json ? $t('tooltips.notSavedToLibrary') : $t('scripts.downloadLastJson'))" />
                 <action-button
                     icon="toClipboard"
                     icon-size="w-6 h-6"
                     button-class="w-9 h-9"
-                    :icon-color="getIconClass(element.json)"
-                    :button-color="getButtonClass(element.json)"
-                    :is-disable="!element.json"
+                    :icon-color="getIconClass(!isButtonDisabled(element, element.json))"
+                    :button-color="getButtonClass(!isButtonDisabled(element, element.json))"
+                    :is-disable="isButtonDisabled(element, element.json)"
                     @click.stop=""
                     :handle="async () => await handleToClipboard(element)"
                     :is-show-effect="true"
-                    :tooltip="!element.json ? $t('scripts.notAvailable') : $t('scripts.copyToClipboard')" />
+                    :tooltip="isEmptyScript(element) ? $t('tooltips.notAvailableEmptyScript') : (!element.json ? $t('tooltips.notSavedToLibrary') : $t('scripts.copyToClipboard'))" />
                 <action-button
                     icon="downloadPdf"
                     icon-size="w-6 h-6"
                     button-class="w-9 h-9"
-                    :icon-color="getIconClass(element.pdf)"
-                    :button-color="getButtonClass(element.pdf)"
-                    :is-disable="!element.pdf"
+                    :icon-color="getIconClass(!isButtonDisabled(element, element.pdf))"
+                    :button-color="getButtonClass(!isButtonDisabled(element, element.pdf))"
+                    :is-disable="isButtonDisabled(element, element.pdf)"
                     @click.stop="handleDownloadPdf(element)"
-                    :tooltip="!element.pdf ? $t('scripts.noPdfAvailable') : $t('scripts.downloadLastPdf')" />
+                    :tooltip="isEmptyScript(element) ? $t('tooltips.notAvailableEmptyScript') : (!element.pdf ? $t('tooltips.notSavedToLibrary') : $t('scripts.downloadLastPdf'))" />
                 <action-button v-if="element.characters?.length > 0"
                     icon="eye"
                     icon-size="w-7 h-7"
@@ -96,7 +96,7 @@
                       </button>
                     </template>
                     <template #popper>
-                      <div style="width: 1000px;">{{ element.note }}</div>
+                      <div style="width: 1000px; padding-right: 12px;">{{ element.note }}</div>
                     </template>
                   </tooltip>
                 </div>
@@ -161,6 +161,8 @@ const script = computed(() => props.scriptData.script)
 const emits = defineEmits(['isOpenOptions', 'onEmptyList', 'onDeletingVersion'])
 const getIconClass = (val) => val ? 'fill-[color:var(--color-button)] hover:fill-[color:var(--color-button-hover)]' : 'fill-[color:var(--color-disable-bg)] group-hover:fill-[color:var(--color-disable-bg)]'
 const getButtonClass = (val) => val ? 'border-[color:var(--color-button)] hover:border-[color:var(--color-button-hover)]' : 'border-[color:var(--color-disable-bg)] hover:border-[color:var(--color-disable-bg)]'
+const isEmptyScript = (element) => !element.characters || element.characters.length === 0
+const isButtonDisabled = (element, hasFile) => isEmptyScript(element) || !hasFile
 
 async function selectScript(element, event){
   event.stopPropagation()

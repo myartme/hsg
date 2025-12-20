@@ -41,6 +41,7 @@ export function useDebugMode() {
             // Если ввели всю последовательность — переключаем debug mode
             if (currentIndex.value === DEBUG_SEQUENCE.length) {
                 debugMode.value = !debugMode.value
+                window.electronAPI?.toggleDevTools(debugMode.value)
                 resetListening()
             }
         } else {

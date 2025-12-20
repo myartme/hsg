@@ -13,11 +13,11 @@
         </div>
       </template>
       <template #popper>
-        <div style="width: 740px;">
+        <div style="width: 740px; padding-right: 12px;">
           <span v-html="$t('importCharacter.info')"></span>
           <div class="mt-2 text-yellow-400">
-            {{ $t('importCharacter.noteDeprecated') }}
-            <br />{{ $t('importCharacter.noteVerify') }}
+            {{ $t('importCharacter.noteName') }}
+            <br />{{ $t('importCharacter.noteDeprecated') }}
           </div>
           <img src="/images/elements/ui/character_options.png" alt="Character options" />
         </div>
@@ -38,5 +38,8 @@ const { tooltipDelay } = storeToRefs(optionsStore)
 .import-tooltip .v-popper__inner {
   min-width: 740px;
   overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 </style>
