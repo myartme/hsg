@@ -40,10 +40,13 @@
 </template>
 <script setup>
 import {ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {getImageArray} from "@/constants/other";
+
+const { t } = useI18n()
 
 const props = defineProps({
   label: String,
@@ -82,17 +85,17 @@ const maxLength = 250
 
 function getLabel(index){
   if(index === 0){
-    return 'Regular'
+    return t('character.iconRegular')
   }
   if(props.teamName === 'townsfolk' || props.teamName === 'outsider'){
-    if(index === 1) return 'Evil'
+    if(index === 1) return t('character.iconEvil')
   }
   if(props.teamName === 'minion' || props.teamName === 'demon'){
-    if(index === 1) return 'Good'
+    if(index === 1) return t('character.iconGood')
   }
   if(props.teamName === 'traveller'){
-    if(index === 1) return 'Good'
-    if(index === 2) return 'Evil'
+    if(index === 1) return t('character.iconGood')
+    if(index === 2) return t('character.iconEvil')
   }
 }
 
@@ -104,7 +107,7 @@ function action(key = null){
   emits('update:value',[...inputValues.value])
 }
 
-watch(() => props.value, (newVal) => {
-  inputValues.value = getImageArray(newVal)
+watch([() => props.value, () => props.teamName], ([newVal, newTeam]) => {
+  inputValues.value = getImageArray(newVal, newTeam)
 }, {immediate: true})
 </script>

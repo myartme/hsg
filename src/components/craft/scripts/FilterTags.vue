@@ -2,17 +2,17 @@
   <div class="grid grid-cols-[70%_30%] gap-4 items-start mb-3">
     <div>
       <simple-dropdown
-          label="Tags list"
+          :label="$t('filterTags.tagsList')"
           v-model:value="selectedTag"
           :list="selectorList"
-          default-value="Select tag to filter..." />
-      <input-title-block label="Filter by character" class="mt-2" />
+          :default-value="$t('filterTags.selectTagToFilter')" />
+      <input-title-block :label="$t('filterTags.filterByCharacter')" class="mt-2" />
       <div class="w-full grid grid-cols-[1fr_auto] items-center gap-1">
         <input
             v-model="searchedQuery"
             class="px-3 pr-10 py-2 h-10 text-sm border-2 rounded-md focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)] border-[color:var(--color-border)]"
             type="text"
-            placeholder="Start typing character name..."
+            :placeholder="$t('filterTags.startTypingCharacter')"
         />
         <button
             @click="isEmptyFilter = true"
@@ -24,7 +24,7 @@
                 ]"
             :disabled="isEmptyFilter"
         >
-          Reset
+          {{ $t('buttons.reset') }}
         </button>
       </div>
       <div class="flex flex-wrap gap-2 mt-3">

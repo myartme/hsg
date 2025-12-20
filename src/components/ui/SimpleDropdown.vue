@@ -35,7 +35,7 @@
       <transition name="fade">
         <ul
             v-if="isOpen"
-            class="absolute z-50 mt-1 w-full border bg-[color:var(--color-bg)] border-[color:var(--color-border)] text-theme rounded-md min-h-18 max-h-63 overflow-auto"
+            class="absolute z-50 mt-1 w-full border bg-[color:var(--color-bg)] border-[color:var(--color-border)] text-theme rounded-md max-h-63 overflow-auto"
         >
           <li
               v-for="(role, i) in list"
@@ -54,7 +54,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const model = defineModel('value')
 
 const props = defineProps({
@@ -97,7 +99,7 @@ function selectOption(role) {
 }
 
 const selectedLabel = computed(() => {
-  return model.value || props.defaultValue || "Select an option"
+  return model.value || props.defaultValue || t('common.selectAnOption')
 })
 </script>
 

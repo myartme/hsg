@@ -5,28 +5,28 @@
           @input="checkName"
           v-model:value="character.name"
           :errored="isVisibleError"
-          label="Name"
+          :label="$t('character.name')"
           :error-text="errorText"
           :maxlength="30">
       </simple-input>
       <simple-dropdown
           v-model:value="character.team"
-          label="Team"
+          :label="$t('character.team')"
           :list="ROLES"
-          default-value="Select Role Type..." />
+          :default-value="$t('character.selectRoleType')" />
       <simple-textarea
           v-model:value="character.ability"
-          label="Ability"
+          :label="$t('character.ability')"
           :maxlength="250" />
       <div class="flex flex-col h-full">
         <queue-positions
             v-model:value="character.scriptCharacterPriority"
-            action-text="Click to set script queue position"
-            label="Script Character Priority"
+            :action-text="$t('character.clickToSetScriptPriority')"
+            :label="$t('character.scriptCharacterPriority')"
             class="mb-0"
-            tooltip="The priority of this character on the script sheet."
+            :tooltip="$t('info.scriptCharacterPriority')"
             :character="character"  />
-        <p class="text-xs ml-1">The role has not been created yet, so only manual input is available</p>
+        <p class="text-xs ml-1">{{ $t('library.roleNotCreatedYet') }}</p>
         <div class="flex justify-center mt-auto mb-1">
           <button
               @click="addNewRole"
@@ -34,14 +34,14 @@
               :class="[
                   'px-4 py-2 rounded-md shadow whitespace-nowrap',
                   !isFullData ? 'bg-[color:var(--color-bg)]' : 'bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
-              ]">Add character</button>
+              ]">{{ $t('library.addCharacterButton') }}</button>
         </div>
       </div>
     </div>
   </div>
   <div v-if="list.length > 0">
     <div class="text-lg font-bold uppercase tracking-wide mb-3 mt-3 text-theme bg-[color:var(--color-bg)]">
-      New characters
+      {{ $t('library.newCharacters') }}
     </div>
     <div v-for="(element, index) in list" class="mb-1" :key="index">
       <role-line
@@ -52,6 +52,7 @@
 </template>
 <script setup>
 import { computed, ref } from "vue";
+import {useI18n} from "vue-i18n";
 import RoleLine from "@/components/library/Roles/RoleLine.vue";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import { EMPTY_CHARACTER, ROLES } from "@/constants/roles";
@@ -60,6 +61,8 @@ import { useLibraryStore } from "@/store/library";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import SimpleTextarea from "@/components/ui/SimpleTextarea.vue";
 import QueuePositions from "@/components/library/RoleEditor/QueuePositions.vue";
+
+const { t } = useI18n()
 const props = defineProps({
   isShowForm: Boolean
 })
@@ -93,12 +96,12 @@ function checkName(event) {
 
   if (listSets.value.findIndex(el => el.name === str) !== -1) {
     isVisibleError.value = true
-    errorText.value = "There is already a character with this name in your library"
+    errorText.value = t('library.characterExistsInLibrary')
     return
   }
   if (list.value.findIndex(el => el.name === str) !== -1) {
     isVisibleError.value = true
-    errorText.value = "There is already a character with this name in your new characters"
+    errorText.value = t('library.characterExistsInNew')
     return
   }
 

@@ -8,7 +8,9 @@
         v-model:is-open="isOpenPdfOptions"
         :isBootleggersEnabled="isBootleggersEnabled" />
     <script-night-order-popup
-    v-model:is-open="isOpenNightOrder" />
+        v-model:is-open="isOpenNightOrder" />
+    <bootlegger-popup
+        v-model:is-open="isOpenBootlegger" />
     <spinner v-if="isWaitingOperation"
              item-class="fixed inset-0 z-50 bg-black/60 pointer-events-auto flex justify-center items-center" size="w-20 h-20" />
   </div>
@@ -26,8 +28,10 @@ import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
 import {useIndexStore} from "@/store";
 import {isEqualWithDefault} from "@/constants/other";
+import {NPC_ROLES} from "@/constants/roles";
 import {cloneDeep} from "lodash/lang";
 import ScriptNightOrderPopup from "@/components/craft/pdf/ScriptNightOrderPopup.vue";
+import BootleggerPopup from "@/components/craft/pdf/BootleggerPopup.vue";
 
 defineOptions({
   name: 'edit-script'
@@ -35,15 +39,15 @@ defineOptions({
 
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
-const { isOpenPdfOptions, isOpenNightOrder, isWaitingOperation, pdfListWithParams, isEditingScript, activeScriptIndex } = storeToRefs(craftStore)
+const { isOpenPdfOptions, isOpenNightOrder, isOpenBootlegger, isWaitingOperation, pdfListWithParams, isEditingScript, activeScriptIndex } = storeToRefs(craftStore)
 const elems = ref({})
 
 const isBootleggersEnabled = computed(() => {
-  return pdfListWithParams.value['loric']?.find(el => el.id === 'bootlegger') !== undefined
+  return NPC_ROLES.some(role => pdfListWithParams.value[role]?.find(el => el.id === 'bootlegger'))
 })
 
 watch(pdfListWithParams, (val) => {
-  if(Object.values(elems.value).flat().length === 0 && Object.values(val).flat().length > 0 && activeScriptIndex.value >= 0){
+  if(Object.keys(elems.value).length === 0){
     elems.value = cloneDeep(val)
   }
 

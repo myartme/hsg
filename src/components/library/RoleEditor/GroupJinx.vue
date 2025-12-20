@@ -10,8 +10,8 @@
       <div class="flex items-center mb-4">
         <div class="flex-1">
           <div class="flex items-center space-x-1 mb-1">
-            <label class="block mb-1 title-theme">ID</label>
-            <info-tooltip text="The ID of the other character this one is jinxed with." icon-size="w-5 h-5" />
+            <label class="block mb-1 title-theme">{{ $t('jinx.id') }}</label>
+            <info-tooltip :text="$t('jinx.idInfo')" icon-size="w-5 h-5" />
           </div>
           <div class="flex items-center">
             <div @click="isOpenPopup = true"
@@ -21,7 +21,7 @@
                 <span>{{ selectedRole.name }}</span>
                 <span class="text-xs">{{ selectedRole.ability }}</span>
               </template>
-              <span v-else class="text-[color:var(--color-placeholder-text)]">Click to select character</span>
+              <span v-else class="text-[color:var(--color-placeholder-text)]">{{ $t('jinx.clickToSelect') }}</span>
             </div>
             <button
                 @click="addRole"
@@ -34,14 +34,14 @@
                 ]"
                 :disabled="!selectedRole || !input"
             >
-              {{ isEditMode ? 'Save' : 'Add' }}
+              {{ isEditMode ? $t('jinx.save') : $t('jinx.add') }}
             </button>
           </div>
         </div>
       </div>
       <div class="flex items-center space-x-1 mb-1">
-        <label class="block mb-1 title-theme">Reason</label>
-        <info-tooltip text="The Jinx explanation." icon-size="w-5 h-5" />
+        <label class="block mb-1 title-theme">{{ $t('jinx.reason') }}</label>
+        <info-tooltip :text="$t('jinx.reasonInfo')" icon-size="w-5 h-5" />
       </div>
       <div class="relative">
         <textarea
@@ -59,7 +59,7 @@
       <label :class="[
           labelClass,
           'title-theme mb-2'
-      ]">Jinxed Characters</label>
+      ]">{{ $t('jinx.jinxedCharacters') }}</label>
       <ul>
         <li
             v-for="(item, idx) in currentJinxes"
@@ -71,22 +71,22 @@
               'border rounded-md flex flex-1 p-3 items-center gap-3 transition border-[color:var(--color-border)]',
               !isRoleExists(item.id) && 'opacity-50'
           ]">
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center flex-shrink-0">
               <img :src="item.image" class="w-10 h-10 rounded" alt="image" />
-              <span v-if="!isRoleExists(item.id)" class="text-xs text-red-500 mt-1">Character deleted</span>
+              <span v-if="!isRoleExists(item.id)" class="text-xs text-red-500 mt-1">{{ $t('jinx.characterDeleted') }}</span>
             </div>
-            <div class="text-theme">{{ item.name }}</div>
-            <div class="text-xs text-theme">{{ item.reason }}</div>
-            <div v-if="!disabled" class="flex gap-2 ml-auto">
+            <div class="text-theme flex-shrink-0 whitespace-nowrap">{{ item.name }}</div>
+            <div class="text-xs text-theme flex-1">{{ item.reason }}</div>
+            <div v-if="!disabled" class="flex gap-2 flex-shrink-0">
               <button
                   v-if="isRoleExists(item.id)"
                   class="text-sm rounded-xl p-2 pl-3 pr-3 cursor-pointer text-theme border-[color:var(--color-border)] bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]"
                   @click="editRole(idx)"
-              >Edit</button>
+              >{{ $t('jinx.edit') }}</button>
               <button
                   class="text-sm rounded-xl p-2 cursor-pointer text-theme border-[color:var(--color-border)] bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]"
                   @click="removeRole(idx)"
-              >Delete</button>
+              >{{ $t('jinx.delete') }}</button>
             </div>
           </div>
         </li>
@@ -102,12 +102,15 @@
 <script setup>
 import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import {nextTick, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import ImageAnyScript from "@/components/ui/ImageAnyScript.vue";
 import JinxRoleListPopup from "@/components/library/RoleEditor/JinxRoleListPopup.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
 import {useLibraryStore} from "@/store/library";
 import {storeToRefs} from "pinia";
+
+const { t } = useI18n()
 
 const props = defineProps({
   label: String,

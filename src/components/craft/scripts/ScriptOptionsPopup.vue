@@ -4,7 +4,7 @@
                    @close="$emit('isOpenOptions')">
     <template #header>
       <div class="flex items-center gap-2 pl-0 pb-1">
-        <h2 class="text-xl font-bold title-theme">Script options</h2>
+        <h2 class="text-xl font-bold title-theme">{{ $t('scriptEditor.scriptOptions') }}</h2>
         <action-button v-if="isCanSave"
                        icon="save"
                        icon-size="w-6 h-6"
@@ -14,13 +14,13 @@
         <action-button icon="undo"
                        icon-size="w-7 h-7"
                        button-class="w-10 h-10"
-                       tooltip="Reset version information"
+                       :tooltip="$t('tooltips.resetVersionInfo')"
                        :is-show-effect="true"
                        :handle="handleResetVersions" />
         <action-button icon="delete"
                        icon-size="w-7 h-7"
                        button-class="w-10 h-10"
-                       tooltip="Delete all versions of this script"
+                       :tooltip="$t('tooltips.deleteAllVersions')"
                        :is-show-effect="true"
                        @click="isVisibleDeleteDialog = true" />
       </div>
@@ -28,52 +28,52 @@
     <template #content>
       <simple-input
           v-model:value="meta.name"
-          label="Script name"
+          :label="$t('scriptEditor.scriptName')"
           :maxlength="50"
           :disabled="true"
           class="mb-2" />
       <simple-input
           v-model:value="meta.author"
-          label="Author"
+          :label="$t('scriptEditor.author')"
           :maxlength="50"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           class="mb-2" />
       <simple-input
           v-model:value="meta.almanac"
-          label="Almanac"
+          :label="$t('scriptEditor.almanac')"
           :maxlength="250"
           class="mb-2" />
       <simple-checkbox
           v-model:value="meta.hideTitle"
-          label="Hide script name"
-          tooltip="You can hide script's title in the script." />
+          :label="$t('scriptEditor.hideScriptName')"
+          :tooltip="$t('tooltips.hideScriptTitle')" />
       <input-color-tag v-if="scriptTags.length > 0"
           v-model:value="scriptTags"
           div-class="mt-2"
-          label="Tags"
+          :label="$t('scriptEditor.tags')"
           :max-tags="10"
           :maxlength="250"
-          info="Tags for filtering scripts." />
+          :info="$t('scriptEditor.tagsInfo')" />
       <simple-dropdown
           v-if="tags.length > 0"
-          label="Tags list"
-          info="All script tags. Click to add."
+          :label="$t('scriptEditor.tagsList')"
+          :info="$t('scriptEditor.tagsListInfo')"
           div-class="mt-2 mb-2"
           v-model:value="selectedTag"
           :list="Object.values(tags).map(({ title }) => title)"
-          default-value="Add tag..." />
+          :default-value="$t('scriptEditor.addTag')" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
         <div class="flex items-end">
           <simple-input
               v-model:value="meta.logo"
-              label="Logo"
+              :label="$t('scriptEditor.logo')"
               :maxlength="250"
               div-class="w-full" />
         </div>
         <div class="flex items-end ">
           <simple-input
               v-model:value="meta.background"
-              label="Background"
+              :label="$t('scriptEditor.background')"
               :maxlength="250"
               div-class="w-full" />
         </div>
@@ -85,8 +85,8 @@
         </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
-                      :title="`Deleting all versions of ${meta.name}`"
-                      :description="`This action cannot be undone. Are you sure you want to delete all versions of this script?`"
+                      :title="$t('scriptEditor.deletingAllVersions', { name: meta.name })"
+                      :description="$t('scriptEditor.deleteAllVersionsConfirm')"
                       @confirm="handleDeleteScript()"
                       @cancel="isVisibleDeleteDialog = false" />
     </template>
@@ -95,6 +95,7 @@
 <script setup>
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import {ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
 import SimpleCheckbox from "@/components/ui/SimpleCheckbox.vue";
@@ -106,6 +107,8 @@ import {isEmpty, isEqual} from "lodash/lang";
 import PopupContainer from "@/components/PopupContainer.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: Boolean

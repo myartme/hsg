@@ -5,6 +5,7 @@
 import AddIcon from "@/components/ui/svg/add.svg";
 import AddWithBorderIcon from "@/components/ui/svg/addWithBorder.svg";
 import AlertIcon from "@/components/ui/svg/alert.svg";
+import BootleggerIcon from "@/components/ui/svg/bootlegger.svg";
 import ArrowDownIcon from "@/components/ui/svg/arrowDown.svg";
 import AuthorDownIcon from "@/components/ui/svg/authorDown.svg";
 import AuthorUpIcon from "@/components/ui/svg/authorUp.svg";
@@ -58,6 +59,7 @@ const icons = {
   add: AddIcon,
   addWithBorder: AddWithBorderIcon,
   alert: AlertIcon,
+  bootlegger: BootleggerIcon,
   arrowDown: ArrowDownIcon,
   authorDown: AuthorDownIcon,
   authorUp: AuthorUpIcon,

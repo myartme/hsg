@@ -13,12 +13,12 @@
           :handle="undo" />
     </template>
     <template #header>
-      <h2 class="text-2xl font-semibold">Scripts ({{localScriptList.length}})</h2>
+      <h2 class="text-2xl font-semibold">{{ $t('scripts.title') }} ({{localScriptList.length}})</h2>
       <action-button
           icon="add"
           icon-size="w-10 h-10"
           button-class="w-10 h-10"
-          tooltip="Create script"
+          :tooltip="$t('scripts.createScript')"
           :is-circle-type="false"
           @click="$emit('onCreateScript')" />
       <action-button
@@ -26,7 +26,7 @@
           icon-size="w-7 h-7"
           button-class="w-10 h-10"
           :is-pressed="isImportScript"
-          tooltip="Import script"
+          :tooltip="$t('scripts.importScript')"
           :is-circle-type="false"
           @click="$emit('onImportScript')" />
       <action-button
@@ -34,7 +34,7 @@
           icon-size="w-6 h-6"
           button-class="w-10 h-10"
           :is-pressed="isEditScriptTags"
-          tooltip="Script tags"
+          :tooltip="$t('scripts.scriptTags')"
           :is-circle-type="false"
           @click="$emit('onEditTags')" />
       <action-button
@@ -42,7 +42,7 @@
           icon-size="w-6 h-6"
           button-class="w-10 h-10"
           :is-pressed="isOpenFilterTags"
-          tooltip="Filter"
+          :tooltip="$t('scripts.filter')"
           :is-circle-type="false"
           @click="isOpenFilterTags = !isOpenFilterTags" />
       <sort-buttons

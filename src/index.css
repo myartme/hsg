@@ -295,6 +295,9 @@ html, body, #app {
 
 .v-popper--theme-tooltip .v-popper__inner {
   @apply bg-gray-800 text-white text-sm rounded-lg px-3 py-2 shadow-lg max-w-xs;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .v-popper--theme-tooltip .v-popper__arrow {

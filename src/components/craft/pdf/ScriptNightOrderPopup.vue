@@ -4,42 +4,42 @@
                    @close="closeWindow">
     <template #header>
       <div class="flex items-center gap-2 pl-0 pb-1">
-        <h2 class="text-xl font-bold title-theme">Night Order</h2>
+        <h2 class="text-xl font-bold title-theme">{{ $t('nightOrder.title') }}</h2>
       </div>
     </template>
     <template #content>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="align-middle">
           <div class="flex items-center">
-            <h2 class="text-lg font-semibold text-theme">First Night</h2>
+            <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.firstNight') }}</h2>
             <action-button v-if="!isFirstNightDefault"
                            icon="undo"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore default order"
+                           :tooltip="$t('tooltips.restoreDefaultOrder')"
                            :is-show-effect="true"
                            :handle="() => firstNight = defaultResetFirstNight()"
                            class="ml-2" />
-            <action-button v-if="!isFirstNightSameAsSave"
+            <action-button v-if="isSavedScript && !isFirstNightSameAsSave"
                            icon="undoToSave"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore to last save"
+                           :tooltip="$t('tooltips.restoreToLastSave')"
                            :is-show-effect="true"
                            :handle="resetFirstNightToSave"
                            class="ml-2" />
           </div>
           <div class="flex gap-4 mt-2">
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Current</h3>
-              <draggable-component v-model="firstNight" item-key="id">
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.current') }}</h3>
+              <draggable-component v-model="firstNight" item-key="id" :move="checkMove">
                 <template #item="{ element }">
                   <night-order-element :value="getElement(element)" :is-default-element="defaultNightArray.includes(element)" />
                 </template>
               </draggable-component>
             </div>
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Default</h3>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.default') }}</h3>
               <div class="opacity-50 pointer-events-none">
                 <night-order-element
                     v-for="element in defaultResetFirstNight()"
@@ -52,35 +52,35 @@
         </div>
         <div class="align-middle">
           <div class="flex items-center">
-            <h2 class="text-lg font-semibold text-theme">Other Nights</h2>
+            <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.otherNights') }}</h2>
             <action-button v-if="!isOtherNightDefault"
                            icon="undo"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore default order"
+                           :tooltip="$t('tooltips.restoreDefaultOrder')"
                            :is-show-effect="true"
                            :handle="() => otherNight = defaultResetOtherNight()"
                            class="ml-2" />
-            <action-button v-if="!isOtherNightSameAsSave"
+            <action-button v-if="isSavedScript && !isOtherNightSameAsSave"
                            icon="undoToSave"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
-                           tooltip="Restore to last save"
+                           :tooltip="$t('tooltips.restoreToLastSave')"
                            :is-show-effect="true"
                            :handle="resetOtherNightToSave"
                            class="ml-2" />
           </div>
           <div class="flex gap-4 mt-2">
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Current</h3>
-              <draggable-component v-model="otherNight" item-key="id">
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.current') }}</h3>
+              <draggable-component v-model="otherNight" item-key="id" :move="checkMove">
                 <template #item="{ element }">
                   <night-order-element :value="getElement(element)" :is-default-element="defaultNightArray.includes(element)" />
                 </template>
               </draggable-component>
             </div>
             <div class="flex flex-col">
-              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">Default</h3>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.default') }}</h3>
               <div class="opacity-50 pointer-events-none">
                 <night-order-element
                     v-for="element in defaultResetOtherNight()"
@@ -97,24 +97,29 @@
 </template>
 <script setup>
 import {computed, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
 import PopupContainer from "@/components/PopupContainer.vue";
-import {isEmpty, isEqual} from "lodash/lang";
+import {cloneDeep, isEmpty, isEqual} from "lodash/lang";
 import draggableComponent from "vuedraggable";
 import NightOrderElement from "@/components/craft/pdf/NightOrderElement.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import ActionButton from "@/components/ui/ActionButton.vue";
+
+const { t } = useI18n()
 
 const props = defineProps({
   isOpen: Boolean
 })
 
 const craftStore = useCraftStore()
-const { pdfMeta, pdfListWithParams, isOpenNightOrder, isEditingScript, nightOrderAutoGenerated } = storeToRefs(craftStore)
+const { pdfMeta, pdfListWithParams, isOpenNightOrder, isEditingScript, nightOrderAutoGenerated, isSavedScript } = storeToRefs(craftStore)
 const firstNight = ref([])
 const otherNight = ref([])
 const rolesList = ref()
+const originalFirstNight = ref([])
+const originalOtherNight = ref([])
 const emits = defineEmits(['update:isOpen'])
 const defaultNightArray = ['dusk', 'minioninfo', 'demoninfo', 'dawn']
 
@@ -125,22 +130,35 @@ const isFirstNightDefault = computed(() => isEqual(firstNight.value, defaultRese
 const isOtherNightDefault = computed(() => isEqual(otherNight.value, defaultResetOtherNight()))
 
 const isFirstNightSameAsSave = computed(() => {
-  const saved = !isEmpty(pdfMeta.value.firstNight) ? pdfMeta.value.firstNight : defaultResetFirstNight()
+  const saved = !isEmpty(originalFirstNight.value) ? originalFirstNight.value : defaultResetFirstNight()
   return isEqual(firstNight.value, saved)
 })
 
 const isOtherNightSameAsSave = computed(() => {
-  const saved = !isEmpty(pdfMeta.value.otherNight) ? pdfMeta.value.otherNight : defaultResetOtherNight()
+  const saved = !isEmpty(originalOtherNight.value) ? originalOtherNight.value : defaultResetOtherNight()
   return isEqual(otherNight.value, saved)
 })
 
 function closeWindow(){
-  if(!isEqual(pdfMeta.value.firstNight, firstNight.value) || !isEqual(pdfMeta.value.otherNight, otherNight.value)){
+  const hasChanges = !isEqual(originalFirstNight.value, firstNight.value) || !isEqual(originalOtherNight.value, otherNight.value)
+  if(hasChanges){
     isEditingScript.value = true
   }
   pdfMeta.value.firstNight = firstNight.value
   pdfMeta.value.otherNight = otherNight.value
   emits('update:isOpen', !props.isOpen)
+}
+
+function checkMove(evt) {
+  const draggedElement = evt.draggedContext.element
+  const futureIndex = evt.draggedContext.futureIndex
+
+  // dusk должен оставаться первым
+  if (draggedElement === 'dusk') return false
+  // нельзя переместить на первую позицию (выше dusk)
+  if (futureIndex === 0) return false
+
+  return true
 }
 
 function getElement(element){
@@ -196,7 +214,16 @@ watch(pdfListWithParams, () => {
   firstNight.value = defaultResetFirstNight()
   otherNight.value = defaultResetOtherNight()
 
-  if(isEmpty(pdfMeta.value.firstNight) || isEmpty(pdfMeta.value.otherNight)){
+  // Инициализируем оригинальные значения при первой загрузке
+  if(isEmpty(originalFirstNight.value)){
+    originalFirstNight.value = cloneDeep(pdfMeta.value.firstNight) || []
+  }
+  if(isEmpty(originalOtherNight.value)){
+    originalOtherNight.value = cloneDeep(pdfMeta.value.otherNight) || []
+  }
+
+  const hasRoles = Object.values(pdfListWithParams.value).flat().length > 0
+  if(hasRoles && (isEmpty(pdfMeta.value.firstNight) || isEmpty(pdfMeta.value.otherNight))){
     isEditingScript.value = true
     nightOrderAutoGenerated.value = true
   }

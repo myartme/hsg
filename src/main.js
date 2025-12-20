@@ -3,6 +3,53 @@ import path from 'node:path';
 import { rm } from 'fs/promises';
 import started from 'electron-squirrel-startup';
 import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64 } from '/src/helpers/files.js'
+
+const menuLabels = {
+  en: {
+    about: 'About',
+    quit: 'Quit',
+    edit: 'Edit',
+    undo: 'Undo',
+    redo: 'Redo',
+    cut: 'Cut',
+    copy: 'Copy',
+    paste: 'Paste',
+    selectAll: 'Select All',
+    view: 'View',
+    reload: 'Reload',
+    toggleDevTools: 'Toggle Developer Tools',
+    toggleFullscreen: 'Toggle Fullscreen',
+    help: 'Help'
+  },
+  ru: {
+    about: 'О программе',
+    quit: 'Выход',
+    edit: 'Редактирование',
+    undo: 'Отменить',
+    redo: 'Повторить',
+    cut: 'Вырезать',
+    copy: 'Копировать',
+    paste: 'Вставить',
+    selectAll: 'Выделить всё',
+    view: 'Вид',
+    reload: 'Перезагрузить',
+    toggleDevTools: 'Инструменты разработчика',
+    toggleFullscreen: 'Полноэкранный режим',
+    help: 'Справка'
+  }
+}
+
+const aboutCredits = {
+  en: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +
+      'The application uses images from the official website: http://bloodontheclocktower.com. All trademarks and assets belong to their respective owners.\n' +
+      'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.',
+  ru: 'Это неофициальная библиотека персонажей и скриптов для игры Blood on the Clocktower.\n' +
+      'Приложение использует изображения с официального сайта: http://bloodontheclocktower.com. Все торговые марки и материалы принадлежат их владельцам.\n' +
+      'Этот проект не связан с создателями Blood on the Clocktower и не одобрен ими.'
+}
+
+let currentLanguage = 'en'
+let mainWindow = null
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
@@ -107,8 +154,125 @@ ipcMain.handle('deleteAllData', async () => {
   return false
 })
 
+ipcMain.handle('setLanguage', async (event, lang) => {
+  currentLanguage = lang
+  if (mainWindow) {
+    buildMenu()
+    updateAboutPanel()
+  }
+  return true
+})
+
+ipcMain.handle('toggleDevTools', async (event, isOpen) => {
+  if (mainWindow) {
+    if (isOpen) {
+      mainWindow.webContents.openDevTools()
+    } else {
+      mainWindow.webContents.closeDevTools()
+    }
+  }
+  return true
+})
+
+function updateAboutPanel() {
+  if (process.platform === 'darwin') {
+    app.setAboutPanelOptions({
+      applicationName: 'BotC HSG',
+      applicationVersion: '1.7.0',
+      version: '1.7.0',
+      copyright: '© 2025 Artem Chendey',
+      iconPath: path.join(__dirname, 'icon.icns'),
+      credits: aboutCredits[currentLanguage] || aboutCredits.en
+    })
+  }
+}
+
+function buildMenu() {
+  const labels = menuLabels[currentLanguage] || menuLabels.en
+  const template = []
+
+  if (process.platform === 'darwin') {
+    // macOS
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            {
+              label: labels.about,
+              click: () => {
+                app.showAboutPanel()
+              }
+            },
+            { type: 'separator' },
+            { role: 'quit', label: labels.quit }
+          ]
+        },
+        {
+          label: labels.edit,
+          submenu: [
+            { role: 'undo', label: labels.undo },
+            { role: 'redo', label: labels.redo },
+            { type: 'separator' },
+            { role: 'cut', label: labels.cut },
+            { role: 'copy', label: labels.copy },
+            { role: 'paste', label: labels.paste },
+            { role: 'selectAll', label: labels.selectAll }
+          ]
+        },
+        {
+          label: labels.view,
+          submenu: [
+            { role: 'reload', label: labels.reload },
+            { role: 'toggledevtools', label: labels.toggleDevTools },
+            { role: 'togglefullscreen', label: labels.toggleFullscreen }
+          ]
+        }
+    )
+  } else {
+    template.push(
+        {
+          label: app.name,
+          submenu: [
+            { role: 'quit', label: labels.quit }
+          ]
+        },
+        {
+          label: labels.edit,
+          submenu: [
+            { role: 'undo', label: labels.undo },
+            { role: 'redo', label: labels.redo },
+            { type: 'separator' },
+            { role: 'cut', label: labels.cut },
+            { role: 'copy', label: labels.copy },
+            { role: 'paste', label: labels.paste },
+            { role: 'selectAll', label: labels.selectAll }
+          ]
+        },
+        {
+          label: labels.view,
+          submenu: [
+            { role: 'reload', label: labels.reload },
+            { role: 'togglefullscreen', label: labels.toggleFullscreen }
+          ]
+        },
+        {
+          label: labels.help,
+          submenu: [
+            {
+              label: labels.about,
+              click: () => mainWindow.webContents.send('show-about', currentLanguage)
+            }
+          ]
+        }
+    )
+  }
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}
+
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     show: false,
@@ -133,104 +297,14 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  const template = [];
-
-  if (process.platform === 'darwin') {
-    // macOS
-    template.push(
-        {
-          label: app.name,
-          submenu: [
-            {
-              label: 'About',
-              click: () => {
-                app.showAboutPanel();
-              }
-            },
-            { type: 'separator' },
-            { role: 'quit' }
-          ]
-        },
-        {
-          label: 'Edit',
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'selectAll' }
-          ]
-        },
-        {
-          label: 'View',
-          submenu: [
-            { role: 'reload' },
-            { role: 'toggledevtools' },
-            { role: 'togglefullscreen' }
-          ]
-        }
-    );
-  } else {
-    template.push(
-        {
-          label: app.name,
-          submenu: [
-            { role: 'quit' }
-          ]
-        },
-        {
-          label: 'Edit',
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'selectAll' }
-          ]
-        },
-        {
-          label: 'View',
-          submenu: [
-            { role: 'reload' },
-            { role: 'togglefullscreen' }
-          ]
-        },
-        {
-          label: 'Help',
-          submenu: [
-            {
-              label: 'About',
-              click: () => mainWindow.webContents.send('show-about')
-            }
-          ]
-        }
-    )
-  }
-
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+  buildMenu();
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  if (process.platform === 'darwin') {
-    app.setAboutPanelOptions({
-      applicationName: 'BotC HSG',
-      applicationVersion: '1.7.0',
-      version: '1.7.0',
-      copyright: '© 2025 Artem Chendey',
-      iconPath: path.join(__dirname, 'icon.icns'),
-      credits: 'This is an unofficial library of characters and scripts for the game Blood on the Clocktower.\n' +
-          'The application uses images from the official website: http://bloodontheclocktower.com. All trademarks and assets belong to their respective owners.\n' +
-          'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.'
-    });
-  }
+  updateAboutPanel()
   createWindow();
 
   // On OS X it's common to re-create a window in the app when the

@@ -23,7 +23,7 @@
                      button-class="w-10 h-10"
                      :is-pressed="isEditCharacterLibrarySet"
                      :is-circle-type="false"
-                     tooltip="Script options"
+                     :tooltip="$t('library.scriptOptions')"
                      @click="$emit('onEditSet')" />
       <action-button v-if="meta.isOfficial === false"
                      icon="add"
@@ -31,7 +31,7 @@
                      button-class="w-10 h-10"
                      :is-pressed="isCreateCharacterLibrary"
                      :is-circle-type="false"
-                     tooltip="Add new character to this set"
+                     :tooltip="$t('library.addNewCharacter')"
                      @click="$emit('onCreateRole')" />
       <action-button v-if="meta.isOfficial === false"
                      icon="import"
@@ -39,7 +39,7 @@
                      button-class="w-10 h-10"
                      :is-pressed="isImportCharacterLibrary"
                      :is-circle-type="false"
-                     tooltip="Import new character(s) to this set"
+                     :tooltip="$t('library.importNewCharacters')"
                      @click="$emit('onImportRole')" />
       <sort-buttons
           :list="list"
@@ -53,7 +53,7 @@
         <input v-model="searchedQuery"
                class="h-10 ml-3 w-full focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)]"
                type="text"
-               placeholder="Filter by multiple keywords (separate with spaces)"
+               :placeholder="$t('library.filterByKeywords')"
         />
         <div class="flex pr-3 gap-3">
           <action-button
@@ -98,7 +98,7 @@
       </div>
       <p v-show="!isLoading && isEmpty(list) && isFiltered"
          class="text-theme flex justify-center items-center py-5 ml-5 mr-5">
-        No matching characters. Please adjust the filter parameters to update the results.
+        {{ $t('library.noMatchingCharacters') }}
       </p>
     </template>
   </sector-container>

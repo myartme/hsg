@@ -14,25 +14,52 @@
             :handle="undo" />
       </template>
       <template #header>
-        <h2 class="text-2xl font-semibold">Options</h2>
+        <h2 class="text-2xl font-semibold">{{ $t('options.title') }}</h2>
       </template>
       <template #content>
         <div class="gap-y-4 space-y-6 items-center">
-          <toggle div-class="grid grid-cols-[minmax(150px,22%)_1fr] items-center" label="Dark mode" v-model:value="isDarkMode" />
-          <div class="title-theme mb-2">Tooltip delay</div>
+          <div class="grid grid-cols-[minmax(150px,22%)_1fr] items-center">
+            <span class="title-theme">{{ $t('options.language') }}</span>
+            <div class="flex gap-3">
+              <button
+                  @click="selectedLanguage = languages.en"
+                  :class="[
+                    'w-10 h-8 rounded-md transition cursor-pointer flex items-center justify-center text-xl text-theme',
+                    selectedLanguage === languages.en
+                      ? 'bg-[color:var(--color-list-element)]'
+                      : 'hover:bg-[color:var(--color-border)]'
+                  ]"
+                  title="English">
+                🇺🇸
+              </button>
+              <button
+                  @click="selectedLanguage = languages.ru"
+                  :class="[
+                    'w-10 h-8 rounded-md transition cursor-pointer flex items-center justify-center text-xl text-theme',
+                    selectedLanguage === languages.ru
+                      ? 'bg-[color:var(--color-list-element)]'
+                      : 'hover:bg-[color:var(--color-border)]'
+                  ]"
+                  title="Русский">
+                🇷🇺
+              </button>
+            </div>
+          </div>
+          <toggle div-class="grid grid-cols-[minmax(150px,22%)_1fr] items-center" :label="$t('options.darkMode')" v-model:value="isDarkMode" />
+          <div class="title-theme mb-2">{{ $t('options.tooltipDelay') }}</div>
           <div class="pl-4 space-y-2">
-            <slider :div-class="sliderClass" label="Button tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonShow" />
-            <slider :div-class="sliderClass" label="Button tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonHide" />
+            <slider :div-class="sliderClass" :label="$t('options.buttonTooltipShow')" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonShow" />
+            <slider :div-class="sliderClass" :label="$t('options.buttonTooltipHide')" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.buttonHide" />
           </div>
           <div class="pl-4 space-y-2">
-            <slider :div-class="sliderClass" label="Input tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoShow" />
-            <slider :div-class="sliderClass" label="Input tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoHide" />
+            <slider :div-class="sliderClass" :label="$t('options.inputTooltipShow')" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoShow" />
+            <slider :div-class="sliderClass" :label="$t('options.inputTooltipHide')" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.infoHide" />
           </div>
           <div class="pl-4 space-y-2">
-            <slider :div-class="sliderClass" label="Jinx select character tooltip show" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesShow" />
-            <slider :div-class="sliderClass" label="Jinx select character tooltip hide" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesHide" />
+            <slider :div-class="sliderClass" :label="$t('options.jinxTooltipShow')" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesShow" />
+            <slider :div-class="sliderClass" :label="$t('options.jinxTooltipHide')" :min="0" :max="5000" :step="50" v-model:value="tooltipDelayOptions.jinxesHide" />
           </div>
-          <div class="title-theme mb-2">Restore sets</div>
+          <div class="title-theme mb-2">{{ $t('options.restoreSets') }}</div>
           <div class="flex gap-5">
             <div v-for="set in originalSets" class="w-36 h-36 relative rounded-md flex items-center justify-center cursor-pointer transition select-none overflow-hidden border-[color:var(--color-border)]">
               <div class="absolute inset-0 bg-cover bg-center z-0"
@@ -45,7 +72,7 @@
                   <action-button v-if="isEnableButton(set.id)"
                                  icon="undo"
                                  icon-size="w-7 h-7"
-                                 tooltip="Restore this set"
+                                 :tooltip="$t('options.restoreThisSet')"
                                  :is-circle-type="false"
                                  button-class="w-9 h-9 bg-[color:var(--color-bg)]"
                                  @click="restoreSet(set)" />
@@ -53,7 +80,7 @@
                                  icon="check"
                                  icon-size="w-6 h-6"
                                  icon-color="fill-emerald-700"
-                                 tooltip="Set is installed"
+                                 :tooltip="$t('options.setIsInstalled')"
                                  :is-circle-type="false"
                                  :is-disable="true"
                                  button-class="w-9 h-9 bg-[color:var(--color-bg)]" />
@@ -64,11 +91,11 @@
           <div class="flex gap-5">
             <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
                  @click="isOpenImport = true">
-              <span>Import library data</span>
+              <span>{{ $t('options.importLibraryData') }}</span>
             </div>
             <div class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-10 gap-3 transition border-[color:var(--color-border)] text-theme"
                  @click="isOpenExport = true">
-              <span>Export library data</span>
+              <span>{{ $t('options.exportLibraryData') }}</span>
             </div>
             <import-library v-if="isOpenImport"
                             @on-close="isOpenImport = !isOpenImport" />
@@ -79,17 +106,17 @@
             <button
                 @click="isVisibleResetAppDataDialog = true"
                 class="ml-4 px-4 py-2 rounded-xl whitespace-nowrap text-theme border-[color:var(--color-border)] cursor-pointer text-theme bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]"
-            >Reset app data
+            >{{ $t('options.resetAppData') }}
             </button>
           </div>
           <confirm-dialog v-if="isVisibleResetAppDataDialog"
-                          title="Delete app data"
-                          description="Don't forget to export your data if you want to keep it. Are you sure you want to delete the app data?"
+                          :title="$t('options.deleteAppData')"
+                          :description="$t('options.deleteAppDataDesc')"
                           @confirm="isVisibleResetAppDataDialog = false; isVisibleResetAppDataDialogTwo = true"
                           @cancel="isVisibleResetAppDataDialog = false" />
           <confirm-dialog v-if="isVisibleResetAppDataDialogTwo"
-                          title="Delete app data"
-                          description="This action cannot be undone. Are you sure you want to delete the app data?"
+                          :title="$t('options.deleteAppData')"
+                          :description="$t('options.deleteAppDataConfirm')"
                           @confirm="resetAppData(); isVisibleResetAppDataDialogTwo = false"
                           @cancel="isVisibleResetAppDataDialogTwo = false" />
         </div>
@@ -124,8 +151,9 @@ const { metaSets } = storeToRefs(libraryStore)
 const craftStore = useCraftStore()
 const optionsStore = useOptionsStore()
 const indexStore = useIndexStore()
-const { theme, themes, tooltipDelay } = storeToRefs(optionsStore)
+const { theme, themes, tooltipDelay, language, languages } = storeToRefs(optionsStore)
 const isCanSave = ref(false)
+const selectedLanguage = ref(null)
 const isDarkMode = ref(false)
 const originalSets = ref(null)
 const tooltipDelayOptions = ref()
@@ -140,7 +168,8 @@ function save(){
   try{
     optionsStore.setOptions({
       theme: isDarkMode.value ? themes.value.dark : themes.value.light,
-      tooltipDelay: tooltipDelayOptions.value
+      tooltipDelay: tooltipDelayOptions.value,
+      language: selectedLanguage.value
     })
     setTimeout(() => {
       isCanSave.value = false
@@ -153,6 +182,7 @@ function save(){
 
 function undo(){
   try{
+    selectedLanguage.value = language.value
     isDarkMode.value = (themes.value.dark === theme.value)
     tooltipDelayOptions.value = {...tooltipDelay.value }
     setTimeout(() => {
@@ -186,16 +216,22 @@ onMounted(async () => {
 watch(isCanSave, (newVal) => {
   newVal ? indexStore.focusWindow(instance?.type.name) : indexStore.unfocusWindow()
 })
+watch(language, () => {
+  selectedLanguage.value = language.value
+}, { immediate: true })
 watch(theme, () => {
   isDarkMode.value = themes.value.dark === theme.value
 }, { immediate: true })
 watch(tooltipDelay, () => {
   tooltipDelayOptions.value = {...tooltipDelay.value }
 }, { immediate: true })
-watch(tooltipDelayOptions, () => {
-  isCanSave.value = !isEqual(tooltipDelayOptions.value, {...tooltipDelay.value }) || isDarkMode.value !== (themes.value.dark === theme.value)
-}, { immediate: true, deep: true })
-watch(isDarkMode, () => {
-  isCanSave.value = !isEqual(tooltipDelayOptions.value, {...tooltipDelay.value }) || isDarkMode.value !== (themes.value.dark === theme.value)
-}, { immediate: true, deep: true })
+
+function checkCanSave() {
+  isCanSave.value = !isEqual(tooltipDelayOptions.value, {...tooltipDelay.value })
+      || isDarkMode.value !== (themes.value.dark === theme.value)
+      || selectedLanguage.value !== language.value
+}
+watch(tooltipDelayOptions, checkCanSave, { immediate: true, deep: true })
+watch(isDarkMode, checkCanSave, { immediate: true, deep: true })
+watch(selectedLanguage, checkCanSave, { immediate: true })
 </script>

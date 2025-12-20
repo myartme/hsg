@@ -12,6 +12,7 @@
     <popup-container
       v-if="isOpen"
       :is-input-visible="false"
+      container-class="max-w-4xl max-h-[90vh] overflow-visible"
       @close="isOpen = false; $emit('onUpdateSpecials', specials)">
       <template #header>
         <div class="flex space-x-3">
@@ -22,7 +23,7 @@
               button-class="w-7 h-7"
               :is-pressed="false"
               :is-circle-type="false"
-              tooltip="Add new feature"
+              :tooltip="$t('specials.addNewFeature')"
               @click="createFeature" />
         </div>
       </template>
@@ -32,7 +33,7 @@
               @click="formSwitcher()"
               class="w-full text-left px-4 py-2 flex justify-between rounded-xl items-center cursor-pointer bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]"
           >
-            <span>{{ activeSpecial.index >= 0 ? `Edit Feature ${activeSpecial.index + 1}` : "Add Feature" }}</span>
+            <span>{{ activeSpecial.index >= 0 ? $t('specials.editFeature', { index: activeSpecial.index + 1 }) : $t('specials.addFeature') }}</span>
             <span class="transition-transform" :class="{ 'rotate-180': isOpenForm }">
               <icon-element name="arrowDown" size="w-4 h-4" />
             </span>
@@ -45,38 +46,38 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <simple-dropdown
                     v-model:value="activeSpecial.type"
-                    label="Type"
+                    :label="$t('specials.type')"
                     :list="types"
-                    info="Currently supported values are:<br>selection - during character selection,<br>signal - during night signaling,<br>ability - when clicking on the character token,<br>vote - during a vote,<br>reveal - at the end of the game, before characters are revealed,<br>player - an ability that can be initiated by the player."
-                    default-value="Select type" />
+                    :info="$t('specials.typeInfo')"
+                    :default-value="$t('specials.selectType')" />
                 <simple-dropdown
                     v-model:value="activeSpecial.name"
-                    label="Name"
+                    :label="$t('specials.name')"
                     :list="names"
-                    info="This is a list of the currently implemented special features and will be growing over time."
-                    default-value="Select name" />
+                    :info="$t('specials.nameInfo')"
+                    :default-value="$t('specials.selectName')" />
                 <simple-dropdown
                     v-model:value="activeSpecial.time"
-                    label="Time"
+                    :label="$t('specials.time')"
                     :list="times"
-                    info="At which point during the game can the ability be used."
-                    default-value="Select time" />
+                    :info="$t('specials.timeInfo')"
+                    :default-value="$t('specials.selectTime')" />
                 <simple-dropdown
                     v-model:value="activeSpecial.global"
-                    label="Global"
+                    :label="$t('specials.global')"
                     :list="globals"
-                    info="If it's a global ability that can be used without the character being in play, this property defines on which characters it can be used. This does not work on Fabled, because they are not considered to be on the Script."
-                    default-value="Select global" />
+                    :info="$t('specials.globalInfo')"
+                    :default-value="$t('specials.selectGlobal')" />
                 <simple-input
                     v-model:value="activeSpecial.value"
-                    label="Value"
+                    :label="$t('specials.value')"
                     :maxlength="50" />
                 <div class="flex justify-center items-end">
                   <button
                       @click="addFeature"
                       class="px-4 py-2 rounded-xl whitespace-nowrap text-theme border-[color:var(--color-border)] cursor-pointer bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]"
                   >
-                    Save
+                    {{ $t('specials.save') }}
                   </button>
                 </div>
               </div>
@@ -105,6 +106,7 @@
 </template>
 <script setup>
 import {ref, watch, nextTick} from "vue";
+import {useI18n} from "vue-i18n";
 import PopupContainer from "@/components/PopupContainer.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
@@ -113,6 +115,8 @@ import IconElement from "@/components/ui/IconElement.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import SpecialLine from "@/components/library/RoleEditor/SpecialLine.vue";
 import {cloneDeep} from "lodash/lang";
+
+const { t } = useI18n()
 
 const props = defineProps({
   label: String,

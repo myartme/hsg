@@ -12,7 +12,7 @@ export const getFilePath = (filename, directory) => {
 export const getCurrentFilePath = (filename, isAppPath) => {
     if(isAppPath){
         if (app.isPackaged) {
-            return path.join(app.getAppPath(), '.vite', 'build', 'data', filename);
+            return path.join(app.getAppPath(), '.vite', 'renderer', 'main_window', 'data', filename);
         } else {
             return path.join(app.getAppPath(), 'public', 'data', filename);
         }

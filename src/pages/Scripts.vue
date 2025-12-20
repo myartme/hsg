@@ -6,8 +6,8 @@
           @on-import-script="onImportScript"
           @on-select-script="onSelectScript"
           @on-edit-tags="onEditTags" />
-      <import-script label="Import Content" v-if="isImportScript" />
-      <edit-tags label="Script tags" v-if="isEditScriptTags" />
+      <import-script :label="$t('scripts.importScript')" v-if="isImportScript" />
+      <edit-tags :label="$t('scripts.scriptTags')" v-if="isEditScriptTags" />
     </div>
   </div>
 </template>

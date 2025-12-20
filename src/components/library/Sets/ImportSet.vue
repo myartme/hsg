@@ -22,7 +22,7 @@
       <div class="resize-none">
         <div class="mb-2">
           <drag-and-drop
-              text="Click to choose a JSON file / drag a JSON file here<br>or paste it manually into the field below"
+              :text="$t('library.dragDropJson')"
               @json-loaded="loadedContent" />
         </div>
         <div class="relative flex mb-2 overflow-auto max-h-160">
@@ -49,31 +49,31 @@
           v-if="activeSetIndex < 0"
           @focusout="addId"
           v-model:value="meta.id"
-          label="ID"
+          :label="$t('library.setId')"
           :maxlength="30"
           :errored="isVisibleError"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           :disabled="isOfficial || activeSetIndex >= 0"
-          error-text="There is already a set with this ID in your library"
+          :error-text="$t('library.setIdExists')"
           class="mb-2" />
       <simple-input
           v-if="activeSetIndex < 0"
           v-model:value="meta.name"
-          label="Name"
+          :label="$t('library.setName')"
           :maxlength="50"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           :disabled="isOfficial || activeSetIndex >= 0"
           class="mb-2" />
       <simple-input
           v-model:value="meta.author"
-          label="Author"
+          :label="$t('library.setAuthor')"
           :maxlength="50"
-          required="This field is required."
+          :required="$t('validation.fieldRequired')"
           :disabled="isOfficial"
           class="mb-2" />
       <simple-input
           v-model:value="meta.logo"
-          label="Logo"
+          :label="$t('library.setLogo')"
           :maxlength="250"
           :disabled="isOfficial"
           class="mb-2" />

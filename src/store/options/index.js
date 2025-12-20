@@ -1,5 +1,5 @@
 import {defineStore, storeToRefs} from 'pinia'
-import {appVersion, debugMode, theme, themes, tooltipDelay} from "@/store/options/state";
+import {appVersion, debugMode, theme, themes, tooltipDelay, language, languages} from "@/store/options/state";
 import {getDataOptions, setDataOptions, deleteDataOptions, deleteAllData, openLink} from "@/store";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
@@ -192,9 +192,9 @@ export const useOptionsStore = defineStore('options', () => {
             result = {
                 ...result,
                 options : {
-                    debugMode: debugMode.value,
                     theme: theme.value,
-                    tooltip: tooltipDelay.value
+                    tooltip: tooltipDelay.value,
+                    language: language.value
                 }
             }
         }
@@ -283,9 +283,11 @@ export const useOptionsStore = defineStore('options', () => {
         const response = await getDataOptions(isAppPath)
         if(response?.isSuccess){
             const options = response.content
-            debugMode.value = options.debugMode
             theme.value = options.theme
             tooltipDelay.value = { ...options.tooltip }
+            if(options.language){
+                language.value = options.language
+            }
         } else {
             if(response?.error.code === 'ENOENT' && !isRecursive){
                 await getOptions(!isAppPath, true)
@@ -310,17 +312,17 @@ export const useOptionsStore = defineStore('options', () => {
         if(content.theme){
             theme.value = content.theme
         }
-        if(content.debugMode){
-            debugMode.value = content.debugMode
-        }
         if(content.tooltipDelay){
             tooltipDelay.value = content.tooltipDelay
         }
+        if(content.language){
+            language.value = content.language
+        }
 
         await setDataOptions({
-            debugMode: debugMode.value,
             theme: theme.value,
-            tooltip: tooltipDelay.value
+            tooltip: tooltipDelay.value,
+            language: language.value
         })
     }
 
@@ -346,6 +348,8 @@ export const useOptionsStore = defineStore('options', () => {
         theme,
         themes,
         tooltipDelay,
+        language,
+        languages,
 
         getOptions,
         setOptions,

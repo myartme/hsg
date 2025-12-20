@@ -20,7 +20,7 @@
           {{ trimmedName(pdfMeta.name, 25) }}
         </span>
       </div>
-      <span class="ml-1 text-theme">by</span>
+      <span class="ml-1 text-theme">{{ $t('scriptEditor.by') }}</span>
       <div class="w-[200px] overflow-hidden">
         <input
             v-if="isEditingAuthor"
@@ -51,9 +51,13 @@ import TeamList from "@/components/craft/pdf/preview/TeamList.vue";
 import {useCraftStore} from "@/store/craft";
 import {storeToRefs} from "pinia";
 import {nextTick, onMounted, ref} from "vue";
+import {useI18n} from "vue-i18n";
+
 import {listWithParams, scriptList} from "@/store/craft/state";
 import {isEmpty} from "lodash/lang";
 import {DEFAULT_SCRIPT_AUTHOR, DEFAULT_SCRIPT_NAME} from "@/constants/roles";
+
+const { t } = useI18n()
 
 const craftStore = useCraftStore()
 const { pdfMeta, pdfListWithParams } = storeToRefs(craftStore)
