@@ -41,8 +41,40 @@ export const renamePdfFile = async (oldFilename, newFilename, folder, isAppPath)
     return await window.electronAPI.renamePdfFile(oldFilename, newFilename, folder, isAppPath)
 }
 
-export const getBase64Image = async (url) => {
-    return await window.electronAPI.getBase64Image(url)
+export const getBase64Image = async (url, retries = 2) => {
+    const fallback = 'images/icons/defaults/default_character.png'
+
+    // Проверяем кеш
+    const cached = await window.electronAPI.getCachedImage(url)
+    if (cached.isSuccess) {
+        return cached.content
+    }
+
+    // Загружаем из сети с retry
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const base64Data = await window.electronAPI.getBase64Image(url)
+            // Сохраняем в кеш
+            await window.electronAPI.saveCachedImage(url, base64Data)
+            return base64Data
+        } catch (error) {
+            console.warn(`Image load failed (attempt ${attempt + 1}/${retries + 1}):`, url, error.message)
+            if (attempt < retries) {
+                await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)))
+            }
+        }
+    }
+
+    console.error('Image load failed, using fallback:', url)
+    return fallback
+}
+
+export const clearImageCache = async () => {
+    return await window.electronAPI.clearImageCache()
+}
+
+export const getImageCacheInfo = async () => {
+    return await window.electronAPI.getImageCacheInfo()
 }
 
 export const openLink = async (url) => {

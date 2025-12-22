@@ -58,6 +58,17 @@ contextBridge.exposeInMainWorld(
         getBase64Image: (url) =>
             ipcRenderer.invoke('getBase64Image', url),
 
+        getCachedImage: (url) =>
+            ipcRenderer.invoke('getCachedImage', url),
+
+        saveCachedImage: (url, base64Data) =>
+            ipcRenderer.invoke('saveCachedImage', { url, base64Data }),
+
+        clearImageCache: () =>
+            ipcRenderer.invoke('clearImageCache'),
+
+        getImageCacheInfo: () =>
+            ipcRenderer.invoke('getImageCacheInfo'),
 
         openLink: (url) => {
             return ipcRenderer.invoke('openLink', url)
@@ -120,7 +131,7 @@ ipcRenderer.on('show-about', (event, lang = 'en') => {
         font-family: sans-serif;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
           <h2 style="margin-bottom: 8px; color:white">BotC HSG</h2>
-          <p style="margin-bottom: 16px; color:white">${t.version} 1.7.0</p>
+          <p style="margin-bottom: 16px; color:white">${t.version} 1.8.0</p>
           <p style="margin-bottom: 24px; font-size: 14px; color: #9a9797;">
             ${t.description}
             <br>${t.images}

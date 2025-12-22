@@ -5,6 +5,7 @@
         :label="$t('scriptEditor.bootleggerRules')"
         :max-tags="10"
         :maxlength="250"
+        :placeholder="$t('scriptEditor.bootleggerRulesInfo')"
         :info="$t('scriptEditor.bootleggerRulesInfo')" />
     <simple-dropdown
         v-if="!isEmpty(bootleggerOptions)"

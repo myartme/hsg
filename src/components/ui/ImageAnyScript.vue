@@ -1,15 +1,12 @@
 <template>
-  <img v-if="officialIcons" :src="`images/icons/icon_${character.id}.svg`" :class="imgClass" alt="" />
-  <img v-else-if="Array.isArray(character.image)" :src="character.image[0]" :class="imgClass" alt="" />
-  <img v-else :src="character.image" :class="imgClass" alt="" />
+  <cached-image :src="getImageFirstUrl(character)" :img-class="imgClass" alt="" />
 </template>
 <script setup>
+import {getImageFirstUrl} from "@/constants/other";
+import CachedImage from "@/components/ui/CachedImage.vue";
+
 const props = defineProps({
   character: Object,
-  imgClass: String,
-  officialIcons: {
-    type: Boolean,
-    default: false
-  }
+  imgClass: String
 })
 </script>

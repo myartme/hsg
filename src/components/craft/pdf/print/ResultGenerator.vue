@@ -115,7 +115,7 @@ async function getListElements(pdfListCopy){
       Object.entries(pdfListCopy).map(async ([key, list]) => {
         const updatedList = await Promise.all(
             list.map(async (el) => {
-              el.base64Image = el.isOfficial ? getImageFirstUrl(el, el.isOfficial) : await getBase64Image(getImageFirstUrl(el))
+              el.base64Image = await getBase64Image(getImageFirstUrl(el))
               el.jinxes = await getValidJinxesForCharacter(el, pdfListCopy)
               return el
             })
@@ -139,9 +139,7 @@ async function getValidJinxesForCharacter(character, pdfListCopy) {
       character.jinxes.map(async (jinx) => {
         const matched = roleMap[jinx.id]
         if (!matched) return null
-        const image = matched.isOfficial
-            ? getImageFirstUrl(matched, matched.isOfficial)
-            : await getBase64Image(getImageFirstUrl(matched))
+        const image = await getBase64Image(getImageFirstUrl(matched))
         addToJinxes(character, {...matched, base64Image: image }, jinx)
 
         return {

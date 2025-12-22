@@ -63,6 +63,7 @@ import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import {useIndexStore} from "@/store";
 import ImportCharacterTooltip from "@/components/library/RoleEditor/ImportCharacterTooltip.vue";
+import {useI18n} from "vue-i18n";
 
 defineOptions({
   name: 'import-form'
@@ -72,6 +73,7 @@ const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
+const { t } = useI18n()
 const { theme, themes } = storeToRefs(optionsStore)
 const { activeMeta, activeList, allListsAsOne } = storeToRefs(libraryStore)
 const charsList = ref({})
@@ -117,7 +119,7 @@ function formalizedList(content){
           .map(listElement => {
             const validation = validateName(listElement.name)
             if (!validation.valid) {
-              addNewError(`Character <strong>${listElement.name}</strong>: ${validation.error}`)
+              addNewError(t('errors.characterValidation', { name: listElement.name, error: validation.error }))
             }
             return {
               ...listElement,
@@ -126,7 +128,7 @@ function formalizedList(content){
           })
           .filter(listElement => {
             if (!listElement.name) {
-              addNewError(`Character name is empty or contains only invalid characters`);
+              addNewError(t('errors.characterNameEmpty'));
               return false
             }
 
@@ -135,7 +137,7 @@ function formalizedList(content){
             );
 
             if (duplicate) {
-              addNewError(`There is already a character with name <strong>${listElement.name}</strong>`);
+              addNewError(t('errors.characterAlreadyExists', { name: listElement.name }));
               return false
             }
 
@@ -168,7 +170,7 @@ function formalizedList(content){
           missingFields.push("<strong>ability</strong>")
         }
         const fields = missingFields.join(", ")
-        addNewError(`Required field(s) ${fields} not found in ${getShortItemInfo(item)}`)
+        addNewError(t('errors.requiredFieldsNotFound', { fields, item: getShortItemInfo(item) }))
       }
 
       if(item.team){
@@ -176,7 +178,7 @@ function formalizedList(content){
           return role === item.team
         })
         if (!teamExists) {
-          addNewError(`Unknown team <strong>${item.team}</strong> in ${getShortItemInfo(item)}`)
+          addNewError(t('errors.unknownTeam', { team: item.team, item: getShortItemInfo(item) }))
         }
       }
     }
@@ -207,7 +209,7 @@ function getJinxes(element){
         ability: found.ability
       }
     } else {
-      addNewError(`Jinx of <strong>${element.name}</strong> will be ignored: character with id <strong>${jinx.id}</strong> not found.`);
+      addNewError(t('errors.jinxIgnored', { name: element.name, id: jinx.id }));
       return null
   }
   }).filter(Boolean)

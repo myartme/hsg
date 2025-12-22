@@ -2,36 +2,48 @@
   <div class="grid grid-cols-[70%_30%] gap-4 items-start mb-3">
     <div>
       <simple-dropdown
+          v-if="selectorList.length > 0"
           :label="$t('filterTags.tagsList')"
           v-model:value="selectedTag"
           :list="selectorList"
           :default-value="$t('filterTags.selectTagToFilter')" />
       <input-title-block :label="$t('filterTags.filterByCharacter')" class="mt-2" />
       <div class="w-full grid grid-cols-[1fr_auto] items-center gap-1">
-        <input
-            v-model="searchedQuery"
-            class="px-3 pr-10 py-2 h-10 text-sm border-2 rounded-md focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)] border-[color:var(--color-border)]"
-            type="text"
-            :placeholder="$t('filterTags.startTypingCharacter')"
-        />
+        <div class="relative">
+          <input
+              v-model="searchedQuery"
+              class="px-3 pr-10 py-2 h-10 w-full text-sm border-2 rounded-md focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)] border-[color:var(--color-border)]"
+              type="text"
+              :placeholder="$t('filterTags.startTypingCharacter')"
+          />
+          <div class="absolute right-1 top-1/2 -translate-y-1/2">
+            <action-button
+                icon="cross"
+                icon-size="w-4 h-4"
+                icon-color="fill-[color:var(--color-error)]"
+                icon-hover-color="group-hover:fill-[color:var(--color-button-error)]"
+                button-class="w-7 h-7 mr-1"
+                @click.stop="isEmptyFilter = true" />
+          </div>
+        </div>
         <button
             @click="isEmptyFilter = true"
             :class="[
-                    'ml-4 px-4 py-2 rounded-xl min-w-18 max-w-18 whitespace-nowrap text-theme border-[color:var(--color-border)]',
+                    'ml-4 px-4 py-2 rounded-xl whitespace-nowrap text-theme border-[color:var(--color-border)]',
                     isEmptyFilter
                     ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]'
                     : 'cursor-pointer text-theme bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
                 ]"
             :disabled="isEmptyFilter"
         >
-          {{ $t('buttons.reset') }}
+          {{ $t('buttons.resetFilter') }}
         </button>
       </div>
       <div class="flex flex-wrap gap-2 mt-3">
-        <img
+        <cached-image
             v-for="char in listFiltered"
             :key="char.id"
-            class="h-10 w-10 border rounded-md cursor-pointer hover:bg-[color:var(--color-hover-bg)] border-[color:var(--color-border)]"
+            img-class="h-10 w-10 border rounded-md cursor-pointer hover:bg-[color:var(--color-hover-bg)] border-[color:var(--color-border)]"
             :src="getImageFirstUrl(char)"
             @click="addToCharacters(char)"
             :alt="char.id"
@@ -64,6 +76,8 @@ import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
 import {debounce} from "lodash/function";
 import {getImageFirstUrl} from "@/constants/other";
 import InputImageTag from "@/components/craft/scripts/InputImageTag.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
+import ActionButton from "@/components/ui/ActionButton.vue";
 
 defineOptions({
   name: 'filter-tags'
@@ -150,6 +164,7 @@ watch(isEmptyFilter, (val) => {
     filteredScriptListTags.value = []
     filteredScriptListCharacters.value = []
     searchedQuery.value = ''
+    listFiltered.value = []
   }
 })
 </script>

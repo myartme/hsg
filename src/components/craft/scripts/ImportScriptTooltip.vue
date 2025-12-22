@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-1 overflow-hidden">
+  <div class="mt-1 overflow-hidden flex items-center gap-2">
     <tooltip
         :triggers="['hover', 'focus']"
         placement="top"
@@ -16,6 +16,22 @@
         <div style="width: 420px; padding-right: 12px;">{{ $t('importScriptTooltip.info') }}
           <img src="/images/elements/ui/script_options.png" alt="Script options" />
         </div>
+      </template>
+    </tooltip>
+    <tooltip
+        :triggers="['hover', 'focus']"
+        placement="top"
+        content="tooltip"
+        popper-class="import-script-tooltip"
+        :delay="{ show: tooltipDelay.infoShow, hide: tooltipDelay.infoHide }"
+    >
+      <template #default>
+        <div class="cursor-pointer">
+          <icon-element name="warning" size="w-5 h-5" color="fill-yellow-500 hover:fill-yellow-400" />
+        </div>
+      </template>
+      <template #popper>
+        <div style="width: 420px; padding-right: 12px;">{{ $t('importScriptTooltip.warning') }}</div>
       </template>
     </tooltip>
   </div>

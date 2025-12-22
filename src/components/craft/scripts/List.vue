@@ -37,14 +37,21 @@
           :tooltip="$t('scripts.scriptTags')"
           :is-circle-type="false"
           @click="$emit('onEditTags')" />
-      <action-button
-          icon="filter"
-          icon-size="w-6 h-6"
-          button-class="w-10 h-10"
-          :is-pressed="isOpenFilterTags"
-          :tooltip="$t('scripts.filter')"
-          :is-circle-type="false"
-          @click="isOpenFilterTags = !isOpenFilterTags" />
+      <div class="relative">
+        <action-button
+            icon="filter"
+            icon-size="w-6 h-6"
+            button-class="w-10 h-10"
+            :is-pressed="isOpenFilterTags"
+            :tooltip="$t('scripts.filter')"
+            :is-circle-type="false"
+            @click="isOpenFilterTags = !isOpenFilterTags" />
+        <div v-if="filterCount > 0"
+             class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center font-bold bg-[color:var(--color-hover-bg)] text-[color:var(--color-title-text)]"
+             style="font-size: 11px;">
+          {{ filterCount }}
+        </div>
+      </div>
       <sort-buttons
           :list="localScriptList"
           :is-reset-sort="isResetSort"
@@ -83,7 +90,7 @@ import SortButtons from "@/components/library/Roles/SortButtons.vue";
 import SectorContainer from "@/components/SectorContainer.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {useCraftStore} from "@/store/craft";
-import {getCurrentInstance, ref, watch} from "vue";
+import {computed, getCurrentInstance, ref, watch} from "vue";
 import {storeToRefs} from "pinia";
 import draggableComponent from "vuedraggable";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, SORT, ZERO_VERSION} from "@/constants/other";
@@ -109,6 +116,7 @@ const isCanSave = ref(false)
 const isResetSort = ref(true)
 const isOpenOptions = ref(false)
 const isOpenFilterTags = ref(false)
+const filterCount = computed(() => filteredTags.value.length + filteredCharacters.value.length)
 const emits = defineEmits(['onCreateScript', 'onImportScript', 'onSelectScript', 'onEditTags'])
 
 function resetList(){

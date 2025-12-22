@@ -107,8 +107,48 @@ export async function saveNewMetaAndList(meta = {}, list = {}){
 
     sets.add(elem);
 
+    // Добавляем персонажей в queuePositions и nightOrder (как при импорте персонажей)
+    if (!isCreate) {
+        for (const team of ROLES) {
+            const teamRoles = list[team] || []
+            for (const role of teamRoles) {
+                const baseElement = {
+                    id: role.id,
+                    image: getImageFirstUrl(role),
+                    name: role.name,
+                    ability: role.ability
+                }
+
+                if (role.firstNight > 0) {
+                    addToNightOrder({ ...baseElement, firstNight: role.firstNight }, 'firstNight')
+                }
+                if (role.otherNight > 0) {
+                    addToNightOrder({ ...baseElement, otherNight: role.otherNight }, 'otherNight')
+                }
+
+                if (MAIN_ROLES.includes(team)) {
+                    const existingQueue = queuePositions.value[team]?.find(el => el.id === role.id)
+                    if (!existingQueue) {
+                        if (!queuePositions.value[team]) {
+                            queuePositions.value[team] = []
+                        }
+                        queuePositions.value[team].push({
+                            ...baseElement,
+                            scriptCharacterPriority: queuePositions.value[team].length + 1
+                        })
+                    }
+                }
+            }
+        }
+    }
+
     await saveSets()
     await saveSet(meta.id, list);
+
+    if (!isCreate) {
+        await saveNightOrder()
+        await saveQueuePositions()
+    }
 
     activeSetIndex.value = sets.get().findIndex(el => el.meta?.id === meta.id)
 }

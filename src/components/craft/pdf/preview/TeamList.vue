@@ -18,9 +18,10 @@
         @click="selectRole(character, key)"
     >
       <div class="w-10 h-10 flex-shrink-0 relative ml-2">
-        <img class="absolute inset-0 w-full h-full object-cover scale-125"
-             :src="getImageFirstUrl(character, character.isOfficial)"
-             :alt="character.name" />
+        <cached-image
+            img-class="absolute inset-0 w-full h-full object-cover scale-125"
+            :src="getImageFirstUrl(character)"
+            :alt="character.name" />
       </div>
       <div class="w-[15%] flex flex-col justify-center h-10 flex-shrink-0 relative">
         <h3 class="text-xs font-medium truncate z-10 title-theme">
@@ -35,10 +36,11 @@
                   :delay="{ show: tooltipDelay.jinxesShow, hide: tooltipDelay.jinxesHide }"
               >
                 <template #default>
-                  <img :key="jinx.id"
-                       :src="jinx.image"
-                       class="w-6 h-6"
-                       :alt="jinx.name"
+                  <cached-image
+                      :key="jinx.id"
+                      :src="jinx.image"
+                      img-class="w-6 h-6"
+                      :alt="jinx.name"
                   />
                 </template>
                 <template #popper>
@@ -64,6 +66,7 @@ import {storeToRefs} from "pinia";
 import {Tooltip} from "floating-vue";
 import {useOptionsStore} from "@/store/options";
 import {isDeletingFromPdfCharacterList} from "@/store/craft/state";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 const props = defineProps({
   teamName: String,

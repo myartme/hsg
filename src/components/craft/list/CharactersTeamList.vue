@@ -9,8 +9,9 @@
            @click="selectRole(character)"
       >
         <div class="w-10 h-10 flex-shrink-0 relative ml-2">
-          <img class="absolute inset-0 w-full h-full object-cover scale-150"
-              :src="getImageFirstUrl(character, character.isOfficial)"
+          <cached-image
+              img-class="absolute inset-0 w-full h-full object-cover scale-150"
+              :src="getImageFirstUrl(character)"
               :alt="character.name" />
         </div>
         <span class="w-1/4 font-bold title-theme">{{ character.name }}</span>
@@ -22,6 +23,7 @@
 import {getImageFirstUrl} from "@/constants/other";
 import {useCraftStore} from "@/store/craft";
 import {isDeletingFromPdfCharacterList} from "@/store/craft/state";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 const props = defineProps({
   teamName: String,

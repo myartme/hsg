@@ -1,7 +1,7 @@
 <template>
   <div>
     <div :class="[
-        'grid list-element grid-cols-[3rem_3rem_1.5fr_0.75fr_0.75fr_3rem_3rem] h-14',
+        'grid list-element grid-cols-[3rem_3rem_1.5fr_0.75fr_0.75fr_3rem_3rem] h-14 min-w-[500px]',
          isSelected
             ? 'bg-[color:var(--color-list-element)] group-hover:bg-[color:var(--color-hover-active)]'
             : 'bg-[color:var(--color-bg)] group-hover:bg-[color:var(--color-hover-bg)]'
@@ -33,11 +33,11 @@
                       container-class="pt-1 pb-0"
                       content-class="w-full pl-[5%]">
       <template #content>
-        <div class="flex flex-wrap gap-1 max-w-fit">
+        <div class="version-grid gap-1">
           <div v-for="(element, index) in list"
                :key="index"
                :class="[
-                   'flex version-element h-14 w-100',
+                   'flex version-element h-14',
                    {'bg-[color:var(--color-list-element)]' : element.version === activeVersion }
           ]">
             <div class="flex justify-between items-center w-full px-3">
@@ -96,7 +96,7 @@
                       </button>
                     </template>
                     <template #popper>
-                      <div style="width: 1000px; padding-right: 12px;">{{ element.note }}</div>
+                      <div>{{ element.note }}</div>
                     </template>
                   </tooltip>
                 </div>
@@ -264,7 +264,7 @@ function getColorTag(color){
   return ""
 }
 
-watch(activeScriptIndex, () => {
+function updateFilteredList() {
   if(props.filteredCharacterList?.length > 0){
     if(activeScript.value?.list) {
       list.value = activeScript.value.list.filter(item =>
@@ -274,17 +274,20 @@ watch(activeScriptIndex, () => {
   } else {
     list.value = activeScript.value?.list
   }
-}, { immediate: true })
+}
 
-watch(() => props.scriptData, () => {
-  list.value = activeScript.value?.list
-}, {immediate: true})
+watch(activeScriptIndex, updateFilteredList, { immediate: true })
+
+watch(() => props.filteredCharacterList, updateFilteredList, { deep: true })
+
+watch(() => props.scriptData, updateFilteredList, {immediate: true})
 </script>
 <style>
-.import-script-list-tooltip .v-popper__inner {
-  min-width: 1000px;
-  overflow: hidden;
+.version-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
 }
+
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;

@@ -1,7 +1,7 @@
 <template>
   <popup-container v-if="isOpen"
                    :is-input-visible="false"
-                   @close="$emit('isOpenOptions')">
+                   @close="handleClose">
     <template #header>
       <div class="flex items-center gap-2 pl-0 pb-1">
         <h2 class="text-xl font-bold title-theme">{{ $t('scriptEditor.scriptOptions') }}</h2>
@@ -36,12 +36,14 @@
           v-model:value="meta.author"
           :label="$t('scriptEditor.author')"
           :maxlength="50"
-          :required="$t('validation.fieldRequired')"
+          @focusin="authorFocusIn"
+          @focusout="authorFocusOut"
           class="mb-2" />
       <simple-input
           v-model:value="meta.almanac"
           :label="$t('scriptEditor.almanac')"
           :maxlength="250"
+          placeholder="https://"
           class="mb-2" />
       <simple-checkbox
           v-model:value="meta.hideTitle"
@@ -68,6 +70,7 @@
               v-model:value="meta.logo"
               :label="$t('scriptEditor.logo')"
               :maxlength="250"
+              placeholder="https://"
               div-class="w-full" />
         </div>
         <div class="flex items-end ">
@@ -75,6 +78,7 @@
               v-model:value="meta.background"
               :label="$t('scriptEditor.background')"
               :maxlength="250"
+              placeholder="https://"
               div-class="w-full" />
         </div>
         <div class="max-h-[500px] mx-auto rounded object-cover">
@@ -89,6 +93,11 @@
                       :description="$t('scriptEditor.deleteAllVersionsConfirm')"
                       @confirm="handleDeleteScript()"
                       @cancel="isVisibleDeleteDialog = false" />
+      <confirm-dialog v-if="isShowLeaveConfirm"
+                      :title="$t('scriptEditor.unsavedChangesTitle')"
+                      :description="$t('scriptEditor.unsavedChangesDesc')"
+                      @confirm="confirmClose"
+                      @cancel="isShowLeaveConfirm = false" />
     </template>
   </popup-container>
 </template>
@@ -119,9 +128,11 @@ const { pdfMeta, activeScriptIndex, activeVersion, tags } = storeToRefs(craftSto
 const meta = ref({})
 const defaultMeta = ref({})
 const isVisibleDeleteDialog = ref(false)
+const isShowLeaveConfirm = ref(false)
 const isCanSave = ref(false)
 const scriptTags = ref([])
 const selectedTag = ref('')
+const previousAuthor = ref('')
 const emits = defineEmits(['isOpenOptions'])
 
 function handleSaveScript(){
@@ -155,6 +166,33 @@ function handleDeleteScript(){
   activeScriptIndex.value = SET_INDEX.DEFAULT
   activeVersion.value = DEFAULT_VERSION
   isVisibleDeleteDialog.value = false
+}
+
+function authorFocusIn(event){
+  previousAuthor.value = meta.value.author
+  event.target?.select()
+}
+
+function authorFocusOut(event){
+  const trimmed = event.target?.value?.trim()
+  if(!trimmed){
+    meta.value.author = previousAuthor.value
+  }
+}
+
+function handleClose(){
+  if(isCanSave.value){
+    isShowLeaveConfirm.value = true
+  } else {
+    emits('isOpenOptions')
+  }
+}
+
+function confirmClose(){
+  isShowLeaveConfirm.value = false
+  isCanSave.value = false
+  meta.value = {...defaultMeta.value}
+  emits('isOpenOptions')
 }
 
 watch(meta, () => {

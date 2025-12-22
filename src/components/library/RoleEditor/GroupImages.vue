@@ -5,7 +5,7 @@
         :label="label"
         :required="required"
         :info="info" />
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-2 border-[color:var(--color-border)] rounded-md p-4">
       <div v-for="(item, i) in inputValues" :key="i" class="flex flex-col items-start">
         <div class="relative w-full">
           <simple-input
@@ -15,6 +15,7 @@
               div-class="mb-4 mt-3"
               :input-class="('rounded-md px-2 py-2 h-10 w-full focus:outline-none form-input ' + (disabled ? 'pr-17' : 'pr-25'))"
               :disabled="disabled"
+              placeholder="https://"
               @change="action()"
               @keydown.enter="(e) => e.target.blur()"
               :maxlength="maxLength" />
@@ -28,10 +29,10 @@
                 @click.stop="action(i)" />
           </div>
         </div>
-        <img
+        <cached-image
             v-if="item"
             :src="item"
-            class="w-26 h-26 object-cover rounded mx-auto"
+            img-class="w-26 h-26 object-cover rounded mx-auto"
             :alt="getLabel(i)"
         />
       </div>
@@ -44,6 +45,7 @@ import {useI18n} from "vue-i18n";
 import SimpleInput from "@/components/ui/SimpleInput.vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
 import ActionButton from "@/components/ui/ActionButton.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import {getImageArray} from "@/constants/other";
 
 const { t } = useI18n()

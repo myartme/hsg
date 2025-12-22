@@ -20,3 +20,4 @@ export const tooltipDelay = ref({
     jinxesShow: 0,
     jinxesHide: 0
 })
+export const scriptEditorDefaultFilters = ref([])

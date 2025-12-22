@@ -79,7 +79,7 @@ watch(() => props.character, async () => {
   if (!props.character) return
 
   jinxes.value = await getValidJinxesForCharacter(props.character)
-  const url = getImageFirstUrl(props.character, props.character.isOfficial)
-  characterImage.value = props.character.isOfficial ? url : await getBase64Image(url)
+  const url = getImageFirstUrl(props.character)
+  characterImage.value = await getBase64Image(url)
 }, {immediate:true})
 </script>

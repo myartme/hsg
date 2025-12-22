@@ -2,7 +2,7 @@ import { Menu, app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import { rm } from 'fs/promises';
 import started from 'electron-squirrel-startup';
-import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64 } from '/src/helpers/files.js'
+import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64, getCachedImage, saveCachedImage, clearImageCache, getImageCacheInfo } from '/src/helpers/files.js'
 
 const menuLabels = {
   en: {
@@ -138,6 +138,22 @@ ipcMain.handle('getBase64Image', async (event, imageUrl) => {
   return await downloadImageAsBase64(imageUrl);
 })
 
+ipcMain.handle('getCachedImage', async (event, url) => {
+  return await getCachedImage(url)
+})
+
+ipcMain.handle('saveCachedImage', async (event, { url, base64Data }) => {
+  return await saveCachedImage(url, base64Data)
+})
+
+ipcMain.handle('clearImageCache', async () => {
+  return await clearImageCache()
+})
+
+ipcMain.handle('getImageCacheInfo', async () => {
+  return await getImageCacheInfo()
+})
+
 ipcMain.handle('openLink', async (event, link) => {
   try{
     await shell.openExternal(link)
@@ -178,8 +194,8 @@ function updateAboutPanel() {
   if (process.platform === 'darwin') {
     app.setAboutPanelOptions({
       applicationName: 'BotC HSG',
-      applicationVersion: '1.7.0',
-      version: '1.7.0',
+      applicationVersion: '1.8.0',
+      version: '1.8.0',
       copyright: '© 2025 Artem Chendey',
       iconPath: path.join(__dirname, 'icon.icns'),
       credits: aboutCredits[currentLanguage] || aboutCredits.en

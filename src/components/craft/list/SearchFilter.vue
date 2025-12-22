@@ -1,6 +1,6 @@
 <template>
   <div v-if="isShow"
-       class="absolute right-5 top-[60px] z-50 border-2 rounded-md p-4 inline-block bg-[color:var(--color-bg)] border-[color:var(--color-border)] text-[color:var(--color-title-text)]">
+       class="absolute right-5 top-[60px] z-50 border-2 rounded-md p-4 bg-[color:var(--color-bg)] border-[color:var(--color-border)] text-[color:var(--color-title-text)]">
     <label :class="labelClass">
       <input type="checkbox" value="official_trouble_brewing" class="cursor-pointer" v-model="localItems">
       <span>Trouble Brewing</span>
@@ -21,6 +21,10 @@
       <input type="checkbox" value="official_fabled" class="cursor-pointer" v-model="localItems">
       <span>Official Fabled</span>
     </label>
+    <label :class="labelClass">
+      <input type="checkbox" value="official_loric" class="cursor-pointer" v-model="localItems">
+      <span>Official Lorics</span>
+    </label>
     <template v-for="meta in metaSets">
       <label v-if="meta.name !=='BotC official roles'" :class="labelClass">
         <input type="checkbox" class="cursor-pointer" :value="meta.id" v-model="localItems">
@@ -34,7 +38,7 @@
       ]">{{ $t('buttons.apply') }}</button>
       <button @click="resetFilterButton" :class="[
           buttonClass,
-          'ml-auto w-30 bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]'
+          'ml-auto whitespace-nowrap bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]'
       ]">{{ resetFilterTitle }}</button>
     </div>
   </div>
@@ -42,6 +46,7 @@
 <script setup>
 import {computed, ref, watch} from "vue";
 import {useLibraryStore} from "@/store/library";
+import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
 import {useI18n} from "vue-i18n";
 
@@ -58,20 +63,29 @@ const props = defineProps({
 })
 const { t } = useI18n()
 const libraryStore = useLibraryStore()
+const optionsStore = useOptionsStore()
 const { metaSets } = storeToRefs(libraryStore)
+const { scriptEditorDefaultFilters } = storeToRefs(optionsStore)
 const defaultFilterItems = computed(() => {
   const result = [
     'official_trouble_brewing',
     'official_sects_and_violets',
     'official_bad_moon_rising',
     'official_experimental',
-    'official_fabled'
+    'official_fabled',
+    'official_loric'
   ]
   for(const meta of metaSets.value){
     result.push(meta.id)
   }
 
   return result
+})
+const initialFilterItems = computed(() => {
+  if(scriptEditorDefaultFilters.value && scriptEditorDefaultFilters.value.length > 0){
+    return scriptEditorDefaultFilters.value
+  }
+  return defaultFilterItems.value
 })
 const resetFilterTitle = computed(() =>
     defaultFilterItems.value.length === localItems.value.length
@@ -118,8 +132,12 @@ watch(() => props.items, (val) => {
 }, {immediate: true})
 
 watch(defaultFilterItems, (val) => {
+  emits('onUpdateMaxFilters', val.length)
+}, { immediate: true })
+
+watch(initialFilterItems, (val) => {
   localItems.value = val
   localItemsBackup.value = val
-  emits('onUpdateMaxFilters', val.length)
+  emits('onUpdateItems', val)
 }, { immediate: true })
 </script>

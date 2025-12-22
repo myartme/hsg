@@ -5,13 +5,15 @@
          class="w-7 h-7 object-contain mx-auto scale-130"
          :alt="value"
     >
-    <img v-else
+    <cached-image v-else
          :src="value"
-         class="w-11 h-11 object-contain mx-auto scale-130"
+         img-class="w-11 h-11 object-contain mx-auto scale-130"
          :alt="value" />
   </div>
 </template>
 <script setup>
+import CachedImage from "@/components/ui/CachedImage.vue";
+
 const props = defineProps({
   value: String,
   isDefaultElement: Boolean,

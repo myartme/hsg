@@ -1,5 +1,5 @@
 import {defineStore, storeToRefs} from 'pinia'
-import {appVersion, debugMode, theme, themes, tooltipDelay, language, languages} from "@/store/options/state";
+import {appVersion, debugMode, theme, themes, tooltipDelay, language, languages, scriptEditorDefaultFilters} from "@/store/options/state";
 import {getDataOptions, setDataOptions, deleteDataOptions, deleteAllData, openLink} from "@/store";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
@@ -288,6 +288,9 @@ export const useOptionsStore = defineStore('options', () => {
             if(options.language){
                 language.value = options.language
             }
+            if(options.scriptEditorDefaultFilters){
+                scriptEditorDefaultFilters.value = options.scriptEditorDefaultFilters
+            }
         } else {
             if(response?.error.code === 'ENOENT' && !isRecursive){
                 await getOptions(!isAppPath, true)
@@ -318,11 +321,15 @@ export const useOptionsStore = defineStore('options', () => {
         if(content.language){
             language.value = content.language
         }
+        if(content.scriptEditorDefaultFilters !== undefined){
+            scriptEditorDefaultFilters.value = content.scriptEditorDefaultFilters
+        }
 
         await setDataOptions({
             theme: theme.value,
             tooltip: tooltipDelay.value,
-            language: language.value
+            language: language.value,
+            scriptEditorDefaultFilters: scriptEditorDefaultFilters.value
         })
     }
 
@@ -350,6 +357,7 @@ export const useOptionsStore = defineStore('options', () => {
         tooltipDelay,
         language,
         languages,
+        scriptEditorDefaultFilters,
 
         getOptions,
         setOptions,

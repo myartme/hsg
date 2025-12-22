@@ -5,6 +5,9 @@
         :label="label"
         :required="required"
         :info="info"
+        :info-icon="infoIcon"
+        :info-color="infoColor"
+        :suffix="suffix"
         :different="different"
         :tooltip="tooltip"
         :tooltip-icon="tooltipIcon"
@@ -63,6 +66,18 @@ const props = defineProps({
     default: "",
   },
   info: {
+    type: String,
+    default: "",
+  },
+  infoIcon: {
+    type: String,
+    default: "info",
+  },
+  infoColor: {
+    type: String,
+    default: "",
+  },
+  suffix: {
     type: String,
     default: "",
   },

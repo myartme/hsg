@@ -10,9 +10,10 @@
       <p v-else class="text-theme">{{ index + 1 }}</p>
     </div>
     <div class="w-10 h-10 relative">
-      <img :src="getImageFirstUrl(role, isOfficial)"
-           class="absolute inset-0 w-full h-full object-cover rounded scale-150"
-           :alt="role.name" />
+      <cached-image
+          :src="getImageFirstUrl(role)"
+          img-class="absolute inset-0 w-full h-full object-cover rounded scale-150"
+          :alt="role.name" />
     </div>
     <span class="block break-words whitespace-normal font-bold title-theme">{{ role.name }}</span>
     <span class="text-xs text-theme text-left">{{ role.ability }}</span>
@@ -21,39 +22,41 @@
 <script setup>
 import { computed } from "vue";
 import InfoTooltip from "@/components/ui/InfoTooltip.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import {MAIN_ROLES} from "@/constants/roles";
 import {useLibraryStore} from "@/store/library";
 import {storeToRefs} from "pinia";
+import {useI18n} from "vue-i18n";
 
 const props = defineProps({
   roleData: Object,
   isSelected: {
     type: Boolean,
     default: false
-  },
-  isOfficial: Boolean
+  }
 })
 
 const {queuePositions} = storeToRefs(useLibraryStore())
+const { t } = useI18n()
 
 const index = computed(() => props.roleData.index)
 const role = computed(() => props.roleData.role)
 const requiredText = computed(() => {
   let text = ""
   if(role.value.name === ""){
-    text += "Name is required but empty<br>"
+    text += t('errors.nameRequired') + "<br>"
   }
   if(role.value.ability === ""){
-    text += "Ability is required but empty<br>"
+    text += t('errors.abilityRequired') + "<br>"
   }
   if(role.value.team === ""){
-    text += "Team is required but empty<br>"
+    text += t('errors.teamRequired') + "<br>"
   }
   if(MAIN_ROLES.includes(role.value.team)) {
     const elem = queuePositions.value[role.value.team]?.find(el => el.id === role.value.id)
     if(!elem){
-      text += "Script character priority is required but empty<br>"
+      text += t('errors.scriptPriorityRequired') + "<br>"
     }
   }
   return text

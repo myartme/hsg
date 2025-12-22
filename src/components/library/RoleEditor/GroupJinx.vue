@@ -9,10 +9,7 @@
     <div v-if="!disabled">
       <div class="flex items-center mb-4">
         <div class="flex-1">
-          <div class="flex items-center space-x-1 mb-1">
-            <label class="block mb-1 title-theme">{{ $t('jinx.id') }}</label>
-            <info-tooltip :text="$t('jinx.idInfo')" icon-size="w-5 h-5" />
-          </div>
+          <label class="block mb-2 title-theme">{{ $t('jinx.name') }}</label>
           <div class="flex items-center">
             <div @click="isOpenPopup = true"
                 class="flex flex-1 items-center cursor-pointer border-2 border-dashed rounded-md px-3 py-2 h-15 gap-3 transition border-[color:var(--color-border)] text-theme">
@@ -21,7 +18,7 @@
                 <span>{{ selectedRole.name }}</span>
                 <span class="text-xs">{{ selectedRole.ability }}</span>
               </template>
-              <span v-else class="text-[color:var(--color-placeholder-text)]">{{ $t('jinx.clickToSelect') }}</span>
+              <span v-else>{{ $t('jinx.clickToSelect') }}</span>
             </div>
             <button
                 @click="addRole"
@@ -39,10 +36,7 @@
           </div>
         </div>
       </div>
-      <div class="flex items-center space-x-1 mb-1">
-        <label class="block mb-1 title-theme">{{ $t('jinx.reason') }}</label>
-        <info-tooltip :text="$t('jinx.reasonInfo')" icon-size="w-5 h-5" />
-      </div>
+      <label class="block mb-2 title-theme">{{ $t('jinx.reason') }}</label>
       <div class="relative">
         <textarea
             class="input-theme rounded-md px-3 py-1 w-full focus:outline-none pr-16 resize-none"
@@ -72,7 +66,7 @@
               !isRoleExists(item.id) && 'opacity-50'
           ]">
             <div class="flex flex-col items-center flex-shrink-0">
-              <img :src="item.image" class="w-10 h-10 rounded" alt="image" />
+              <cached-image :src="item.image" img-class="w-10 h-10 rounded" alt="image" />
               <span v-if="!isRoleExists(item.id)" class="text-xs text-red-500 mt-1">{{ $t('jinx.characterDeleted') }}</span>
             </div>
             <div class="text-theme flex-shrink-0 whitespace-nowrap">{{ item.name }}</div>
@@ -104,6 +98,7 @@ import InfoTooltip from "@/components/ui/InfoTooltip.vue";
 import {nextTick, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import ImageAnyScript from "@/components/ui/ImageAnyScript.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import JinxRoleListPopup from "@/components/library/RoleEditor/JinxRoleListPopup.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";

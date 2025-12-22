@@ -120,13 +120,9 @@
             rows="10"
             :info="$t('info.otherNightReminder')" />
       </div>
-      <simple-input
-          v-model:value="character.edition"
-          div-class="mb-4 mt-3"
-          :disabled="true"
-          :label="$t('character.edition')" />
       <simple-checkbox
           v-model:value="character.setup"
+          div-class="flex items-center space-x-2 mt-2"
           :label="$t('character.setup')"
           :disabled="isOfficial"
           :info="$t('info.setup')" />
@@ -137,8 +133,7 @@
           :key="character.id"
           div-class="pt-3 pb-3"
           :label="$t('character.icons')"
-          :disabled="isOfficial"
-          :info="$t('info.icons')" />
+          :disabled="isOfficial" />
       <queue-positions-input
           v-if="!isQueuePositionDisabled"
           v-model:character="queueCharacter"
@@ -166,6 +161,7 @@
           :label="$t('character.bootleggerRules')"
           :max-tags="10"
           :maxlength="250"
+          :placeholder="$t('scriptEditor.bootleggerRulesInfo')"
           :info="$t('info.bootleggerRules')" />
       <confirm-dialog v-if="isVisibleDeleteDialog"
                       :title="$t('character.deletingCharacter', { name: character.name })"

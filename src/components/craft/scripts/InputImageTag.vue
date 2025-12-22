@@ -11,12 +11,12 @@
             :key="index"
             class="relative h-10 w-10"
         >
-          <img :src="tag.image"
+          <cached-image :src="tag.image"
                :alt="index"
-               :class="[
+               :img-class="[
                   'h-full w-full border-1 rounded-md border-[color:var(--color-border)]',
                   disabled ? 'cursor-not-allowed bg-[color:var(--color-disable-bg)]' : 'cursor-pointer'
-               ]"
+               ].join(' ')"
                @click="removeTag(index)" />
           <span v-if="!disabled"
                 class="absolute right-0 bottom-0 px-1 cursor-pointer text-[color:var(--color-error)] hover:text-[color:var(--color-button-hover-error)]"
@@ -30,6 +30,7 @@
 <script setup>
 import {ref, watch} from "vue";
 import InputTitleBlock from "@/components/ui/InputTitleBlock.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 const props = defineProps({
   label: String,

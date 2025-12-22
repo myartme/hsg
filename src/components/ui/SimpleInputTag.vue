@@ -6,7 +6,7 @@
         :required="required"
         :info="info" />
     <div class="relative">
-      <div class="flex flex-wrap gap-2 mb-2">
+      <div :class="['flex flex-wrap gap-2', { 'mb-2': tags.length }]">
         <span
             v-for="(tag, index) in tags"
             :key="index"
@@ -88,6 +88,10 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+  placeholder: {
+    type: String,
+    default: ""
   }
 })
 
@@ -97,7 +101,7 @@ const inputShake = ref(false);
 
 const emits = defineEmits(['update:value'])
 const placeholderText = ((tags) =>
-    props.disabled ? t('tags.additionNotAvailable') : tags.length >= props.maxTags ? t('tags.limitReached') : t('tags.pressEnterToAdd')
+    props.disabled ? t('tags.additionNotAvailable') : tags.length >= props.maxTags ? t('tags.limitReached') : (props.placeholder || t('tags.pressEnterToAdd'))
 )
 
 const addTag = () => {

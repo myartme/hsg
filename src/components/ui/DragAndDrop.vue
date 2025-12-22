@@ -26,7 +26,9 @@
 
 <script setup>
 import {computed, ref} from 'vue'
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n()
 const props = defineProps({
   text: String,
   formats: {
@@ -48,7 +50,7 @@ function triggerFileInput() {
 
 function handleFile(file) {
   if (!file){
-    error.value = "The file was not received. Please try again."
+    error.value = t('errors.fileNotReceived')
     return
   }
 
@@ -60,12 +62,12 @@ function handleFile(file) {
     }
 
     reader.onerror = () => {
-      error.value = "An error occurred while reading the file. Please ensure it meets the requirements and try again."
+      error.value = t('errors.fileReadError')
     }
 
     reader.readAsText(file)
   } else {
-    error.value = `Invalid file format ${file.type}. Please ensure it meets the requirements and try again.`
+    error.value = t('errors.invalidFileFormat', { format: file.type })
   }
 }
 

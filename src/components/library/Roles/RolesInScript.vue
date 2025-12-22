@@ -90,7 +90,6 @@
             <template #item="{ element, index }">
               <role-line
                   :role-data="{ index: index, role: element }"
-                  :is-official="meta.isOfficial"
                   :is-selected="activeCharacter?.id === element?.id"
                   @click="handleClick(element)" />
             </template>

@@ -105,6 +105,7 @@ import JsonEditorVue from "json-editor-vue";
 import {useOptionsStore} from "@/store/options";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import ImportSetTooltip from "@/components/library/Sets/ImportSetTooltip.vue";
+import {useI18n} from "vue-i18n";
 
 defineOptions({
   name: 'import-set'
@@ -117,6 +118,7 @@ const props = defineProps({
 const instance = getCurrentInstance()
 const indexStore = useIndexStore()
 const libraryStore = useLibraryStore()
+const { t } = useI18n()
 const { metaSets, activeSetIndex, allListsAsOne } = storeToRefs(libraryStore)
 const optionsStore = useOptionsStore()
 const { theme, themes } = storeToRefs(optionsStore)
@@ -222,7 +224,7 @@ function formalizedList(content){
           missingFields.push("<strong>ability</strong>")
         }
         const fields = missingFields.join(", ")
-        addNewError(`Required field(s) ${fields} not found in ${getShortItemInfo(item)}`)
+        addNewError(t('errors.requiredFieldsNotFound', { fields, item: getShortItemInfo(item) }))
       }
 
       if(item.team){
@@ -230,7 +232,7 @@ function formalizedList(content){
           return role === item.team
         })
         if (!teamExists) {
-          addNewError(`Unknown team <strong>${item.team}</strong> in ${getShortItemInfo(item)}`)
+          addNewError(t('errors.unknownTeam', { team: item.team, item: getShortItemInfo(item) }))
         }
       }
     }
@@ -251,7 +253,7 @@ function getJinxes(element){
         ability: found.ability
       }
     } else {
-      addNewError(`Jinx of <strong>${element.name}</strong> will be ignored: character with id <strong>${jinx.id}</strong> not found.`);
+      addNewError(t('errors.jinxIgnored', { name: element.name, id: jinx.id }));
       return null
     }
   }).filter(Boolean)

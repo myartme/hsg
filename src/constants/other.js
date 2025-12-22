@@ -106,13 +106,11 @@ export const getPluralTeam = (teamName) => {
     return teamName === 'townsfolk' ? teamName : teamName+"s"
 }
 
-export const getImageFirstUrl = (character, isOfficial = false) => {
+export const getImageFirstUrl = (character) => {
     if(!character) return
-    if(isOfficial)
-        return `images/icons/icon_${character.id}.png`
 
     const getDefault = () => {
-        return `images/icons/defaults/default_${character.team ? character.team : 'character'}.png`
+        return DEFAULT_ICONS[character.team] || DEFAULT_ICONS.townsfolk
     }
 
     if (Array.isArray(character.image)) {

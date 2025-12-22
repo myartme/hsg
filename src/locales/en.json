@@ -10,6 +10,7 @@
     "confirm": "Confirm",
     "apply": "Apply",
     "reset": "Reset",
+    "resetFilter": "Reset filter",
     "add": "Add",
     "checkAll": "Check all",
     "uncheckAll": "Uncheck all"
@@ -73,15 +74,22 @@
     "inputTooltipHide": "Input tooltip hide",
     "jinxTooltipShow": "Jinx select character tooltip show",
     "jinxTooltipHide": "Jinx select character tooltip hide",
-    "restoreSets": "Restore sets",
+    "scriptEditorDefaults": "Script editor defaults",
+    "setsFilter": "Sets filter",
+    "restoreSets": "Set management",
     "restoreThisSet": "Restore this set",
-    "setIsInstalled": "Set is installed",
+    "setIsInstalled": "Set is installed. Click to delete this set.",
     "importLibraryData": "Import library data",
     "exportLibraryData": "Export library data",
     "resetAppData": "Reset app data",
     "deleteAppData": "Delete app data",
     "deleteAppDataDesc": "Don't forget to export your data if you want to keep it. Are you sure you want to delete the app data?",
-    "deleteAppDataConfirm": "This action cannot be undone. Are you sure you want to delete the app data?"
+    "deleteAppDataConfirm": "This action cannot be undone. Are you sure you want to delete the app data?",
+    "dataManagement": "Data management",
+    "imageCache": "Image cache",
+    "imageCacheInfo": "{count} images, {size}",
+    "clearImageCache": "Clear cache",
+    "imageCacheCleared": "Cache cleared"
   },
   "importExport": {
     "importLibraryData": "Import library data",
@@ -135,6 +143,7 @@
   },
   "jinx": {
     "id": "ID",
+    "name": "Name",
     "idInfo": "The ID of the other character this one is jinxed with.",
     "clickToSelect": "Click to select character",
     "save": "Save",
@@ -187,7 +196,7 @@
     "firstNightReminder": "First Night Reminder",
     "otherNightReminder": "Other Night Reminder",
     "edition": "Edition",
-    "setup": "Setup",
+    "setup": "Affects setup",
     "icons": "Icons",
     "iconRegular": "Regular",
     "iconGood": "Good",
@@ -209,14 +218,14 @@
     "characterExists": "There is already a character with this name"
   },
   "info": {
-    "reminders": "Character reminder tokens.",
-    "remindersGlobal": "Global character reminder tokens, which will be selectable even when the character is not in play.",
+    "reminders": "Tokens associated with this role. They help the Storyteller mark various effects affecting the game.",
+    "remindersGlobal": "Tokens available globally in the script, even when the character is not in play. They help the Storyteller mark various effects affecting the game.",
     "firstNightReminder": "First night Storyteller reminder.",
     "otherNightReminder": "Other night Storyteller reminder.",
-    "setup": "Whether this character has a ability that is relevant for the game setup.",
+    "setup": "This character's ability affects the initial game composition before play begins (e.g., Huntsman adds a Damsel).",
     "icons": "For non-traveller characters, the icons should be regular alignment and flipped alignment, for travellers they should be unaligned, good alignment and evil alignment.",
-    "scriptCharacterPriority": "The priority of this character on the script sheet. The \"Team\" field is required for this field.",
-    "bootleggerRules": "Bootlegger rules for this character.<br>Don't forget to add Bootlegger Loric in the script to see the bootlegger rules in options.",
+    "scriptCharacterPriority": "The value reflects the character's position on the character sheet. The lower the value, the higher the character appears in their team's list.",
+    "bootleggerRules": "Bootlegger rules for this character.<br>Don't forget to add NPC Bootlegger in the script to see the bootlegger rules in options.",
     "jinxes": "Jinxes with other characters on this script.",
     "firstNightPriority": "First night wake-up priority. \"0\" means this character doesn't wake during the first night.",
     "otherNightPriority": "Other nights wake-up priority. \"0\" means this character doesn't wake during other nights."
@@ -268,16 +277,39 @@
     "default": "Default"
   },
   "importCharacter": {
-    "info": "You can import one or more characters. Required fields for a character: \"name\", \"team\", \"ability\".",
+    "info": "You can import one or more characters. Required fields for a character: <span style=\"color: #9cdcfe\">name</span>, <span style=\"color: #9cdcfe\">team</span>, <span style=\"color: #9cdcfe\">ability</span>.",
+    "noteId": "The <span style=\"color: #9cdcfe\">id</span> field is ignored.",
     "noteName": "After importing a character, you will not be able to change its name.",
-    "noteDeprecated": "Note: The \"firstNight\" and \"otherNight\" fields are deprecated. After import, please verify the character's position in the night order."
+    "noteDeprecated": "Note: The <span style=\"color: #9cdcfe\">firstNight</span> and <span style=\"color: #9cdcfe\">otherNight</span> fields are deprecated. After import, please verify the character's position in the <u>night order</u>.",
+    "noteScriptQueue": "Imported character(s) will be added to the end of the <u>script priority</u> list. After import, adjust the value if needed."
   },
   "importScriptTooltip": {
-    "info": "You can import a script. Note that characters missing from your library will cause errors. Add them to the character library first. Minimum required fields:"
+    "info": "Minimum required fields:",
+    "warning": "Characters missing from your library will cause errors. Add them to the character library first."
   },
   "errors": {
     "pdfGenerationTitle": "PDF Generation Error",
-    "pdfGenerationDesc": "Something went wrong while generating the PDF. Please try again later."
+    "pdfGenerationDesc": "Something went wrong while generating the PDF. Please try again later.",
+    "characterNotFound": "Character with <strong>id</strong> {id} was not found in your library or in the official library.",
+    "nameRequired": "Name is required but empty",
+    "abilityRequired": "Ability is required but empty",
+    "teamRequired": "Team is required but empty",
+    "scriptPriorityRequired": "Script character priority is required but empty",
+    "fileNotReceived": "The file was not received. Please try again.",
+    "fileReadError": "An error occurred while reading the file. Please ensure it meets the requirements and try again.",
+    "invalidFileFormat": "Invalid file format {format}. Please ensure it meets the requirements and try again.",
+    "requiredFieldsNotFound": "Required field(s) {fields} not found in {item}",
+    "unknownTeam": "Unknown team <strong>{team}</strong> in {item}",
+    "jinxIgnored": "Jinx of <strong>{name}</strong> will be ignored: character with id <strong>{id}</strong> not found.",
+    "characterValidation": "Character <strong>{name}</strong>: {error}",
+    "characterNameEmpty": "Character name is empty or contains only invalid characters",
+    "characterAlreadyExists": "There is already a character with name <strong>{name}</strong>"
+  },
+  "importTable": {
+    "problems": "Problems:",
+    "readyToImport": "Ready to import:",
+    "team": "Team",
+    "count": "Count"
   },
   "scriptEditor": {
     "by": "by",
@@ -298,15 +330,16 @@
     "background": "Background",
     "addTag": "Add tag...",
     "addBootlegger": "Add Bootlegger...",
-    "scriptNameInfo": "Changing this value will be considered a new script!",
+    "scriptNameInfo": "Changing this value will be considered a new script when saving!",
     "scriptNameDefaultWarning": "This value must be different from the default value <strong>{name}</strong>.",
     "commonValueInfo": "This value is common to all versions of the script.",
+    "almanacInfo": "A document describing the script and its features: character interactions, recommendations for running and playing.",
     "hideScriptNameInfo": "You can hide script's title in the script.<br>This value is common to all versions of the script.",
-    "bootleggerRulesInfo": "Bootlegger rules for this script.",
+    "bootleggerRulesInfo": "Enter a rule and press Enter to add.",
     "bootleggerListInfo": "Bootlegger rules for all characters contained in the current script. Click to add.",
     "tagsInfo": "Tags for filtering scripts.",
     "tagsListInfo": "All script tags. Click to add.",
-    "noteInfo": "Your custom note.",
+    "noteInfo": "Here you can write any notes about the script. These notes will not be added to the script.",
     "imageUrlInfo": "Enter image URL. This value is common to all versions of the script.",
     "deletingScript": "Deleting {name} and all versions",
     "deleteScriptConfirm": "This action cannot be undone. Are you sure you want to delete this script with versions {versions}?",

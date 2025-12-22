@@ -2,7 +2,7 @@ import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDat
 import {activeScriptIndex, activeVersion, isWaitingOperation, pdfListWithParams, pdfMeta, scriptList, tags} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
 import {DEFAULT_VERSION, objectToPrettyJson, toNormalizeString} from "@/constants/other";
-import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT} from "@/constants/roles";
+import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT, NPC_ROLES} from "@/constants/roles";
 import {isEmpty} from "lodash/lang";
 
 export async function loadScripts() {
@@ -48,6 +48,8 @@ export async function saveCurrentScript() {
         if (pdfMeta.value.author === DEFAULT_SCRIPT_AUTHOR || pdfMeta.value.author === '') {
             pdfMeta.value.author = 'Unknown'
         }
+        // Очистить bootlegger правила, если NPC 'bootlegger' отсутствует в скрипте
+        cleanupBootleggerRules()
         const idx = scriptList.value.findIndex(el => el.name === pdfMeta.value.name)
         if (idx !== -1) {
             activeScriptIndex.value = idx
@@ -286,6 +288,29 @@ export async function loadTags() {
 }
 
 export async function saveTags(content) {
+    // Найти удалённые теги
+    const oldTagTitles = tags.value.map(t => t.title)
+    const newTagTitles = content.map(t => t.title)
+    const deletedTags = oldTagTitles.filter(title => !newTagTitles.includes(title))
+
+    // Удалить удалённые теги из всех скриптов
+    if (deletedTags.length > 0) {
+        let hasChanges = false
+        scriptList.value.forEach(script => {
+            if (script.tags && script.tags.length > 0) {
+                const filteredTags = script.tags.filter(tag => !deletedTags.includes(tag))
+                if (filteredTags.length !== script.tags.length) {
+                    script.tags = filteredTags
+                    hasChanges = true
+                }
+            }
+        })
+
+        if (hasChanges) {
+            await saveScripts()
+        }
+    }
+
     await setDataScript('script_tags', '', content)
 }
 
@@ -403,4 +428,13 @@ function arraysEqual(a, b) {
     const sortedA = [...a].sort();
     const sortedB = [...b].sort();
     return sortedA.every((val, index) => val === sortedB[index]);
+}
+
+function cleanupBootleggerRules() {
+    const hasBootlegger = NPC_ROLES.some(role =>
+        pdfListWithParams.value[role]?.some(el => el.id === 'bootlegger')
+    )
+    if (!hasBootlegger) {
+        pdfMeta.value.bootlegger = []
+    }
 }

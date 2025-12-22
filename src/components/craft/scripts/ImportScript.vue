@@ -62,6 +62,7 @@
           v-model:value="meta.almanac"
           :label="$t('importScript.almanac')"
           :maxlength="250"
+          placeholder="https://"
           class="mb-2" />
       <simple-checkbox
           v-model:value="meta.hideTitle"
@@ -73,6 +74,7 @@
             :label="$t('importScript.bootleggerRules')"
             :max-tags="10"
             :maxlength="250"
+            :placeholder="$t('scriptEditor.bootleggerRulesInfo')"
             :tooltip="$t('importScript.bootleggerRulesTooltip')" />
       <simple-textarea
           v-model:value="meta.note"
@@ -86,11 +88,13 @@
             v-model:value="meta.logo"
             :label="$t('importScript.logo')"
             :maxlength="250"
+            placeholder="https://"
             class="mb-2" />
         <simple-input
             v-model:value="meta.background"
             :label="$t('importScript.background')"
             :maxlength="250"
+            placeholder="https://"
             class="mb-2" />
         <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50 object-cover rounded mx-auto" alt="logo">
         <img v-if="meta.background" :src="meta.background" class="mt-10 h-50 object-cover rounded mx-auto" alt="background">
@@ -119,6 +123,7 @@ import {useOptionsStore} from "@/store/options";
 import {storeToRefs} from "pinia";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import ImportScriptTooltip from "@/components/craft/scripts/ImportScriptTooltip.vue";
+import {useI18n} from "vue-i18n";
 
 defineOptions({
   name: 'import-script'
@@ -131,6 +136,7 @@ const props = defineProps({
 const libraryStore = useLibraryStore()
 const optionsStore = useOptionsStore()
 const instance = getCurrentInstance()
+const { t } = useI18n()
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
 const { allListsAsOne } = storeToRefs(libraryStore)
@@ -215,7 +221,7 @@ function formalizedList(content){
       const pool = role ? allListsAsOne.value[role] : Object.values(allListsAsOne.value).flat()
       const character = pool.find(c => c.id === id || c.id === id.replaceAll('_', ''))
       if (!character) {
-        addNewError(`Character with <strong>id</strong> ${id} was not found in your library or in the official library.`)
+        addNewError(t('errors.characterNotFound', { id }))
       }
 
       return character

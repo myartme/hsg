@@ -6,6 +6,9 @@
         :required="required"
         :info="info"
         :different="different"
+        :tooltip="tooltip"
+        :tooltip-icon="tooltipIcon"
+        :tooltip-color="tooltipColor"
         :model-length="model?.length" />
     <input
         id="my-checkbox"
@@ -43,6 +46,18 @@ const props = defineProps({
     default: "",
   },
   different: {
+    type: String,
+    default: "",
+  },
+  tooltip: {
+    type: String,
+    default: "",
+  },
+  tooltipIcon: {
+    type: String,
+    default: "",
+  },
+  tooltipColor: {
     type: String,
     default: "",
   },

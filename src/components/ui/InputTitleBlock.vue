@@ -5,8 +5,9 @@
           'title-theme select-none'
       ]">{{ label }}</label>
     <div class="flex items-center pb-1.5 pl-1 space-x-2">
+      <info-tooltip v-if="info" :text="info" :icon="infoIcon" icon-size="w-5 h-5" :icon-color="infoColor || undefined" />
       <info-tooltip v-if="required && modelLength === 0" :text="required" icon="alert" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />
-      <info-tooltip v-if="info" :text="info" icon="info" icon-size="w-5 h-5" />
+      <span v-if="suffix" class="text-lg font-bold title-theme">{{ suffix }}</span>
       <info-tooltip v-if="different" :text="different" icon="different" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />
       <info-tooltip v-if="tooltip" :text="tooltip" :icon="tooltipIcon" icon-size="w-5 h-5" :icon-color="tooltipColor" />
     </div>
@@ -27,6 +28,18 @@ const props = defineProps({
     default: "",
   },
   info: {
+    type: String,
+    default: "",
+  },
+  infoIcon: {
+    type: String,
+    default: "info",
+  },
+  infoColor: {
+    type: String,
+    default: "",
+  },
+  suffix: {
     type: String,
     default: "",
   },

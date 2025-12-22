@@ -20,6 +20,7 @@ import DifferentIcon from "@/components/ui/svg/different.svg";
 import DownloadJsonIcon from "@/components/ui/svg/downloadJson.svg";
 import DownloadPdfIcon from "@/components/ui/svg/downloadPdf.svg";
 import EditIcon from "@/components/ui/svg/edit.svg";
+import ExportIcon from "@/components/ui/svg/export.svg";
 import EyeIcon from "@/components/ui/svg/eye.svg";
 import FilledCrossIcon from "@/components/ui/svg/filledCross.svg";
 import FilterIcon from "@/components/ui/svg/filter.svg";
@@ -44,6 +45,7 @@ import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
 import UndoToSave from "@/components/ui/svg/undoToSave.svg"
 import ViewDiaryIcon from "@/components/ui/svg/viewDiary.svg";
+import WarningIcon from "@/components/ui/svg/warning.svg";
 import WikiIcon from "@/components/ui/svg/wiki.svg";
 
 const props = defineProps({
@@ -74,6 +76,7 @@ const icons = {
   downloadJson: DownloadJsonIcon,
   downloadPdf: DownloadPdfIcon,
   edit: EditIcon,
+  export: ExportIcon,
   eye: EyeIcon,
   filledCross: FilledCrossIcon,
   filter: FilterIcon,
@@ -98,6 +101,7 @@ const icons = {
   undo: UndoIcon,
   undoToSave: UndoToSave,
   viewDiary: ViewDiaryIcon,
+  warning: WarningIcon,
   wiki: WikiIcon,
 }
 </script>
