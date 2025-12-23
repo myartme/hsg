@@ -9,7 +9,7 @@
           button-class="w-10 h-10"
           :handle="save" />
       <action-button v-if="activeSetIndex > 0"
-          icon="undo"
+          icon="revert"
           icon-size="w-7 h-7"
           button-class="w-10 h-10"
           :handle="undo" />

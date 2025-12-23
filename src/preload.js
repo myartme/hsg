@@ -84,6 +84,17 @@ contextBridge.exposeInMainWorld(
 
         toggleDevTools: (isOpen) => {
             return ipcRenderer.invoke('toggleDevTools', isOpen)
+        },
+
+        // Draft (session) operations
+        saveDraft: (content) => {
+            return ipcRenderer.invoke('saveDraft', { content })
+        },
+        loadDraft: () => {
+            return ipcRenderer.invoke('loadDraft')
+        },
+        deleteDraft: () => {
+            return ipcRenderer.invoke('deleteDraft')
         }
     }
 )

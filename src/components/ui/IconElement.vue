@@ -25,6 +25,7 @@ import EyeIcon from "@/components/ui/svg/eye.svg";
 import FilledCrossIcon from "@/components/ui/svg/filledCross.svg";
 import FilterIcon from "@/components/ui/svg/filter.svg";
 import FirstNightDownIcon from "@/components/ui/svg/firstNightDown.svg";
+import HistoryIcon from "@/components/ui/svg/history.svg";
 import FirstNightUpIcon from "@/components/ui/svg/firstNightUp.svg";
 import ImportIcon from "@/components/ui/svg/import.svg";
 import ImportFromJsonIcon from "@/components/ui/svg/importFromJson.svg";
@@ -43,7 +44,10 @@ import SortWithBorderIcon from "@/components/ui/svg/sortWithBorder.svg";
 import TagsIcon from "@/components/ui/svg/tags.svg";
 import ToClipboardIcon from "@/components/ui/svg/toClipboard.svg";
 import UndoIcon from "@/components/ui/svg/undo.svg";
-import UndoToSave from "@/components/ui/svg/undoToSave.svg"
+import RedoIcon from "@/components/ui/svg/redo.svg";
+import RevertIcon from "@/components/ui/svg/revert.svg";
+import UndoToSave from "@/components/ui/svg/undoToSave.svg";
+import UnsavedIcon from "@/components/ui/svg/unsaved.svg"
 import ViewDiaryIcon from "@/components/ui/svg/viewDiary.svg";
 import WarningIcon from "@/components/ui/svg/warning.svg";
 import WikiIcon from "@/components/ui/svg/wiki.svg";
@@ -82,6 +86,7 @@ const icons = {
   filter: FilterIcon,
   firstNightDown: FirstNightDownIcon,
   firstNightUp: FirstNightUpIcon,
+  history: HistoryIcon,
   import: ImportIcon,
   importFromJson: ImportFromJsonIcon,
   info: InfoIcon,
@@ -99,7 +104,10 @@ const icons = {
   tags: TagsIcon,
   toClipboard: ToClipboardIcon,
   undo: UndoIcon,
+  redo: RedoIcon,
+  revert: RevertIcon,
   undoToSave: UndoToSave,
+  unsaved: UnsavedIcon,
   viewDiary: ViewDiaryIcon,
   warning: WarningIcon,
   wiki: WikiIcon,

@@ -5,7 +5,7 @@
       :delay="{ show: tooltipDelay.infoShow, hide: tooltipDelay.infoHide }"
   >
     <template #default>
-      <div class="cursor-pointer">
+      <div :class="['cursor-pointer', { 'hover:opacity-80': clickable }]" @click="handleClick">
         <icon-element :name="icon" :size="iconSize" :color="iconColor" />
       </div>
     </template>
@@ -30,8 +30,20 @@ const props = defineProps({
     default: "info"
   },
   iconSize: String,
-  iconColor: String
+  iconColor: String,
+  clickable: {
+    type: Boolean,
+    default: false
+  }
 })
+
+const emit = defineEmits(['click'])
+
+function handleClick(event) {
+  if (props.clickable) {
+    emit('click', event)
+  }
+}
 
 const optionsStore = useOptionsStore()
 const { tooltipDelay } = storeToRefs(optionsStore)

@@ -1,9 +1,10 @@
-import {characterListWithParams, listWithParams, pdfListWithParams, pdfMeta} from "@/store/craft/state";
+import {characterListWithParams, listWithParams, pdfListWithParams, pdfMeta, isDraftRestored} from "@/store/craft/state";
 import {watch} from "vue";
 import {isEmpty} from "lodash/lang";
 import {deleteDataPrint, getDataPrint, setDataPrint} from "@/store";
 import {saveScripts} from "@/store/craft/script";
 import {toNormalizeString} from "@/constants/other";
+import {pushState, ACTION_TYPES} from "@/store/craft/history";
 
 export async function loadPdf(version, name) {
     const result = await getDataPrint(version, toNormalizeString(name))
@@ -45,6 +46,9 @@ export function fillPdfList(content) {
 }
 
 export function addElementToFirstList(element, team, key = -1) {
+    // Save state for undo before making changes (removing character from script)
+    pushState(ACTION_TYPES.REMOVE_CHARACTER, element.name || element.id)
+
     if (key === -1) {
         key = pdfListWithParams.value[team].find(el => element.id === el.id)
     }
@@ -55,6 +59,11 @@ export function addElementToFirstList(element, team, key = -1) {
 }
 
 export function addElementToSecondList(element, team, key = -1, skipSort = false) {
+    // Save state for undo before making changes (only if not batch operation)
+    if (!skipSort) {
+        pushState(ACTION_TYPES.ADD_CHARACTER, element.name || element.id)
+    }
+
     if (key === -1) {
         key = characterListWithParams.value[team].findIndex(el => element.id === el.id)
     }
@@ -90,8 +99,37 @@ function sortPdfListWithParams() {
     }
 }
 
+// Recalculate characterListWithParams based on current listWithParams and pdfListWithParams
+export function recalculateCharacterList() {
+    if (isEmpty(listWithParams.value)) {
+        return
+    }
+
+    // Get IDs of characters in script
+    const idsInScript = new Set(
+        Object.values(pdfListWithParams.value).flat().map(el => el.id)
+    )
+
+    // Filter out characters that are in script from listWithParams
+    characterListWithParams.value = Object.fromEntries(
+        Object.entries(listWithParams.value).map(([team, chars]) => [
+            team,
+            chars.filter(char => !idsInScript.has(char.id))
+        ])
+    )
+
+    sortCharacterListWithParams()
+    sortPdfListWithParams()
+}
+
 watch(listWithParams, () => {
     if (!isEmpty(listWithParams.value)) {
+        // When draft was restored, recalculate characterListWithParams based on current settings
+        if (isDraftRestored.value) {
+            isDraftRestored.value = false
+            recalculateCharacterList()
+            return
+        }
         characterListWithParams.value = {...listWithParams.value}
         sortCharacterListWithParams()
         sortPdfListWithParams()

@@ -11,7 +11,7 @@
                        button-class="w-10 h-10"
                        :is-show-effect="true"
                        :handle="handleSaveScript" />
-        <action-button icon="undo"
+        <action-button icon="revert"
                        icon-size="w-7 h-7"
                        button-class="w-10 h-10"
                        :tooltip="$t('tooltips.resetVersionInfo')"
@@ -32,23 +32,55 @@
           :maxlength="50"
           :disabled="true"
           class="mb-2" />
-      <simple-input
-          v-model:value="meta.author"
-          :label="$t('scriptEditor.author')"
-          :maxlength="50"
-          @focusin="authorFocusIn"
-          @focusout="authorFocusOut"
-          class="mb-2" />
-      <simple-input
-          v-model:value="meta.almanac"
-          :label="$t('scriptEditor.almanac')"
-          :maxlength="250"
-          placeholder="https://"
-          class="mb-2" />
+
+      <div class="relative mb-2">
+        <simple-input
+            v-model:value="meta.author"
+            :label="$t('scriptEditor.author')"
+            :maxlength="50"
+            @focusin="authorFocusIn"
+            @focusout="authorFocusOut"
+            :tooltip="getFieldDifferences('author').length > 0 ? $t('scriptEditor.versionsHaveDifferences') : ''"
+            tooltip-icon="different"
+            tooltip-color="fill-[color:var(--color-error)]"
+            :tooltip-clickable="getFieldDifferences('author').length > 0"
+            @tooltip-click="openValuePicker('author', $event)" />
+        <value-picker-popup
+            v-if="activePickerField === 'author'"
+            :global-value="meta.author"
+            :field-label="$t('scriptEditor.author')"
+            :version-differences="getFieldDifferences('author')"
+            @select="handleValueSelect('author', $event)"
+            @close="closeValuePicker" />
+      </div>
+
+      <div class="relative mb-2">
+        <simple-input
+            v-model:value="meta.almanac"
+            :label="$t('scriptEditor.almanac')"
+            :maxlength="250"
+            placeholder="https://"
+            :tooltip="getFieldDifferences('almanac').length > 0 ? $t('scriptEditor.versionsHaveDifferences') : ''"
+            tooltip-icon="different"
+            tooltip-color="fill-[color:var(--color-error)]"
+            :tooltip-clickable="getFieldDifferences('almanac').length > 0"
+            @tooltip-click="openValuePicker('almanac', $event)" />
+        <value-picker-popup
+            v-if="activePickerField === 'almanac'"
+            :global-value="meta.almanac"
+            :field-label="$t('scriptEditor.almanac')"
+            :version-differences="getFieldDifferences('almanac')"
+            @select="handleValueSelect('almanac', $event)"
+            @close="closeValuePicker" />
+      </div>
+
       <simple-checkbox
           v-model:value="meta.hideTitle"
           :label="$t('scriptEditor.hideScriptName')"
-          :tooltip="$t('tooltips.hideScriptTitle')" />
+          :tooltip="getFieldDifferences('hideTitle').length > 0 ? $t('scriptEditor.versionsHaveDifferencesBool') : $t('tooltips.hideScriptTitle')"
+          :tooltip-icon="getFieldDifferences('hideTitle').length > 0 ? 'different' : ''"
+          :tooltip-color="getFieldDifferences('hideTitle').length > 0 ? 'fill-[color:var(--color-error)]' : ''" />
+
       <input-color-tag v-if="scriptTags.length > 0"
           v-model:value="scriptTags"
           div-class="mt-2"
@@ -65,21 +97,45 @@
           :list="Object.values(tags).map(({ title }) => title)"
           :default-value="$t('scriptEditor.addTag')" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-        <div class="flex items-end">
+        <div class="flex items-end relative">
           <simple-input
               v-model:value="meta.logo"
               :label="$t('scriptEditor.logo')"
               :maxlength="250"
               placeholder="https://"
-              div-class="w-full" />
+              div-class="w-full"
+              :tooltip="getFieldDifferences('logo').length > 0 ? $t('scriptEditor.versionsHaveDifferences') : ''"
+              tooltip-icon="different"
+              tooltip-color="fill-[color:var(--color-error)]"
+              :tooltip-clickable="getFieldDifferences('logo').length > 0"
+              @tooltip-click="openValuePicker('logo', $event)" />
+          <value-picker-popup
+              v-if="activePickerField === 'logo'"
+              :global-value="meta.logo"
+              :field-label="$t('scriptEditor.logo')"
+              :version-differences="getFieldDifferences('logo')"
+              @select="handleValueSelect('logo', $event)"
+              @close="closeValuePicker" />
         </div>
-        <div class="flex items-end ">
+        <div class="flex items-end relative">
           <simple-input
               v-model:value="meta.background"
               :label="$t('scriptEditor.background')"
               :maxlength="250"
               placeholder="https://"
-              div-class="w-full" />
+              div-class="w-full"
+              :tooltip="getFieldDifferences('background').length > 0 ? $t('scriptEditor.versionsHaveDifferences') : ''"
+              tooltip-icon="different"
+              tooltip-color="fill-[color:var(--color-error)]"
+              :tooltip-clickable="getFieldDifferences('background').length > 0"
+              @tooltip-click="openValuePicker('background', $event)" />
+          <value-picker-popup
+              v-if="activePickerField === 'background'"
+              :global-value="meta.background"
+              :field-label="$t('scriptEditor.background')"
+              :version-differences="getFieldDifferences('background')"
+              @select="handleValueSelect('background', $event)"
+              @close="closeValuePicker" />
         </div>
         <div class="max-h-[500px] mx-auto rounded object-cover">
           <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
@@ -116,6 +172,7 @@ import {isEmpty, isEqual} from "lodash/lang";
 import PopupContainer from "@/components/PopupContainer.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
+import ValuePickerPopup from "@/components/craft/scripts/ValuePickerPopup.vue";
 
 const { t } = useI18n()
 
@@ -135,9 +192,91 @@ const selectedTag = ref('')
 const previousAuthor = ref('')
 const emits = defineEmits(['isOpenOptions'])
 
-function handleSaveScript(){
+// Метаданные всех версий
+const versionsMeta = ref([])
+const activePickerField = ref(null)
+// Поля, которые нужно синхронизировать во всех версиях
+const fieldsToSync = ref(new Set())
+
+// Загрузка метаданных всех версий
+async function loadVersionsMeta() {
+  if (meta.value.name) {
+    versionsMeta.value = await craftStore.loadAllVersionsMeta(meta.value.name)
+  }
+}
+
+// Получить различия для поля
+function getFieldDifferences(field) {
+  const globalValue = meta.value[field] || ''
+  const differences = []
+
+  versionsMeta.value.forEach(vm => {
+    const versionValue = vm[field] || ''
+    if (field === 'hideTitle') {
+      if (Boolean(versionValue) !== Boolean(globalValue)) {
+        differences.push({
+          version: vm.version,
+          value: versionValue ? t('common.yes') : t('common.no')
+        })
+      }
+    } else {
+      if (versionValue !== globalValue) {
+        differences.push({
+          version: vm.version,
+          value: versionValue
+        })
+      }
+    }
+  })
+
+  return differences
+}
+
+function openValuePicker(field, event) {
+  if (getFieldDifferences(field).length > 0) {
+    activePickerField.value = field
+  }
+}
+
+function closeValuePicker() {
+  activePickerField.value = null
+}
+
+function handleValueSelect(field, item) {
+  // Вставляем выбранное значение
+  if (field === 'hideTitle') {
+    // Для boolean поля
+    meta.value[field] = item.isGlobal ? meta.value[field] : (item.value === t('common.yes'))
+  } else {
+    meta.value[field] = item.value
+  }
+
+  // Помечаем поле для синхронизации
+  fieldsToSync.value.add(field)
+
+  closeValuePicker()
+}
+
+async function handleSaveScript(){
   try {
-    craftStore.saveUpdateMeta(meta.value)
+    // Если есть поля для синхронизации - обновляем все версии
+    if (fieldsToSync.value.size > 0) {
+      await craftStore.saveGlobalMetaToAllVersions(
+          meta.value.name,
+          meta.value,
+          Array.from(fieldsToSync.value)
+      )
+      fieldsToSync.value.clear()
+      // Перезагружаем метаданные версий
+      await loadVersionsMeta()
+    }
+
+    // Сохраняем глобальные метаданные (tags и др.)
+    await craftStore.saveUpdateMeta(meta.value)
+
+    // Обновляем defaultMeta после успешного сохранения
+    defaultMeta.value = {...meta.value}
+
     setTimeout(() => {
       isCanSave.value = false
     }, DEFAULT_ACTION_BUTTON_ACTIVE_TIME)
@@ -191,17 +330,33 @@ function handleClose(){
 function confirmClose(){
   isShowLeaveConfirm.value = false
   isCanSave.value = false
+  fieldsToSync.value.clear()
   meta.value = {...defaultMeta.value}
   emits('isOpenOptions')
 }
 
-watch(meta, () => {
-  isCanSave.value = !isEqual(meta.value, defaultMeta.value)
+// Поля, которые синхронизируются во все версии
+const syncableFields = ['author', 'almanac', 'logo', 'background', 'hideTitle']
+
+// Проверка наличия изменений
+watch(meta, (newMeta) => {
+  // Отслеживаем изменения в синхронизируемых полях
+  syncableFields.forEach(field => {
+    if (newMeta[field] !== defaultMeta.value[field]) {
+      fieldsToSync.value.add(field)
+    }
+  })
+
+  const hasMetaChanges = !isEqual(newMeta, defaultMeta.value)
+  const hasFieldsToSync = fieldsToSync.value.size > 0
+  isCanSave.value = hasMetaChanges || hasFieldsToSync
 }, {deep:true})
 
-watch(pdfMeta, (newVal) => {
+watch(pdfMeta, async (newVal) => {
   meta.value = {...newVal}
   defaultMeta.value = {...newVal}
+  fieldsToSync.value.clear()
+
   if(!isEmpty(meta.value.tags)){
     scriptTags.value = (meta.value.tags || [])
         .map(tag => tags.value.find(el => el.title === tag))
@@ -209,6 +364,9 @@ watch(pdfMeta, (newVal) => {
   } else {
     scriptTags.value = []
   }
+
+  // Загружаем метаданные всех версий
+  await loadVersionsMeta()
 },{ immediate: true})
 
 watch(selectedTag, (val) => {

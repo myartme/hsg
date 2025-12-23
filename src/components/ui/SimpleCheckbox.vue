@@ -5,6 +5,8 @@
         :label="label"
         :required="required"
         :info="info"
+        :info-icon="infoIcon"
+        :info-color="infoColor"
         :different="different"
         :tooltip="tooltip"
         :tooltip-icon="tooltipIcon"
@@ -42,6 +44,14 @@ const props = defineProps({
     default: "h-4 w-4 mb-1.5 rounded accent-[color:var(--color-active)] hover:accent-[color:var(--color-hover-active)]"
   },
   info: {
+    type: String,
+    default: "",
+  },
+  infoIcon: {
+    type: String,
+    default: "info",
+  },
+  infoColor: {
     type: String,
     default: "",
   },

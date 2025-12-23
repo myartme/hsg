@@ -2,10 +2,12 @@
   <div class="flex gap-6 p-6 h-full overflow-hidden">
     <div class="flex gap-6 flex-grow">
       <list class="w-[50%]"
+          :has-saved-draft="hasSavedDraft"
           @on-create-script="onCreateScript"
           @on-import-script="onImportScript"
           @on-select-script="onSelectScript"
-          @on-edit-tags="onEditTags" />
+          @on-edit-tags="onEditTags"
+          @on-open-draft="onOpenDraft" />
       <import-script :label="$t('scripts.importScript')" v-if="isImportScript" />
       <edit-tags :label="$t('scripts.scriptTags')" v-if="isEditScriptTags" />
     </div>
@@ -20,6 +22,8 @@ import List from "@/components/craft/scripts/List.vue";
 import router from "@/router";
 import ImportScript from "@/components/craft/scripts/ImportScript.vue";
 import EditTags from "@/components/craft/scripts/EditTags.vue";
+import { checkDraftExists } from "@/store/craft/history";
+import { hasSavedDraft } from "@/store/craft/state";
 
 const craftStore = useCraftStore()
 const { activeScriptIndex, activeVersion, isSavedScript, isEditScriptTags, isImportScript } = storeToRefs(craftStore)
@@ -51,10 +55,16 @@ function onEditTags(){
   isImportScript.value = false
 }
 
+function onOpenDraft(){
+  isSavedScript.value = false
+  router.push({ name: 'scriptEdit', query: { restoreDraft: 'true' } })
+}
+
 onMounted(async () => {
   await craftStore.loadSets()
   await craftStore.loadScripts()
   await craftStore.loadTags()
   craftStore.resetMeta()
+  await checkDraftExists()
 })
 </script>

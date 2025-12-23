@@ -39,6 +39,18 @@ export const pdfGenerationError = ref(null)
 export const filteredScriptListTags = ref([])
 export const filteredScriptListCharacters = ref([])
 
+// Trigger for focusing search input (incremented to trigger watch)
+export const focusSearchTrigger = ref(0)
+
+// Flag to prevent characterListWithParams overwrite after draft restore
+export const isDraftRestored = ref(false)
+
+// Flag to skip draft handling in onBeforeRouteLeave (when already handled in handleToScriptList)
+export const skipDraftOnLeave = ref(false)
+
+// Global flag for draft existence (updated by save/delete operations)
+export const hasSavedDraft = ref(false)
+
 const defaultNightArray = ['dusk', 'minioninfo', 'demoninfo', 'dawn']
 
 const getDefaultFirstNight = () => {

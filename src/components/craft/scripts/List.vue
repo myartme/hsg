@@ -7,7 +7,7 @@
           button-class="w-10 h-10"
           :handle="save" />
       <action-button
-          icon="undo"
+          icon="revert"
           icon-size="w-7 h-7"
           button-class="w-10 h-10"
           :handle="undo" />
@@ -21,6 +21,14 @@
           :tooltip="$t('scripts.createScript')"
           :is-circle-type="false"
           @click="$emit('onCreateScript')" />
+      <action-button
+          v-if="props.hasSavedDraft"
+          icon="unsaved"
+          icon-size="w-6 h-6"
+          button-class="w-10 h-10"
+          :tooltip="$t('scripts.openDraft')"
+          :is-circle-type="false"
+          @click="$emit('onOpenDraft')" />
       <action-button
           icon="import"
           icon-size="w-7 h-7"
@@ -105,6 +113,13 @@ defineOptions({
   name: 'script-element-list'
 })
 
+const props = defineProps({
+  hasSavedDraft: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const craftStore = useCraftStore()
 const indexStore = useIndexStore()
 const instance = getCurrentInstance()
@@ -117,7 +132,7 @@ const isResetSort = ref(true)
 const isOpenOptions = ref(false)
 const isOpenFilterTags = ref(false)
 const filterCount = computed(() => filteredTags.value.length + filteredCharacters.value.length)
-const emits = defineEmits(['onCreateScript', 'onImportScript', 'onSelectScript', 'onEditTags'])
+const emits = defineEmits(['onCreateScript', 'onImportScript', 'onSelectScript', 'onEditTags', 'onOpenDraft'])
 
 function resetList(){
   localScriptList.value = [ ...scriptList.value]

@@ -8,7 +8,7 @@
             button-class="w-10 h-10"
             :handle="save" />
         <action-button
-            icon="undo"
+            icon="revert"
             icon-size="w-7 h-7"
             button-class="w-10 h-10"
             :handle="undo" />
@@ -164,7 +164,7 @@
                       </span>
                       <div class="absolute bottom-1.5 right-1.5 z-20 p-1.5 transition">
                         <action-button v-if="isEnableButton(set.id)"
-                                       icon="undo"
+                                       icon="revert"
                                        icon-size="w-7 h-7"
                                        :tooltip="$t('options.restoreThisSet')"
                                        :is-circle-type="false"
