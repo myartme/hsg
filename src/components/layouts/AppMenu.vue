@@ -7,11 +7,11 @@
           <div class="text-2xl font-bold tracking-wide">{{ $t('menu.appTitle') }}</div>
         </div>
         <div v-if="debugMode" class="text-2xl font-bold text-[color:var(--color-button-error)]">DEBUG TRUE</div>
-        <div class="flex gap-2">
+        <div class="flex flex-nowrap items-center gap-2">
           <router-link v-for="item in menuElements"
                        :key="item.path"
                        :to="item.path"
-                       class="px-4 py-2 rounded-full text-base font-medium transition-all duration-200 hover:bg-[color:var(--color-list-element)]"
+                       class="px-4 py-2 rounded-full text-base font-medium transition-all duration-200 hover:bg-[color:var(--color-list-element)] whitespace-nowrap shrink-0"
                        active-class="!bg-[color:var(--color-menu-active)] !text-white">{{ item.label }}</router-link>
         </div>
       </nav>
