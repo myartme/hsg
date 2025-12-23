@@ -13,7 +13,7 @@
           <div class="flex items-center">
             <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.firstNight') }}</h2>
             <action-button v-if="!isFirstNightDefault"
-                           icon="undo"
+                           icon="revert"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
                            :tooltip="$t('tooltips.restoreDefaultOrder')"
@@ -54,7 +54,7 @@
           <div class="flex items-center">
             <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.otherNights') }}</h2>
             <action-button v-if="!isOtherNightDefault"
-                           icon="undo"
+                           icon="revert"
                            icon-size="w-8 h-8"
                            button-class="w-10 h-10"
                            :tooltip="$t('tooltips.restoreDefaultOrder')"
@@ -106,6 +106,7 @@ import draggableComponent from "vuedraggable";
 import NightOrderElement from "@/components/craft/pdf/NightOrderElement.vue";
 import {getImageFirstUrl} from "@/constants/other";
 import ActionButton from "@/components/ui/ActionButton.vue";
+import {pushState, ACTION_TYPES} from "@/store/craft/history";
 
 const { t } = useI18n()
 
@@ -142,6 +143,8 @@ const isOtherNightSameAsSave = computed(() => {
 function closeWindow(){
   const hasChanges = !isEqual(originalFirstNight.value, firstNight.value) || !isEqual(originalOtherNight.value, otherNight.value)
   if(hasChanges){
+    // Save state for undo before applying changes
+    pushState(ACTION_TYPES.CHANGE_NIGHT_ORDER, pdfMeta.value.name)
     isEditingScript.value = true
   }
   pdfMeta.value.firstNight = firstNight.value
@@ -236,7 +239,7 @@ watch(pdfListWithParams, () => {
   }
 }, { immediate: true, deep: true })
 
-watch(isOpenNightOrder, () => {
+watch(isOpenNightOrder, (isOpen) => {
   const first = !isEmpty(firstNight.value) ? firstNight.value : defaultResetFirstNight()
   const other = !isEmpty(otherNight.value) ? otherNight.value : defaultResetOtherNight()
 
@@ -251,6 +254,12 @@ watch(isOpenNightOrder, () => {
         .filter(item => other.includes(item))
   } else if(isEmpty(otherNight.value)) {
     otherNight.value = other
+  }
+
+  // Save original state when popup opens
+  if (isOpen) {
+    originalFirstNight.value = [...firstNight.value]
+    originalOtherNight.value = [...otherNight.value]
   }
 },{ immediate: true, deep: true })
 </script>

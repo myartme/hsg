@@ -190,6 +190,19 @@ ipcMain.handle('toggleDevTools', async (event, isOpen) => {
   return true
 })
 
+// Draft (session) operations
+ipcMain.handle('saveDraft', async (e, { content }) => {
+  return saveContent('draft', content, false)
+})
+
+ipcMain.handle('loadDraft', async () => {
+  return loadContent('draft', false)
+})
+
+ipcMain.handle('deleteDraft', async () => {
+  return deleteContent('draft', true)
+})
+
 function updateAboutPanel() {
   if (process.platform === 'darwin') {
     app.setAboutPanelOptions({

@@ -12,7 +12,9 @@
         :tooltip="tooltip"
         :tooltip-icon="tooltipIcon"
         :tooltip-color="tooltipColor"
-        :model-length="model?.length" />
+        :tooltip-clickable="tooltipClickable"
+        :model-length="model?.length"
+        @tooltip-click="handleTooltipClick" />
     <div class="relative">
       <input
           :class="[
@@ -97,6 +99,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  tooltipClickable: {
+    type: Boolean,
+    default: false
+  },
   placeholder: String,
   type: {
     type: String,
@@ -115,4 +121,10 @@ const props = defineProps({
     default: ""
   }
 })
+
+const emit = defineEmits(['tooltip-click'])
+
+function handleTooltipClick(event) {
+  emit('tooltip-click', event)
+}
 </script>

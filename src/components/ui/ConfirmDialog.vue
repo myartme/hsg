@@ -6,15 +6,25 @@
       <div class="flex justify-center gap-4">
         <button
             @click="$emit('cancel')"
-            class="px-4 py-2 rounded-md cursor-pointer text-theme bg-[color:var(--color-border)] hover:bg-[color:var(--color-hover-bg)]"
+            :class="[
+              'px-4 py-2 rounded-md cursor-pointer text-theme',
+              cancelDanger
+                ? 'bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]'
+                : 'bg-[color:var(--color-border)] hover:bg-[color:var(--color-hover-bg)]'
+            ]"
         >
-          {{ $t('buttons.cancel') }}
+          {{ cancelText || $t('buttons.cancel') }}
         </button>
         <button
             @click="$emit('confirm')"
-            class="px-4 py-2 rounded-md cursor-pointer text-theme bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]"
+            :class="[
+              'px-4 py-2 rounded-md cursor-pointer text-theme',
+              confirmPrimary
+                ? 'bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
+                : 'bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]'
+            ]"
         >
-          {{ $t('buttons.confirm') }}
+          {{ confirmText || $t('buttons.confirm') }}
         </button>
       </div>
     </div>
@@ -24,7 +34,17 @@
 <script setup>
 defineProps({
   title: String,
-  description: String
+  description: String,
+  confirmText: String,
+  cancelText: String,
+  confirmPrimary: {
+    type: Boolean,
+    default: false
+  },
+  cancelDanger: {
+    type: Boolean,
+    default: false
+  }
 })
 defineEmits(['confirm', 'cancel'])
 </script>

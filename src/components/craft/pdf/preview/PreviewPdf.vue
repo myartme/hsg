@@ -53,9 +53,10 @@ import {storeToRefs} from "pinia";
 import {nextTick, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 
-import {listWithParams, scriptList} from "@/store/craft/state";
+import {listWithParams, scriptList, isEditingScript} from "@/store/craft/state";
 import {isEmpty} from "lodash/lang";
 import {DEFAULT_SCRIPT_AUTHOR, DEFAULT_SCRIPT_NAME} from "@/constants/roles";
+import {pushState, ACTION_TYPES} from "@/store/craft/history";
 
 const { t } = useI18n()
 
@@ -90,8 +91,10 @@ function startEditingName() {
 
 function finishEditingName() {
   const trimmed = editingName.value.trim()
-  if (trimmed) {
+  if (trimmed && trimmed !== pdfMeta.value.name) {
+    pushState(ACTION_TYPES.CHANGE_NAME, trimmed)
     pdfMeta.value.name = trimmed
+    isEditingScript.value = true
   }
   isEditingName.value = false
 }
@@ -112,8 +115,10 @@ function startEditingAuthor() {
 
 function finishEditingAuthor() {
   const trimmed = editingAuthor.value.trim()
-  if (trimmed) {
+  if (trimmed && trimmed !== pdfMeta.value.author) {
+    pushState(ACTION_TYPES.CHANGE_AUTHOR, trimmed)
     pdfMeta.value.author = trimmed
+    isEditingScript.value = true
   }
   isEditingAuthor.value = false
 }

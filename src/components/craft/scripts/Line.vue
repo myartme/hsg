@@ -168,6 +168,8 @@ async function selectScript(element, event){
   event.stopPropagation()
   activeVersion.value = element.version
   isSavedScript.value = true
+  // Ensure character list is populated before loading script
+  craftStore.recalculateCharacterList()
   await craftStore.loadScriptWithMetaFilling(element.version, activeScript.value.name, true)
   router.push({ name: 'scriptEdit' })
 }

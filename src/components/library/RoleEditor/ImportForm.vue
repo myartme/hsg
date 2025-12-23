@@ -8,7 +8,7 @@
                      icon-size="w-6 h-6"
                      button-class="w-10 h-10"
                      :handle="save" />
-      <action-button icon="undo"
+      <action-button icon="revert"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
                      :handle="undo" />

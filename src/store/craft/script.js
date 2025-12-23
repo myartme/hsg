@@ -56,7 +56,10 @@ export async function saveCurrentScript() {
         }
 
         if (activeScriptIndex.value >= 0) {
-            const result = await getDataScript(activeVersion.value || DEFAULT_VERSION, toNormalizeString(pdfMeta.value.name))
+            const list = scriptList.value[activeScriptIndex.value].list
+            // Compare with LATEST version, not activeVersion (important for draft restore)
+            const latestVersion = list.at(-1)?.version || DEFAULT_VERSION
+            const result = await getDataScript(latestVersion, toNormalizeString(pdfMeta.value.name))
 
             if (result.isSuccess) {
                 const idxMeta = result.content.find(el => el.id === '_meta')
@@ -64,28 +67,36 @@ export async function saveCurrentScript() {
                 const pdfList = Object.values(pdfListWithParams.value).flat()
                 const sorted1 = sortScriptArray(formatArray(pdfList))
                 const sorted2 = sortScriptArray(formatArray(result.content))
-                const list = scriptList.value[activeScriptIndex.value].list
                 if (!arraysEqual(sorted1, sorted2)) {
-                    pdfMeta.value = {...pdfMeta.value, ...scriptList.value[activeScriptIndex.value]}
+                    // Создание новой версии существующего скрипта
+                    // Берём list из глобальных метаданных, но оставляем локальные контентные поля
+                    pdfMeta.value.list = [...list]
                     pdfMeta.value.version = getNextVersion(list.at(-1).version)
                     pdfMeta.value.list.push(
                         getFormatScriptListElement(
                             now.toISOString(), {
-                                ...pdfMeta.value, ...list,
+                                ...pdfMeta.value,
                                 json: true
                             }, getCurrentScriptContentToSaveFormat()
                         )
                     )
                     await saveScript(pdfMeta.value)
-                    scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
+                    // Обновляем activeVersion на новую версию
+                    activeVersion.value = pdfMeta.value.version
+                    // Обновляем только технические поля, не контентные
+                    scriptList.value[activeScriptIndex.value] = updateScriptListMeta(
+                        scriptList.value[activeScriptIndex.value],
+                        pdfMeta.value
+                    )
                 } else {
-                    const targetVersion = activeVersion.value || pdfMeta.value.version
-                    pdfMeta.value.version = targetVersion
+                    // Обновление последней версии (персонажи не изменились)
+                    pdfMeta.value.version = latestVersion
+                    activeVersion.value = latestVersion
                     pdfMeta.value.list = list.map(el => {
-                        if (el.version === targetVersion) {
+                        if (el.version === latestVersion) {
                             el = getFormatScriptListElement(
                                 now.toISOString(), {
-                                    ...pdfMeta.value, ...list,
+                                    ...pdfMeta.value,
                                     json: true
                                 }, getCurrentScriptContentToSaveFormat()
                             )
@@ -95,7 +106,11 @@ export async function saveCurrentScript() {
                     })
 
                     await saveScript(pdfMeta.value)
-                    scriptList.value[activeScriptIndex.value] = filterScriptFileMeta(pdfMeta.value)
+                    // Обновляем только технические поля, не контентные
+                    scriptList.value[activeScriptIndex.value] = updateScriptListMeta(
+                        scriptList.value[activeScriptIndex.value],
+                        pdfMeta.value
+                    )
                 }
             } else {
                 pdfMeta.value.version = DEFAULT_VERSION
@@ -314,6 +329,68 @@ export async function saveTags(content) {
     await setDataScript('script_tags', '', content)
 }
 
+// Загружает метаданные всех версий скрипта
+export async function loadAllVersionsMeta(name) {
+    const idx = scriptList.value.findIndex(el => el.name === name)
+    if (idx === -1) return []
+
+    const script = scriptList.value[idx]
+    const versionsMeta = []
+
+    for (const versionItem of script.list) {
+        const result = await getDataScript(versionItem.version, toNormalizeString(name))
+        if (result.isSuccess) {
+            const metaElement = result.content.find(el => el.id === '_meta')
+            if (metaElement) {
+                versionsMeta.push({
+                    version: versionItem.version,
+                    author: metaElement.author || '',
+                    almanac: metaElement.almanac || '',
+                    logo: metaElement.logo || '',
+                    background: metaElement.background || '',
+                    hideTitle: metaElement.hideTitle || false
+                })
+            }
+        }
+    }
+
+    return versionsMeta
+}
+
+// Сохраняет глобальные метаданные во все версии скрипта
+export async function saveGlobalMetaToAllVersions(name, globalMeta, fieldsToSync = []) {
+    const idx = scriptList.value.findIndex(el => el.name === name)
+    if (idx === -1) return
+
+    const script = scriptList.value[idx]
+
+    for (const versionItem of script.list) {
+        const result = await getDataScript(versionItem.version, toNormalizeString(name))
+        if (result.isSuccess) {
+            const metaIndex = result.content.findIndex(el => el.id === '_meta')
+            if (metaIndex !== -1) {
+                // Обновляем только указанные поля
+                fieldsToSync.forEach(field => {
+                    if (globalMeta[field] !== undefined) {
+                        result.content[metaIndex][field] = globalMeta[field]
+                    } else {
+                        delete result.content[metaIndex][field]
+                    }
+                })
+
+                await setDataScript(versionItem.version, toNormalizeString(name), result.content)
+            }
+        }
+    }
+
+    // Обновляем глобальные метаданные
+    fieldsToSync.forEach(field => {
+        scriptList.value[idx][field] = globalMeta[field]
+    })
+
+    await saveScripts()
+}
+
 function getNextVersion(version){
     return (Number(version) + 0.1).toFixed(1)
 }
@@ -341,6 +418,19 @@ function filterScriptFileMeta(meta){
         "version": meta?.version || "",
         "tags": meta?.tags || [],
         "list": meta?.list || []
+    }
+}
+
+// Обновляет только технические поля в глобальных метаданных (не контентные)
+// Контентные поля (author, almanac, logo, background, hideTitle) остаются неизменными
+function updateScriptListMeta(existingMeta, newMeta){
+    return {
+        ...existingMeta,
+        "name": newMeta?.name || existingMeta?.name || "",
+        "date": newMeta?.date || existingMeta?.date || "",
+        "version": newMeta?.version || existingMeta?.version || "",
+        "tags": newMeta?.tags || existingMeta?.tags || [],
+        "list": newMeta?.list || existingMeta?.list || []
     }
 }
 

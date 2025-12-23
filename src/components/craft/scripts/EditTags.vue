@@ -10,7 +10,7 @@
                      :handle="save">
       </action-button>
       <action-button
-                     icon="undo"
+                     icon="revert"
                      icon-size="w-7 h-7"
                      button-class="w-10 h-10"
                      :handle="undo" />

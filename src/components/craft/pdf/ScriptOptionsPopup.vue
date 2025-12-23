@@ -28,50 +28,41 @@
           tooltip-icon="alert"
           tooltip-color="fill-[color:var(--color-error)]"
           class="mb-2" />
-      <div class="flex items-end mb-2">
-        <simple-input
-            v-model:value="meta.author"
-            class="w-full"
-            :label="$t('scriptEditor.author')"
-            :maxlength="50"
-            @focusin="authorFocusIn"
-            @focusout="authorFocusOut"
-            :tooltip="$t('scriptEditor.commonValueInfo')"
-            tooltip-icon="warning"
-            tooltip-color="fill-[color:var(--color-warning)]"
-            :different="getDifferentText(meta.different?.author?.isEqual)" />
-        <action-button-in-script-option-popup
-            :value="meta.different?.author"
-            @value-update="meta.author = $event" />
-      </div>
-      <div class="flex items-end mb-2">
-        <simple-input
-            v-model:value="meta.almanac"
-            class="w-full"
-            :label="$t('scriptEditor.almanac')"
-            :maxlength="250"
-            placeholder="https://"
-            :info="$t('scriptEditor.almanacInfo')"
-            :tooltip="$t('scriptEditor.commonValueInfo')"
-            tooltip-icon="warning"
-            tooltip-color="fill-[color:var(--color-warning)]"
-            :different="getDifferentText(meta.different?.almanac?.isEqual)" />
-        <action-button-in-script-option-popup
-            :value="meta.different?.almanac"
-            @value-update="meta.almanac = $event" />
-      </div>
-      <div class="flex items-end mb-2">
-        <simple-checkbox
-            v-model:value="meta.hideTitle"
-            :label="$t('scriptEditor.hideScriptName')"
-            :tooltip="$t('scriptEditor.commonValueInfo')"
-            tooltip-icon="warning"
-            tooltip-color="fill-[color:var(--color-warning)]"
-            :different="getDifferentText(meta.different?.hideTitle?.isEqual)"/>
-        <action-button-in-script-option-popup
-            :value="meta.different?.hideTitle"
-            @value-update="meta.hideTitle = $event" />
-      </div>
+      <simple-input
+          v-model:value="meta.author"
+          class="mb-2"
+          :label="$t('scriptEditor.author')"
+          :maxlength="50"
+          @focusin="authorFocusIn"
+          @focusout="authorFocusOut"
+          :info="$t('scriptEditor.versionLocalValueInfo')"
+          info-icon="warning"
+          info-color="fill-[color:var(--color-warning)]"
+          :tooltip="meta.different?.author?.isEqual === false ? $t('scriptEditor.differentFromGlobal', { value: meta.different.author.generalValue }) : ''"
+          tooltip-icon="different"
+          tooltip-color="fill-[color:var(--color-error)]" />
+      <simple-input
+          v-model:value="meta.almanac"
+          class="mb-2"
+          :label="$t('scriptEditor.almanac')"
+          :maxlength="250"
+          placeholder="https://"
+          :info="$t('scriptEditor.versionLocalValueInfo')"
+          info-icon="warning"
+          info-color="fill-[color:var(--color-warning)]"
+          :tooltip="meta.different?.almanac?.isEqual === false ? $t('scriptEditor.differentFromGlobal', { value: meta.different.almanac.generalValue || $t('scriptEditor.emptyValue') }) : ''"
+          tooltip-icon="different"
+          tooltip-color="fill-[color:var(--color-error)]" />
+      <simple-checkbox
+          v-model:value="meta.hideTitle"
+          class="mb-2"
+          :label="$t('scriptEditor.hideScriptName')"
+          :info="$t('scriptEditor.versionLocalValueInfo')"
+          info-icon="warning"
+          info-color="fill-[color:var(--color-warning)]"
+          :tooltip="meta.different?.hideTitle?.isEqual === false ? $t('scriptEditor.differentFromGlobalBool', { value: meta.different.hideTitle.generalValue }) : ''"
+          tooltip-icon="different"
+          tooltip-color="fill-[color:var(--color-error)]" />
       <bootlegger-fields v-if="isBootleggersEnabled" />
       <input-color-tag v-if="scriptTags.length > 0"
                        v-model:value="scriptTags"
@@ -95,38 +86,28 @@
           class="mt-2"
           :info="$t('scriptEditor.noteInfo')" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-end">
-          <simple-input
-              v-model:value="meta.logo"
-              :label="$t('scriptEditor.logo')"
-              class="w-full"
-              :maxlength="250"
-              placeholder="https://"
-              :tooltip="$t('scriptEditor.commonValueInfo')"
-              tooltip-icon="warning"
-              tooltip-color="fill-[color:var(--color-warning)]"
-              input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
-              :different="getDifferentText(meta.different?.logo?.isEqual)" />
-          <action-button-in-script-option-popup
-              :value="meta.different?.logo"
-              @value-update="meta.logo = $event" />
-        </div>
-        <div class="flex items-end">
-          <simple-input
-              v-model:value="meta.background"
-              class="w-full"
-              :label="$t('scriptEditor.background')"
-              :maxlength="250"
-              placeholder="https://"
-              :tooltip="$t('scriptEditor.commonValueInfo')"
-              tooltip-icon="warning"
-              tooltip-color="fill-[color:var(--color-warning)]"
-              input-class="rounded-md px-3 py-2 h-10 w-full focus:outline-none shadow-sm form-input pr-23"
-              :different="getDifferentText(meta.different?.background?.isEqual)" />
-          <action-button-in-script-option-popup
-              :value="meta.different?.background"
-              @value-update="meta.background = $event" />
-        </div>
+        <simple-input
+            v-model:value="meta.logo"
+            :label="$t('scriptEditor.logo')"
+            :maxlength="250"
+            placeholder="https://"
+            :info="$t('scriptEditor.versionLocalValueInfo')"
+            info-icon="warning"
+            info-color="fill-[color:var(--color-warning)]"
+            :tooltip="meta.different?.logo?.isEqual === false ? $t('scriptEditor.differentFromGlobal', { value: meta.different.logo.generalValue || $t('scriptEditor.emptyValue') }) : ''"
+            tooltip-icon="different"
+            tooltip-color="fill-[color:var(--color-error)]" />
+        <simple-input
+            v-model:value="meta.background"
+            :label="$t('scriptEditor.background')"
+            :maxlength="250"
+            placeholder="https://"
+            :info="$t('scriptEditor.versionLocalValueInfo')"
+            info-icon="warning"
+            info-color="fill-[color:var(--color-warning)]"
+            :tooltip="meta.different?.background?.isEqual === false ? $t('scriptEditor.differentFromGlobal', { value: meta.different.background.generalValue || $t('scriptEditor.emptyValue') }) : ''"
+            tooltip-icon="different"
+            tooltip-color="fill-[color:var(--color-error)]" />
         <div class="max-h-[500px] mx-auto rounded object-cover">
           <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
         </div>
@@ -144,8 +125,8 @@
 </template>
 <script setup>
 import SimpleInput from "@/components/ui/SimpleInput.vue";
-import {computed, ref, watch} from "vue";
-import {isEqual} from "lodash/lang";
+import {computed, ref, watch, toRaw} from "vue";
+import {isEqual, cloneDeep} from "lodash/lang";
 import {useI18n} from "vue-i18n";
 import {storeToRefs} from "pinia";
 import {useCraftStore} from "@/store/craft";
@@ -160,8 +141,8 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import router from "@/router";
 import PopupContainer from "@/components/PopupContainer.vue";
 import {DEFAULT_SCRIPT_NAME, DEFAULT_SCRIPT_AUTHOR} from "@/constants/roles";
-import ActionButtonInScriptOptionPopup from "@/components/craft/pdf/ActionButtonInScriptOptionPopup.vue";
 import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
+import {pushState, ACTION_TYPES} from "@/store/craft/history";
 
 const { t } = useI18n()
 
@@ -176,35 +157,14 @@ const scriptTags = ref([])
 const selectedTag = ref('')
 const previousName = ref('')
 const previousAuthor = ref('')
-
-const deletingVersions = computed(() => {
-  let result = ""
-  let issetVersion = false
-  meta.value?.list.forEach(el => {
-    if(issetVersion){
-      result += ', '
-    }
-    if(!issetVersion){
-      issetVersion = true
-    }
-    result += el.version
-  })
-
-  return result
-})
 const meta = ref({})
 const initialMeta = ref(null)
 const initialTags = ref([])
 const isVisibleDeleteDialog = ref(false)
 const emits = defineEmits(['update:isOpen'])
 
-function getDifferentText(value) {
-  return value === false ? t('scriptEditor.differentValueInfo') : ""
-}
-
 function closeWindow(){
   const currentTags = Object.values(scriptTags.value).map(({title}) => title)
-  pdfMeta.value['tags'] = currentTags
 
   // Проверяем реальные изменения в мета-данных
   if (initialMeta.value) {
@@ -213,10 +173,36 @@ function closeWindow(){
     const hasTagChanges = !isEqual([...currentTags].sort(), [...initialTags.value].sort())
 
     if (hasMetaChanges || hasTagChanges) {
+      // Determine action type and value
+      let actionType = ACTION_TYPES.UNKNOWN
+      let actionValue = meta.value.name
+
+      if (meta.value.name !== initialMeta.value.name) {
+        actionType = ACTION_TYPES.CHANGE_NAME
+        actionValue = meta.value.name
+      } else if (meta.value.author !== initialMeta.value.author) {
+        actionType = ACTION_TYPES.CHANGE_AUTHOR
+        actionValue = meta.value.author
+      } else if (meta.value.almanac !== initialMeta.value.almanac) {
+        actionType = ACTION_TYPES.CHANGE_ALMANAC
+        actionValue = meta.value.almanac
+      } else if (meta.value.logo !== initialMeta.value.logo) {
+        actionType = ACTION_TYPES.CHANGE_LOGO
+        actionValue = meta.value.name
+      }
+
+      // Save state for undo BEFORE applying changes
+      pushState(actionType, actionValue)
       isEditingScript.value = true
+
+      // Apply changes from meta copy back to pdfMeta
+      fieldsToCompare.forEach(field => {
+        pdfMeta.value[field] = meta.value[field]
+      })
     }
   }
 
+  pdfMeta.value['tags'] = currentTags
   emits('update:isOpen', !props.isOpen)
 }
 
@@ -253,32 +239,35 @@ function authorFocusOut(event){
   }
 }
 
-watch(pdfMeta, (newVal) => {
-  meta.value = newVal
-  if(!isEmpty(meta.value.tags)){
-    scriptTags.value = (meta.value.tags || [])
-        .map(tag => tags.value.find(el => el.title === tag))
-        .filter(Boolean)
-  } else {
-    scriptTags.value = []
-  }
-},{ immediate: true, deep: true})
-
-// Сохраняем начальное состояние при открытии попапа
+// Initialize meta when popup opens (not on every pdfMeta change)
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
+    // Create a deep copy of pdfMeta for editing (using toRaw to avoid reactive proxy issues)
+    const rawPdfMeta = toRaw(pdfMeta.value)
+    meta.value = cloneDeep(rawPdfMeta)
+
+    // Save initial state for comparison (plain values, not reactive)
     initialMeta.value = {
-      name: pdfMeta.value.name,
-      author: pdfMeta.value.author,
-      almanac: pdfMeta.value.almanac,
-      hideTitle: pdfMeta.value.hideTitle,
-      note: pdfMeta.value.note,
-      logo: pdfMeta.value.logo,
-      background: pdfMeta.value.background
+      name: rawPdfMeta.name,
+      author: rawPdfMeta.author,
+      almanac: rawPdfMeta.almanac,
+      hideTitle: rawPdfMeta.hideTitle,
+      note: rawPdfMeta.note,
+      logo: rawPdfMeta.logo,
+      background: rawPdfMeta.background
     }
-    initialTags.value = [...(pdfMeta.value.tags || [])]
+    initialTags.value = [...(rawPdfMeta.tags || [])]
+
+    // Initialize tags
+    if(!isEmpty(meta.value.tags)){
+      scriptTags.value = (meta.value.tags || [])
+          .map(tag => tags.value.find(el => el.title === tag))
+          .filter(Boolean)
+    } else {
+      scriptTags.value = []
+    }
   }
-})
+}, { immediate: true })
 
 watch(selectedTag, (val) => {
   if(val !== '' && !scriptTags.value.find(({title}) => title === val)){

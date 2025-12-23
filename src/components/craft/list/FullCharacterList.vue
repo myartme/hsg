@@ -6,10 +6,11 @@
     <template #content>
       <div class="pt-3"></div>
       <div class="flex gap-3 h-13 p-5 ml-5 mr-5 list-element">
-        <input v-model="searchedQuery"
+        <input ref="searchInputRef"
+               v-model="searchedQuery"
                class="h-10 ml-3 w-full focus:outline-none text-theme placeholder-[color:var(--color-placeholder-text)]"
                type="text"
-               :placeholder="$t('scriptEditor.filterPlaceholder')"
+               :placeholder="$t('scriptEditor.filterPlaceholder', { key: modifierKey })"
         />
         <div class="flex pr-3 gap-3">
           <div v-click-outside="() => isEditionFilterShow = false">
@@ -85,7 +86,10 @@ defineOptions({
 })
 
 const craftStore = useCraftStore()
-const { characterListWithParams, isDeletingFromPdfCharacterList } = storeToRefs(craftStore)
+const { characterListWithParams, isDeletingFromPdfCharacterList, focusSearchTrigger } = storeToRefs(craftStore)
+const searchInputRef = ref(null)
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+const modifierKey = isMac ? 'Cmd' : 'Ctrl'
 const instance = getCurrentInstance()
 const searchedQuery = ref("")
 const lastSearchedQuery = ref("")
@@ -210,11 +214,19 @@ watch(searchedQuery, (newVal) => {
 
 watch(characterListWithParams, () => {
   list.value = {...characterListWithParams.value}
-  listFiltered.value = {...characterListWithParams.value}
+  // Always apply filters when characterListWithParams changes
+  listFiltered.value = getFilteredQuery(searchedQuery.value, getFiltered(list.value))
 
   if(isDeletingFromPdfCharacterList.value){
-    listFiltered.value = getFilteredQuery(searchedQuery.value, getFiltered(list.value))
     isDeletingFromPdfCharacterList.value = false
   }
 }, {immediate:true})
+
+// Focus search input when trigger changes
+watch(focusSearchTrigger, () => {
+  if (searchInputRef.value) {
+    searchInputRef.value.focus()
+    searchInputRef.value.select()
+  }
+})
 </script>

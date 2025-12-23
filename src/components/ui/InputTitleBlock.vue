@@ -9,7 +9,13 @@
       <info-tooltip v-if="required && modelLength === 0" :text="required" icon="alert" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />
       <span v-if="suffix" class="text-lg font-bold title-theme">{{ suffix }}</span>
       <info-tooltip v-if="different" :text="different" icon="different" icon-size="w-5 h-5" icon-color="fill-[color:var(--color-error)]" />
-      <info-tooltip v-if="tooltip" :text="tooltip" :icon="tooltipIcon" icon-size="w-5 h-5" :icon-color="tooltipColor" />
+      <info-tooltip v-if="tooltip"
+                    :text="tooltip"
+                    :icon="tooltipIcon"
+                    icon-size="w-5 h-5"
+                    :icon-color="tooltipColor"
+                    :clickable="tooltipClickable"
+                    @click="handleTooltipClick" />
     </div>
   </div>
 </template>
@@ -59,5 +65,15 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  tooltipClickable: {
+    type: Boolean,
+    default: false
+  }
 })
+
+const emit = defineEmits(['tooltip-click'])
+
+function handleTooltipClick(event) {
+  emit('tooltip-click', event)
+}
 </script>

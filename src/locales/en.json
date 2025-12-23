@@ -18,6 +18,7 @@
   "scripts": {
     "title": "Scripts",
     "createScript": "Create script",
+    "openDraft": "Open unsaved script",
     "importScript": "Import script",
     "scriptTags": "Script tags",
     "filter": "Filter",
@@ -231,7 +232,9 @@
     "otherNightPriority": "Other nights wake-up priority. \"0\" means this character doesn't wake during other nights."
   },
   "common": {
-    "selectAnOption": "Select an option"
+    "selectAnOption": "Select an option",
+    "yes": "Yes",
+    "no": "No"
   },
   "tags": {
     "tokens": "tokens",
@@ -249,25 +252,49 @@
     "byDate": "By date"
   },
   "tooltips": {
-    "resetVersionInfo": "Reset version information",
+    "resetVersionInfo": "Fix script version sequence",
     "deleteAllVersions": "Delete all versions of this script",
     "hideScriptTitle": "You can hide script's title in the script.",
     "restoreDefaultOrder": "Restore default order",
     "restoreToLastSave": "Restore to last save order",
-    "scriptOptions": "Script options",
-    "nightOrder": "Night Order",
-    "returnToScriptList": "Return to script list",
-    "saveScript": "Save script to library",
-    "copyToClipboard": "Copy to clipboard",
-    "downloadPdf": "Download Pdf",
-    "downloadJson": "Download Json",
+    "scriptOptions": "Script options ({key}+O)",
+    "nightOrder": "Night Order ({key}+N)",
+    "returnToScriptList": "Return to script list ({key}+Backspace)",
+    "saveScript": "Save script to library ({key}+S)",
+    "copyToClipboard": "Copy to clipboard ({key}+T)",
+    "downloadPdf": "Download Pdf ({key}+P)",
+    "downloadJson": "Download Json ({key}+J)",
     "bootleggerRules": "Bootlegger rules",
     "notAvailableEmptyScript": "Not available while script is empty",
     "notSavedToLibrary": "Script not saved. Generated file won't be added to the library.",
     "notAvailableDefaultName": "Not available with default name. Change it in the current script settings or in the added characters list.",
     "notAvailableEmptyName": "Not available with empty name. Change it in the current script settings or in the added characters list.",
     "nightOrderMissing": "Night order was missing and filled with default values. You can change them in the corresponding section. Resave the script to fix it.",
-    "nightOrderMismatch": "Script has been changed, please check the Night Order."
+    "nightOrderMismatch": "Script has been changed, please check the Night Order.",
+    "undo": "Undo ({key}+Z)",
+    "redo": "Redo ({key}+Shift+Z)",
+    "history": "Change history"
+  },
+  "history": {
+    "title": "Change History",
+    "current": "Current state",
+    "step": "Step {n}",
+    "stepForward": "{n} forward",
+    "stepBack": "{n} back",
+    "characters": "{count} characters",
+    "actions": {
+      "addCharacter": "Add character",
+      "removeCharacter": "Remove character",
+      "changeName": "Change name",
+      "changeAuthor": "Change author",
+      "changeAlmanac": "Change almanac",
+      "changeLogo": "Change logo",
+      "addBootleggerRule": "Add bootlegger rule",
+      "removeBootleggerRule": "Remove bootlegger rule",
+      "changeNightOrder": "Change night order",
+      "changeVersion": "Change version",
+      "unknown": "Change"
+    }
   },
   "nightOrder": {
     "title": "Night Order",
@@ -313,7 +340,7 @@
   },
   "scriptEditor": {
     "by": "by",
-    "filterPlaceholder": "Filter by multiple keywords (separate with spaces)",
+    "filterPlaceholder": "Filter by multiple keywords ({key}+F)",
     "unsavedChangesTitle": "Unsaved Changes",
     "unsavedChangesDesc": "Do you really want to leave this page? All unsaved data will be lost.",
     "scriptOptions": "Script options",
@@ -332,20 +359,32 @@
     "addBootlegger": "Add Bootlegger...",
     "scriptNameInfo": "Changing this value will be considered a new script when saving!",
     "scriptNameDefaultWarning": "This value must be different from the default value <strong>{name}</strong>.",
-    "commonValueInfo": "This value is common to all versions of the script.",
+    "versionLocalValueInfo": "This value applies only to the current version of the script. You can update common settings for all versions on the scripts page if they differ.",
+    "differentFromGlobal": "Value differs from global: <strong>{value}</strong>",
+    "differentFromGlobalBool": "Global value: <strong>{value}</strong>",
+    "emptyValue": "(empty)",
+    "versionsHaveDifferences": "One or more versions of the script have differences from the common value. Click this icon if you want to update and synchronize data for all versions of the script.",
+    "versionsHaveDifferencesBool": "One or more versions of the script have differences from the common value.",
+    "globalValue": "Common {field}",
+    "versionValue": "Version {version}",
+    "globalLabel": "Common",
+    "versionLabel": "Version {version}",
     "almanacInfo": "A document describing the script and its features: character interactions, recommendations for running and playing.",
-    "hideScriptNameInfo": "You can hide script's title in the script.<br>This value is common to all versions of the script.",
+    "hideScriptNameInfo": "You can hide script's title in the script.",
     "bootleggerRulesInfo": "Enter a rule and press Enter to add.",
     "bootleggerListInfo": "Bootlegger rules for all characters contained in the current script. Click to add.",
     "tagsInfo": "Tags for filtering scripts.",
     "tagsListInfo": "All script tags. Click to add.",
     "noteInfo": "Here you can write any notes about the script. These notes will not be added to the script.",
-    "imageUrlInfo": "Enter image URL. This value is common to all versions of the script.",
+    "imageUrlInfo": "Enter image URL.",
     "deletingScript": "Deleting {name} and all versions",
     "deleteScriptConfirm": "This action cannot be undone. Are you sure you want to delete this script with versions {versions}?",
     "deletingAllVersions": "Deleting all versions of {name}",
     "deleteAllVersionsConfirm": "This action cannot be undone. Are you sure you want to delete all versions of this script?",
-    "differentValueInfo": "This value in the current version doesn't match the default value for the script.<br>Save the current version to update default value.",
-    "noMatchingCharacters": "No matching characters. Please adjust the filter parameters to update the results."
+    "noMatchingCharacters": "No matching characters. Please adjust the filter parameters to update the results.",
+    "draftFound": "Restore unsaved work?",
+    "draftDescription": "Draft \"{name}\"{author} from {date} was found. Would you like to restore it?",
+    "restoreDraft": "Restore",
+    "discardDraft": "Delete"
   }
 }
