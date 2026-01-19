@@ -3,7 +3,7 @@
     <template #content>
       <nav class="flex justify-between items-center h-16 px-8 py-4">
         <div class="flex items-center gap-3">
-          <img src="/images/logo.png" alt="Logo" class="w-10 h-10 rounded-lg opacity-70 saturate-[0.7]" />
+          <cached-image :src="'/images/logo.png'" alt="Logo" img-class="w-10 h-10 rounded-lg opacity-70 saturate-[0.7]" />
           <div class="text-2xl font-bold tracking-wide">{{ $t('menu.appTitle') }}</div>
         </div>
         <div v-if="debugMode" class="text-2xl font-bold text-[color:var(--color-button-error)]">DEBUG TRUE</div>
@@ -20,6 +20,7 @@
 </template>
 <script setup>
 import SectorContainer from "@/components/SectorContainer.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import {computed, getCurrentInstance} from "vue";
 import {debugMode} from "@/store/options/state";
 import {useI18n} from "vue-i18n";

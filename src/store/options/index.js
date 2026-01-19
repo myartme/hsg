@@ -1,5 +1,5 @@
 import {defineStore, storeToRefs} from 'pinia'
-import {appVersion, debugMode, theme, themes, tooltipDelay, language, languages, scriptEditorDefaultFilters} from "@/store/options/state";
+import {appVersion, debugMode, theme, themes, tooltipDelay, language, languages, scriptEditorDefaultFilters, pdfPrintDefaults} from "@/store/options/state";
 import {getDataOptions, setDataOptions, deleteDataOptions, deleteAllData, openLink} from "@/store";
 import {useLibraryStore} from "@/store/library";
 import {useCraftStore} from "@/store/craft";
@@ -9,10 +9,11 @@ import {normalizeQueuePositions} from "@/store/library/queue";
 
 export const useOptionsStore = defineStore('options', () => {
     async function importSets(data, withReplace){
+        console.log('=== importSets ===', { withReplace, data })
         try {
             const libraryStore = useLibraryStore()
             const craftStore = useCraftStore()
-            const {metaSets, listSets, queuePositions, bootlegger} = storeToRefs(libraryStore)
+            const {metaSets, listSets, queuePositions, bootlegger, nightOrder} = storeToRefs(libraryStore)
             await craftStore.loadScripts()
 
             if (data.meta && data.list) {
@@ -45,6 +46,29 @@ export const useOptionsStore = defineStore('options', () => {
                                     })
                                 }
                             }
+                            if (data.nightOrder && data.nightOrder[key]) {
+                                const no = data.nightOrder[key]
+                                if (no.firstNight) {
+                                    no.firstNight.forEach(el => {
+                                        const listIdx = nightOrder.value.firstNight.findIndex(n => n.id === el.id)
+                                        if (listIdx >= 0) {
+                                            nightOrder.value.firstNight[listIdx] = el
+                                        } else {
+                                            nightOrder.value.firstNight.push(el)
+                                        }
+                                    })
+                                }
+                                if (no.otherNight) {
+                                    no.otherNight.forEach(el => {
+                                        const listIdx = nightOrder.value.otherNight.findIndex(n => n.id === el.id)
+                                        if (listIdx >= 0) {
+                                            nightOrder.value.otherNight[listIdx] = el
+                                        } else {
+                                            nightOrder.value.otherNight.push(el)
+                                        }
+                                    })
+                                }
+                            }
                             for (const [team, list] of Object.entries(data.list[key])) {
                                 list.forEach(el => {
                                     const listIdx = listSets.value[idx][team].findIndex(character => character.id === el.id)
@@ -70,6 +94,20 @@ export const useOptionsStore = defineStore('options', () => {
                                     bootlegger.value[team].push(...newItems)
                                 }
                             }
+                            // Добавляем nightOrder для новых персонажей (merge mode)
+                            if (data.nightOrder && data.nightOrder[key]) {
+                                const existingFirstNightIds = new Set(nightOrder.value.firstNight.map(n => n.id))
+                                const existingOtherNightIds = new Set(nightOrder.value.otherNight.map(n => n.id))
+                                const no = data.nightOrder[key]
+                                if (no.firstNight) {
+                                    const newFirst = no.firstNight.filter(n => !existingFirstNightIds.has(n.id))
+                                    nightOrder.value.firstNight.push(...newFirst)
+                                }
+                                if (no.otherNight) {
+                                    const newOther = no.otherNight.filter(n => !existingOtherNightIds.has(n.id))
+                                    nightOrder.value.otherNight.push(...newOther)
+                                }
+                            }
                         }
                     } else {
                         metaSets.value.push(metaEl)
@@ -83,6 +121,15 @@ export const useOptionsStore = defineStore('options', () => {
                                 bootlegger.value[team].push(...list)
                             }
                         }
+                        if (data.nightOrder && data.nightOrder[key]) {
+                            const no = data.nightOrder[key]
+                            if (no.firstNight) {
+                                nightOrder.value.firstNight.push(...no.firstNight)
+                            }
+                            if (no.otherNight) {
+                                nightOrder.value.otherNight.push(...no.otherNight)
+                            }
+                        }
                     }
                     await libraryStore.saveSet(metaEl.id, listSets.value[idx])
                 }
@@ -91,14 +138,17 @@ export const useOptionsStore = defineStore('options', () => {
             normalizeQueuePositions()
             await libraryStore.saveQueuePositions()
             await libraryStore.saveBootlegger()
+            await libraryStore.saveNightOrder()
 
             return true
-        } catch {
+        } catch (e) {
+            console.error('importSets error:', e)
             return false
         }
     }
 
     async function importScripts(data, withReplace){
+        console.log('=== importScripts ===', { withReplace, data })
         try {
             const craftStore = useCraftStore()
             const {scriptList} = storeToRefs(craftStore)
@@ -140,11 +190,13 @@ export const useOptionsStore = defineStore('options', () => {
 
             return true
         } catch(e) {
+            console.error('importScripts error:', e)
             return false
         }
     }
 
     async function importScriptTags(data, withReplace){
+        console.log('=== importScriptTags ===', { withReplace, data })
         try{
             if(!withReplace){
                 const tags = await getTags()
@@ -161,15 +213,18 @@ export const useOptionsStore = defineStore('options', () => {
             }
             return true
         } catch(e) {
+            console.error('importScriptTags error:', e)
             return false
         }
     }
 
     async function importOptions(data){
+        console.log('=== importOptions ===', { data })
         try{
             await setOptions(data)
             return true
-        } catch {
+        } catch (e) {
+            console.error('importOptions error:', e)
             return false
         }
     }
@@ -194,7 +249,8 @@ export const useOptionsStore = defineStore('options', () => {
                 options : {
                     theme: theme.value,
                     tooltip: tooltipDelay.value,
-                    language: language.value
+                    language: language.value,
+                    pdfPrintDefaults: pdfPrintDefaults.value
                 }
             }
         }
@@ -210,13 +266,14 @@ export const useOptionsStore = defineStore('options', () => {
 
     function getSets(data){
         const libraryStore = useLibraryStore()
-        const { allData, bootlegger, queuePositions } = storeToRefs(libraryStore)
+        const { allData, bootlegger, queuePositions, nightOrder } = storeToRefs(libraryStore)
 
         const result = {
             meta: [],
             list: [],
             queuePosition: [],
-            bootlegger: []
+            bootlegger: [],
+            nightOrder: []
         }
 
         data.forEach(el => {
@@ -241,11 +298,23 @@ export const useOptionsStore = defineStore('options', () => {
                 })
             )
 
+            // Собираем все id персонажей из набора
+            const allCharIds = new Set(
+                Object.values(setInfo.list).flat().map(char => char.id)
+            )
+
+            // Фильтруем nightOrder для персонажей этого набора
+            const no = {
+                firstNight: nightOrder.value.firstNight.filter(n => allCharIds.has(n.id)),
+                otherNight: nightOrder.value.otherNight.filter(n => allCharIds.has(n.id))
+            }
+
             if(setInfo){
                 result.meta.push(setInfo.meta)
                 result.list.push(setInfo.list)
                 result.queuePosition.push(qp)
                 result.bootlegger.push(b)
+                result.nightOrder.push(no)
             }
         })
 
@@ -291,6 +360,19 @@ export const useOptionsStore = defineStore('options', () => {
             if(options.scriptEditorDefaultFilters){
                 scriptEditorDefaultFilters.value = options.scriptEditorDefaultFilters
             }
+            if(options.pdfPrintDefaults){
+                // Миграция: showJinxes -> showDjinn, jinxesDisplayMode -> djinnDisplayMode
+                const migrated = { ...options.pdfPrintDefaults }
+                if ('showJinxes' in migrated && !('showDjinn' in migrated)) {
+                    migrated.showDjinn = migrated.showJinxes
+                    delete migrated.showJinxes
+                }
+                if ('jinxesDisplayMode' in migrated && !('djinnDisplayMode' in migrated)) {
+                    migrated.djinnDisplayMode = migrated.jinxesDisplayMode
+                    delete migrated.jinxesDisplayMode
+                }
+                pdfPrintDefaults.value = { ...pdfPrintDefaults.value, ...migrated }
+            }
         } else {
             if(response?.error.code === 'ENOENT' && !isRecursive){
                 await getOptions(!isAppPath, true)
@@ -324,12 +406,16 @@ export const useOptionsStore = defineStore('options', () => {
         if(content.scriptEditorDefaultFilters !== undefined){
             scriptEditorDefaultFilters.value = content.scriptEditorDefaultFilters
         }
+        if(content.pdfPrintDefaults !== undefined){
+            pdfPrintDefaults.value = { ...pdfPrintDefaults.value, ...content.pdfPrintDefaults }
+        }
 
         await setDataOptions({
             theme: theme.value,
             tooltip: tooltipDelay.value,
             language: language.value,
-            scriptEditorDefaultFilters: scriptEditorDefaultFilters.value
+            scriptEditorDefaultFilters: scriptEditorDefaultFilters.value,
+            pdfPrintDefaults: pdfPrintDefaults.value
         })
     }
 
@@ -358,6 +444,7 @@ export const useOptionsStore = defineStore('options', () => {
         language,
         languages,
         scriptEditorDefaultFilters,
+        pdfPrintDefaults,
 
         getOptions,
         setOptions,

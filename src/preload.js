@@ -58,6 +58,9 @@ contextBridge.exposeInMainWorld(
         getBase64Image: (url) =>
             ipcRenderer.invoke('getBase64Image', url),
 
+        getLocalImage: (relativePath) =>
+            ipcRenderer.invoke('getLocalImage', relativePath),
+
         getCachedImage: (url) =>
             ipcRenderer.invoke('getCachedImage', url),
 
@@ -105,6 +108,7 @@ const aboutTexts = {
         images: 'The application uses images from the official website: http://bloodontheclocktower.com.',
         trademarks: 'All trademarks and assets belong to their respective owners.',
         disclaimer: 'This project is not affiliated with, endorsed by, or sponsored by the creators of Blood on the Clocktower.',
+        contact: 'Contact the author',
         close: 'Close'
     },
     ru: {
@@ -113,6 +117,7 @@ const aboutTexts = {
         images: 'Приложение использует изображения с официального сайта: http://bloodontheclocktower.com.',
         trademarks: 'Все торговые марки и материалы принадлежат их владельцам.',
         disclaimer: 'Этот проект не связан с создателями Blood on the Clocktower и не одобрен ими.',
+        contact: 'Связаться с автором',
         close: 'Закрыть'
     }
 }
@@ -143,11 +148,17 @@ ipcRenderer.on('show-about', (event, lang = 'en') => {
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
           <h2 style="margin-bottom: 8px; color:white">BotC HSG</h2>
           <p style="margin-bottom: 16px; color:white">${t.version} 1.8.0</p>
-          <p style="margin-bottom: 24px; font-size: 14px; color: #9a9797;">
+          <p style="margin-bottom: 16px; font-size: 14px; color: #9a9797;">
             ${t.description}
             <br>${t.images}
             <br>${t.trademarks}
             <br>${t.disclaimer}
+          </p>
+          <p style="margin-bottom: 24px; font-size: 14px; color: #9a9797;">
+            ${t.contact}:
+            <a href="mailto:myartme@gmail.com" style="color: #a78bfa; text-decoration: none;">myartme@gmail.com</a>
+            &nbsp;|&nbsp;
+            <a href="https://t.me/Myartme" style="color: #a78bfa; text-decoration: none;">Telegram</a>
           </p>
           <button id="about-close" style="
           padding: 8px 16px;

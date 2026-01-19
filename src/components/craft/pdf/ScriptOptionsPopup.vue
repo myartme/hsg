@@ -109,10 +109,243 @@
             tooltip-icon="different"
             tooltip-color="fill-[color:var(--color-error)]" />
         <div class="max-h-[500px] mx-auto rounded object-cover">
-          <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
+          <cached-image v-if="meta.logo" :src="meta.logo" img-class="max-h-[500px] object-contain w-full rounded" alt="logo" />
         </div>
         <div class="max-h-[500px] mx-auto rounded object-cover">
-          <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
+          <cached-image v-if="meta.background" :src="meta.background" img-class="max-h-[500px] object-contain w-full rounded" alt="background" />
+        </div>
+      </div>
+      <!-- PDF Print Settings -->
+      <div class="mt-4 pt-4 border-t border-[color:var(--color-border)]">
+        <div class="flex items-center gap-2 mb-3">
+          <h3 class="text-lg font-semibold title-theme">{{ $t('options.pdfPrintSettings') }}</h3>
+          <info-tooltip :text="$t('options.pdfPrintSettingsInfo')" icon="info" icon-size="w-5 h-5" />
+        </div>
+        <div class="space-y-3">
+          <!-- Role Columns + Roles/Rows Per Page -->
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-theme">{{ $t('options.roleColumns') }}</span>
+              <pdf-option-tooltip
+                  :left-label="$t('options.oneColumn')"
+                  left-image="/images/elements/ui/pdf_options/one_column.png"
+                  :right-label="$t('options.twoColumns')"
+                  right-image="/images/elements/ui/pdf_options/two_columns.png" />
+            </div>
+            <div class="flex gap-2">
+              <button
+                  @click="pdfPrintDefaults.roleColumns = 1"
+                  :class="[
+                    'px-3 py-1 rounded-md transition cursor-pointer text-sm',
+                    pdfPrintDefaults.roleColumns === 1
+                      ? 'bg-[color:var(--color-active)] text-[color:var(--color-text)]'
+                      : 'bg-[color:var(--color-border)] text-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
+                  ]"
+              >1</button>
+              <button
+                  @click="pdfPrintDefaults.roleColumns = 2"
+                  :class="[
+                    'px-3 py-1 rounded-md transition cursor-pointer text-sm',
+                    pdfPrintDefaults.roleColumns === 2
+                      ? 'bg-[color:var(--color-active)] text-[color:var(--color-text)]'
+                      : 'bg-[color:var(--color-border)] text-[color:var(--color-bg)] hover:bg-[color:var(--color-hover-bg)]'
+                  ]"
+              >2</button>
+            </div>
+            <!-- Roles/Rows slider inline -->
+            <span class="text-sm font-medium text-theme">{{ pdfPrintDefaults.roleColumns === 1 ? $t('options.rolesPerPage') : $t('options.rowsPerPage') }}</span>
+            <input
+                v-if="pdfPrintDefaults.roleColumns === 1"
+                type="range"
+                :min="15"
+                :max="25"
+                :step="1"
+                v-model.number="pdfPrintDefaults.rolesPerPage"
+                class="w-32 accent-[color:var(--color-active)]"
+            />
+            <input
+                v-else
+                type="range"
+                :min="8"
+                :max="13"
+                :step="1"
+                v-model.number="pdfPrintDefaults.rowsPerPage"
+                class="w-32 accent-[color:var(--color-active)]"
+            />
+            <span class="text-sm text-theme w-6">{{ pdfPrintDefaults.roleColumns === 1 ? pdfPrintDefaults.rolesPerPage : pdfPrintDefaults.rowsPerPage }}</span>
+          </div>
+          <!-- Night Order -->
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 min-w-[180px]">
+              <span class="text-sm font-medium text-theme">{{ $t('options.showNightOrder') }}</span>
+              <tooltip
+                  :triggers="['hover', 'focus']"
+                  placement="top"
+                  :delay="{ show: tooltipDelay.infoShow, hide: tooltipDelay.infoHide }"
+                  popper-class="nightorder-option-tooltip">
+                <template #default>
+                  <div class="cursor-pointer">
+                    <icon-element name="info" size="w-5 h-5" />
+                  </div>
+                </template>
+                <template #popper>
+                  <div class="flex flex-row gap-4 p-2">
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.compactDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_nightorder_compact.png'" :alt="$t('options.compactDisplay')" img-class="rounded" style="height: 250px; width: auto;" />
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.fullDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_nightorder_full.png'" :alt="$t('options.fullDisplay')" img-class="rounded" style="height: 250px; width: auto;" />
+                    </div>
+                  </div>
+                </template>
+              </tooltip>
+              <input type="checkbox" v-model="pdfPrintDefaults.showNightOrder" class="h-4 w-4 cursor-pointer accent-[color:var(--color-active)]" />
+            </div>
+            <div v-if="pdfPrintDefaults.showNightOrder" class="flex items-center gap-2">
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.nightOrderDisplayMode === 'compact' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.compactDisplay') }}</span>
+              <button
+                  @click="pdfPrintDefaults.nightOrderDisplayMode = pdfPrintDefaults.nightOrderDisplayMode === 'full' ? 'compact' : 'full'"
+                  :class="['relative w-10 h-5 rounded-full transition-colors cursor-pointer', pdfPrintDefaults.nightOrderDisplayMode === 'full' ? 'bg-[color:var(--color-active)]' : 'bg-[color:var(--color-border)]']">
+                <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all', pdfPrintDefaults.nightOrderDisplayMode === 'full' ? 'left-5.5' : 'left-0.5']"></span>
+              </button>
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.nightOrderDisplayMode === 'full' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.fullDisplay') }}</span>
+            </div>
+          </div>
+          <!-- Djinn -->
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-theme">{{ $t('options.showDjinn') }}</span>
+              <tooltip
+                  :triggers="['hover', 'focus']"
+                  placement="top"
+                  :delay="{ show: tooltipDelay.infoShow, hide: tooltipDelay.infoHide }"
+                  popper-class="djinn-option-tooltip">
+                <template #default>
+                  <div class="cursor-pointer">
+                    <icon-element name="info" size="w-5 h-5" />
+                  </div>
+                </template>
+                <template #popper>
+                  <div class="flex flex-col gap-4 p-2">
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.compactDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_djinn_compact.png'" :alt="$t('options.compactDisplay')" img-class="rounded" style="width: 300px; height: auto;" />
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.fullDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_djinn_full.png'" :alt="$t('options.fullDisplay')" img-class="rounded" style="width: 300px; height: auto;" />
+                    </div>
+                  </div>
+                </template>
+              </tooltip>
+              <input type="checkbox" v-model="pdfPrintDefaults.showDjinn" class="h-4 w-4 cursor-pointer accent-[color:var(--color-active)]" />
+            </div>
+            <div v-if="pdfPrintDefaults.showDjinn" class="flex items-center gap-2">
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.djinnDisplayMode === 'compact' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.compactDisplay') }}</span>
+              <button
+                  @click="pdfPrintDefaults.djinnDisplayMode = pdfPrintDefaults.djinnDisplayMode === 'full' ? 'compact' : 'full'"
+                  :class="['relative w-10 h-5 rounded-full transition-colors cursor-pointer', pdfPrintDefaults.djinnDisplayMode === 'full' ? 'bg-[color:var(--color-active)]' : 'bg-[color:var(--color-border)]']">
+                <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all', pdfPrintDefaults.djinnDisplayMode === 'full' ? 'left-5.5' : 'left-0.5']"></span>
+              </button>
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.djinnDisplayMode === 'full' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.fullDisplay') }}</span>
+            </div>
+          </div>
+          <!-- Bootlegger -->
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 min-w-[180px]">
+              <span class="text-sm font-medium text-theme">{{ $t('options.showBootlegger') }}</span>
+              <tooltip
+                  :triggers="['hover', 'focus']"
+                  placement="top"
+                  :delay="{ show: tooltipDelay.infoShow, hide: tooltipDelay.infoHide }"
+                  popper-class="bootlegger-option-tooltip">
+                <template #default>
+                  <div class="cursor-pointer">
+                    <icon-element name="info" size="w-5 h-5" />
+                  </div>
+                </template>
+                <template #popper>
+                  <div class="flex flex-col gap-4 p-2">
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.compactDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_bootlegger_compact.png'" :alt="$t('options.compactDisplay')" img-class="rounded" style="width: 300px; height: auto;" />
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.fullDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_bootlegger_full.png'" :alt="$t('options.fullDisplay')" img-class="rounded" style="width: 300px; height: auto;" />
+                    </div>
+                  </div>
+                </template>
+              </tooltip>
+              <input type="checkbox" v-model="pdfPrintDefaults.showBootlegger" class="h-4 w-4 cursor-pointer accent-[color:var(--color-active)]" />
+            </div>
+            <div v-if="pdfPrintDefaults.showBootlegger" class="flex items-center gap-2">
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.bootleggerDisplayMode === 'compact' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.compactDisplay') }}</span>
+              <button
+                  @click="pdfPrintDefaults.bootleggerDisplayMode = pdfPrintDefaults.bootleggerDisplayMode === 'full' ? 'compact' : 'full'"
+                  :class="['relative w-10 h-5 rounded-full transition-colors cursor-pointer', pdfPrintDefaults.bootleggerDisplayMode === 'full' ? 'bg-[color:var(--color-active)]' : 'bg-[color:var(--color-border)]']">
+                <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all', pdfPrintDefaults.bootleggerDisplayMode === 'full' ? 'left-5.5' : 'left-0.5']"></span>
+              </button>
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.bootleggerDisplayMode === 'full' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.fullDisplay') }}</span>
+            </div>
+          </div>
+          <!-- Travellers, Fabled, Loric -->
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 min-w-[180px]">
+              <span class="text-sm font-medium text-theme">{{ $t('options.showTravellersFabledLoric') }}</span>
+              <tooltip
+                  :triggers="['hover', 'focus']"
+                  placement="top"
+                  :delay="{ show: tooltipDelay.infoShow, hide: tooltipDelay.infoHide }"
+                  popper-class="tfl-option-tooltip">
+                <template #default>
+                  <div class="cursor-pointer">
+                    <icon-element name="info" size="w-5 h-5" />
+                  </div>
+                </template>
+                <template #popper>
+                  <div class="flex flex-col gap-4 p-2">
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.compactDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_tfl_compact.png'" :alt="$t('options.compactDisplay')" img-class="rounded" style="width: 450px; height: auto;" />
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span class="text-sm font-medium mb-2">{{ $t('options.fullDisplay') }}</span>
+                      <cached-image :src="'/images/elements/ui/pdf_options/show_tfl_full.png'" :alt="$t('options.fullDisplay')" img-class="rounded" style="width: 450px; height: auto;" />
+                    </div>
+                  </div>
+                </template>
+              </tooltip>
+              <input type="checkbox" v-model="pdfPrintDefaults.showTravellersFabledLoric" class="h-4 w-4 cursor-pointer accent-[color:var(--color-active)]" />
+            </div>
+            <div v-if="pdfPrintDefaults.showTravellersFabledLoric" class="flex items-center gap-2">
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.travellersFabledLoricDisplayMode === 'compact' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.compactDisplay') }}</span>
+              <button
+                  @click="pdfPrintDefaults.travellersFabledLoricDisplayMode = pdfPrintDefaults.travellersFabledLoricDisplayMode === 'full' ? 'compact' : 'full'"
+                  :class="['relative w-10 h-5 rounded-full transition-colors cursor-pointer', pdfPrintDefaults.travellersFabledLoricDisplayMode === 'full' ? 'bg-[color:var(--color-active)]' : 'bg-[color:var(--color-border)]']">
+                <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all', pdfPrintDefaults.travellersFabledLoricDisplayMode === 'full' ? 'left-5.5' : 'left-0.5']"></span>
+              </button>
+              <span :class="['text-xs transition-colors', pdfPrintDefaults.travellersFabledLoricDisplayMode === 'full' ? 'text-theme font-medium' : 'text-[color:var(--color-placeholder-text)]']">{{ $t('options.fullDisplay') }}</span>
+            </div>
+          </div>
+          <!-- Table -->
+          <div class="flex items-center gap-4">
+            <simple-checkbox
+                div-class="flex items-center gap-2 min-w-[180px]"
+                label-class="text-sm font-medium text-theme"
+                :label="$t('options.showTable')"
+                v-model:value="pdfPrintDefaults.showTable" />
+          </div>
+          <!-- Page Numbers -->
+          <div class="flex items-center gap-4">
+            <simple-checkbox
+                div-class="flex items-center gap-2 min-w-[180px]"
+                label-class="text-sm font-medium text-theme"
+                :label="$t('options.showPageNumbers')"
+                v-model:value="pdfPrintDefaults.showPageNumbers" />
+          </div>
         </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
@@ -125,6 +358,10 @@
 </template>
 <script setup>
 import SimpleInput from "@/components/ui/SimpleInput.vue";
+import InfoTooltip from "@/components/ui/InfoTooltip.vue";
+import PdfOptionTooltip from "@/components/ui/PdfOptionTooltip.vue";
+import {Tooltip} from "floating-vue";
+import IconElement from "@/components/ui/IconElement.vue";
 import {computed, ref, watch, toRaw} from "vue";
 import {isEqual, cloneDeep} from "lodash/lang";
 import {useI18n} from "vue-i18n";
@@ -143,6 +380,8 @@ import PopupContainer from "@/components/PopupContainer.vue";
 import {DEFAULT_SCRIPT_NAME, DEFAULT_SCRIPT_AUTHOR} from "@/constants/roles";
 import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
 import {pushState, ACTION_TYPES} from "@/store/craft/history";
+import {useOptionsStore} from "@/store/options";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 const { t } = useI18n()
 
@@ -152,7 +391,9 @@ const props = defineProps({
 })
 
 const craftStore = useCraftStore()
+const optionsStore = useOptionsStore()
 const { pdfMeta, activeScriptIndex, activeVersion, isSavedScript, tags, isEditingScript } = storeToRefs(craftStore)
+const { pdfPrintDefaults, tooltipDelay } = storeToRefs(optionsStore)
 const scriptTags = ref([])
 const selectedTag = ref('')
 const previousName = ref('')
@@ -279,3 +520,33 @@ watch(selectedTag, (val) => {
   selectedTag.value = ''
 })
 </script>
+<style>
+.nightorder-option-tooltip {
+  max-width: none !important;
+}
+.nightorder-option-tooltip .v-popper__inner {
+  max-width: none !important;
+  max-height: none !important;
+}
+.djinn-option-tooltip {
+  max-width: none !important;
+}
+.djinn-option-tooltip .v-popper__inner {
+  max-width: none !important;
+  max-height: none !important;
+}
+.bootlegger-option-tooltip {
+  max-width: none !important;
+}
+.bootlegger-option-tooltip .v-popper__inner {
+  max-width: none !important;
+  max-height: none !important;
+}
+.tfl-option-tooltip {
+  max-width: none !important;
+}
+.tfl-option-tooltip .v-popper__inner {
+  max-width: none !important;
+  max-height: none !important;
+}
+</style>

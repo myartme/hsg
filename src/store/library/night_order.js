@@ -17,12 +17,34 @@ export function addToNightOrder(element, field) {
     const list = nightOrder.value[field]
     const existingIdx = list.findIndex(el => el.id === element.id)
 
+    // Трюк: value - 1 чтобы встать перед существующим с тем же номером
+    const adjustedElement = { ...element, [field]: element[field] - 1 }
+
     if (existingIdx === -1) {
-        list.push(element)
+        list.push(adjustedElement)
     } else {
-        list[existingIdx] = element
+        list[existingIdx] = adjustedElement
     }
 
+    nightOrder.value[field] = normalizeNightOrderList(list, field)
+}
+
+export function addManyToNightOrder(elements, field) {
+    const list = nightOrder.value[field]
+
+    for (const element of elements) {
+        const existingIdx = list.findIndex(el => el.id === element.id)
+        // Трюк: value - 0.5 чтобы встать перед существующим с тем же номером
+        const adjustedElement = { ...element, [field]: element[field] - 0.5 }
+
+        if (existingIdx === -1) {
+            list.push(adjustedElement)
+        } else {
+            list[existingIdx] = adjustedElement
+        }
+    }
+
+    // Одна нормализация в конце — дробные станут целыми
     nightOrder.value[field] = normalizeNightOrderList(list, field)
 }
 

@@ -96,8 +96,8 @@
             :maxlength="250"
             placeholder="https://"
             class="mb-2" />
-        <img v-if="meta.logo" :src="meta.logo" class="mt-10 h-50 object-cover rounded mx-auto" alt="logo">
-        <img v-if="meta.background" :src="meta.background" class="mt-10 h-50 object-cover rounded mx-auto" alt="background">
+        <cached-image v-if="meta.logo" :src="meta.logo" img-class="mt-10 h-50 object-cover rounded mx-auto" alt="logo" />
+        <cached-image v-if="meta.background" :src="meta.background" img-class="mt-10 h-50 object-cover rounded mx-auto" alt="background" />
       </div>
     </template>
   </sector-container>
@@ -124,6 +124,7 @@ import {storeToRefs} from "pinia";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import ImportScriptTooltip from "@/components/craft/scripts/ImportScriptTooltip.vue";
 import {useI18n} from "vue-i18n";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 defineOptions({
   name: 'import-script'

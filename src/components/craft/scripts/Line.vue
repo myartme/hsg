@@ -8,9 +8,9 @@
     ]">
       <span class="flex justify-center font-bold text-center text-theme">{{ index + 1 }}</span>
       <div class="w-10 h-10 relative">
-        <img v-if="script?.logo"
-             class="absolute inset-0 w-full h-full object-cover rounded scale-110"
+        <cached-image v-if="script?.logo"
              :src="script.logo"
+             img-class="absolute inset-0 w-full h-full object-cover rounded scale-110"
              :alt="script.name" />
       </div>
       <span class="block break-words whitespace-normal text-left font-bold title-theme pl-5">{{ script?.name }}</span>
@@ -128,11 +128,11 @@ import router from "@/router";
 import ActionButton from "@/components/ui/ActionButton.vue";
 import {DEFAULT_VERSION, getImageFirstUrl, objectToPrettyJson} from "@/constants/other";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
-import {pdfMeta} from "@/store/craft/state";
 import {useLibraryStore} from "@/store/library";
 import {Tooltip} from "floating-vue";
 import IconElement from "@/components/ui/IconElement.vue";
 import {useOptionsStore} from "@/store/options";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 const props = defineProps({
   scriptData: Object,
@@ -151,7 +151,7 @@ const craftStore = useCraftStore()
 const optionsStore = useOptionsStore()
 const instance = getCurrentInstance()
 const { allListsAsOne } = storeToRefs(libraryStore)
-const { activeScriptIndex, tags, activeScript, activeVersion, isSavedScript } = storeToRefs(craftStore)
+const { activeScriptIndex, tags, activeScript, activeVersion, isSavedScript, savedFirstNightOrder, savedOtherNightOrder, pdfMeta } = storeToRefs(craftStore)
 const { tooltipDelay } = storeToRefs(optionsStore)
 const list = ref([])
 const isVisibleDeleteDialog = ref(false)

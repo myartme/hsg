@@ -76,6 +76,7 @@
     "jinxTooltipShow": "Jinx select character tooltip show",
     "jinxTooltipHide": "Jinx select character tooltip hide",
     "scriptEditorDefaults": "Script editor defaults",
+    "scriptEditor": "Script Editor",
     "setsFilter": "Sets filter",
     "restoreSets": "Set management",
     "restoreThisSet": "Restore this set",
@@ -90,7 +91,22 @@
     "imageCache": "Image cache",
     "imageCacheInfo": "{count} images, {size}",
     "clearImageCache": "Clear cache",
-    "imageCacheCleared": "Cache cleared"
+    "imageCacheCleared": "Cache cleared",
+    "pdfPrintSettings": "PDF print settings",
+    "pdfPrintSettingsInfo": "You can change default PDF print settings in the Options menu",
+    "showTravellersFabledLoric": "Show Travellers, Fabled, Loric",
+    "showTable": "Show player count table",
+    "showPageNumbers": "Show page numbers",
+    "showDjinn": "Show Djinn",
+    "showBootlegger": "Show Bootlegger",
+    "showNightOrder": "Show Night Order",
+    "fullDisplay": "Full",
+    "compactDisplay": "Compact",
+    "roleColumns": "Role columns",
+    "oneColumn": "1 column",
+    "twoColumns": "2 columns",
+    "rolesPerPage": "Roles per page",
+    "rowsPerPage": "Rows per page"
   },
   "importExport": {
     "importLibraryData": "Import library data",
@@ -270,7 +286,7 @@
     "notAvailableDefaultName": "Not available with default name. Change it in the current script settings or in the added characters list.",
     "notAvailableEmptyName": "Not available with empty name. Change it in the current script settings or in the added characters list.",
     "nightOrderMissing": "Night order was missing and filled with default values. You can change them in the corresponding section. Resave the script to fix it.",
-    "nightOrderMismatch": "Script has been changed, please check the Night Order.",
+    "nightOrderMismatch": "Script has been changed or night order was not saved, please check before saving.",
     "undo": "Undo ({key}+Z)",
     "redo": "Redo ({key}+Shift+Z)",
     "history": "Change history"
@@ -301,6 +317,7 @@
     "firstNight": "First Night",
     "otherNights": "Other Nights",
     "current": "Current",
+    "lastSave": "Last Save",
     "default": "Default"
   },
   "importCharacter": {

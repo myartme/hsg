@@ -1,10 +1,10 @@
 import {allData, activeSetIndex, metaSets, queuePositions, activeCharacter, bootlegger} from "@/store/library/state";
 import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
-import {loadQueuePositions, saveQueuePositions, normalizeQueuePositions} from "@/store/library/queue";
+import {loadQueuePositions, saveQueuePositions, normalizeQueuePositions, addManyToQueuePositions} from "@/store/library/queue";
 import {SET_INDEX, getImageFirstUrl} from "@/constants/other";
 import {ROLES, MAIN_ROLES} from "@/constants/roles";
 import {loadBootlegger, saveBootlegger} from "@/store/library/bootlegger";
-import {loadFirstNightOrder, loadOtherNightOrder, saveNightOrder, addToNightOrder, removeFromNightOrder, normalizeNightOrder} from "@/store/library/night_order";
+import {loadFirstNightOrder, loadOtherNightOrder, saveNightOrder, addManyToNightOrder, removeFromNightOrder, normalizeNightOrder} from "@/store/library/night_order";
 
 export const sets = {
     get: () =>
@@ -109,6 +109,10 @@ export async function saveNewMetaAndList(meta = {}, list = {}){
 
     // Добавляем персонажей в queuePositions и nightOrder (как при импорте персонажей)
     if (!isCreate) {
+        const firstNightElements = []
+        const otherNightElements = []
+        const queueElements = {}
+
         for (const team of ROLES) {
             const teamRoles = list[team] || []
             for (const role of teamRoles) {
@@ -120,25 +124,41 @@ export async function saveNewMetaAndList(meta = {}, list = {}){
                 }
 
                 if (role.firstNight > 0) {
-                    addToNightOrder({ ...baseElement, firstNight: role.firstNight }, 'firstNight')
+                    firstNightElements.push({ ...baseElement, firstNight: role.firstNight })
                 }
                 if (role.otherNight > 0) {
-                    addToNightOrder({ ...baseElement, otherNight: role.otherNight }, 'otherNight')
+                    otherNightElements.push({ ...baseElement, otherNight: role.otherNight })
                 }
 
                 if (MAIN_ROLES.includes(team)) {
                     const existingQueue = queuePositions.value[team]?.find(el => el.id === role.id)
                     if (!existingQueue) {
-                        if (!queuePositions.value[team]) {
-                            queuePositions.value[team] = []
+                        if (!queueElements[team]) {
+                            queueElements[team] = []
                         }
-                        queuePositions.value[team].push({
+                        queueElements[team].push({
                             ...baseElement,
-                            scriptCharacterPriority: queuePositions.value[team].length + 1
+                            scriptCharacterPriority: role.scriptCharacterPriority || 0
                         })
                     }
                 }
             }
+        }
+
+        // Batch-вставка для nightOrder
+        if (firstNightElements.length > 0) {
+            addManyToNightOrder(firstNightElements, 'firstNight')
+        }
+        if (otherNightElements.length > 0) {
+            addManyToNightOrder(otherNightElements, 'otherNight')
+        }
+
+        // Batch-вставка для queuePositions
+        for (const team of Object.keys(queueElements)) {
+            if (!queuePositions.value[team]) {
+                queuePositions.value[team] = []
+            }
+            addManyToQueuePositions(queueElements[team], team)
         }
     }
 
@@ -163,6 +183,10 @@ export async function saveCharactersToList(list){
     }, {})
     sets.elem(activeSetIndex.value).list.set(newList)
 
+    const firstNightElements = []
+    const otherNightElements = []
+    const queueElements = {}
+
     for (const team of ROLES) {
         const teamRoles = list[team] || []
         for (const role of teamRoles) {
@@ -174,25 +198,41 @@ export async function saveCharactersToList(list){
             }
 
             if (role.firstNight > 0) {
-                addToNightOrder({ ...baseElement, firstNight: role.firstNight }, 'firstNight')
+                firstNightElements.push({ ...baseElement, firstNight: role.firstNight })
             }
             if (role.otherNight > 0) {
-                addToNightOrder({ ...baseElement, otherNight: role.otherNight }, 'otherNight')
+                otherNightElements.push({ ...baseElement, otherNight: role.otherNight })
             }
 
             if (MAIN_ROLES.includes(team)) {
                 const existingQueue = queuePositions.value[team]?.find(el => el.id === role.id)
                 if (!existingQueue) {
-                    if (!queuePositions.value[team]) {
-                        queuePositions.value[team] = []
+                    if (!queueElements[team]) {
+                        queueElements[team] = []
                     }
-                    queuePositions.value[team].push({
+                    queueElements[team].push({
                         ...baseElement,
-                        scriptCharacterPriority: queuePositions.value[team].length + 1
+                        scriptCharacterPriority: role.scriptCharacterPriority || 0
                     })
                 }
             }
         }
+    }
+
+    // Batch-вставка для nightOrder
+    if (firstNightElements.length > 0) {
+        addManyToNightOrder(firstNightElements, 'firstNight')
+    }
+    if (otherNightElements.length > 0) {
+        addManyToNightOrder(otherNightElements, 'otherNight')
+    }
+
+    // Batch-вставка для queuePositions
+    for (const team of Object.keys(queueElements)) {
+        if (!queuePositions.value[team]) {
+            queuePositions.value[team] = []
+        }
+        addManyToQueuePositions(queueElements[team], team)
     }
 
     await saveSet(sets.elem(activeSetIndex.value).meta.get().id, newList)
@@ -275,13 +315,20 @@ export async function restoreSet(set){
     const bootleggerContent = bootleggerResponse?.isSuccess ? bootleggerResponse.content : null
 
     if(setContent && queueContent && bootleggerContent && firstNightContent && otherNightContent){
+        const firstNightElements = []
+        const otherNightElements = []
+        const queueElements = {}
+
         for (const team of ROLES) {
             const teamRoles = setContent[team] || [];
 
             for (const role of teamRoles) {
                 const queueElement = queueContent[team]?.find(el => el.id === role.id)
                 if (queueElement) {
-                    queuePositions.value[team].push(queueElement)
+                    if (!queueElements[team]) {
+                        queueElements[team] = []
+                    }
+                    queueElements[team].push(queueElement)
                 }
 
                 const bootleggerElement = bootleggerContent[team]?.find(el => el.id === role.id)
@@ -291,14 +338,30 @@ export async function restoreSet(set){
 
                 const firstNightElement = firstNightContent?.find(el => el.id === role.id)
                 if(firstNightElement){
-                    addToNightOrder(firstNightElement, 'firstNight')
+                    firstNightElements.push(firstNightElement)
                 }
 
                 const otherNightElement = otherNightContent?.find(el => el.id === role.id)
                 if(otherNightElement){
-                    addToNightOrder(otherNightElement, 'otherNight')
+                    otherNightElements.push(otherNightElement)
                 }
             }
+        }
+
+        // Batch-вставка для nightOrder
+        if (firstNightElements.length > 0) {
+            addManyToNightOrder(firstNightElements, 'firstNight')
+        }
+        if (otherNightElements.length > 0) {
+            addManyToNightOrder(otherNightElements, 'otherNight')
+        }
+
+        // Batch-вставка для queuePositions
+        for (const team of Object.keys(queueElements)) {
+            if (!queuePositions.value[team]) {
+                queuePositions.value[team] = []
+            }
+            addManyToQueuePositions(queueElements[team], team)
         }
 
         metaSets.value?.push(set)

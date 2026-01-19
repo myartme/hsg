@@ -36,10 +36,9 @@
           buttonClass,
           'bg-[color:var(--color-active)] hover:bg-[color:var(--color-hover-active)]'
       ]">{{ $t('buttons.apply') }}</button>
-      <button @click="resetFilterButton" :class="[
-          buttonClass,
-          'ml-auto whitespace-nowrap bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]'
-      ]">{{ resetFilterTitle }}</button>
+      <button @click="resetFilterButton"
+          class="py-1 rounded-md cursor-pointer ml-auto whitespace-nowrap w-[120px] text-center bg-[color:var(--color-placeholder-text)] hover:bg-[color:var(--color-hover-bg)]"
+      >{{ resetFilterTitle }}</button>
     </div>
   </div>
 </template>

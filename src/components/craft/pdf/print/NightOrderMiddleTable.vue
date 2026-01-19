@@ -1,108 +1,207 @@
 <template>
-  <div class="flex flex-col h-[1100px] relative pt-7">
+  <div class="flex flex-col relative">
     <div class="flex-1">
-      <h2 class="ml-2.5 mr-2.5 pb-2 text-lg font-serif tracking-widest text-center uppercase whitespace-nowrap overflow-hidden" style="color: rgb(100,25,32);">{{ trimmedName }}</h2>
-      <img src="/images/elements/pdf/line_break.png" alt="Line Break" class="w-full -mb-3 scale-95" />
-      <table class="w-full border-separate ml-2">
+      <!-- Djinn header -->
+      <div v-if="djinn && jinxes && jinxes.length > 0" class="flex items-center">
+        <div class="w-12 h-12 flex-shrink-0 relative">
+          <img
+              :src="djinn.base64Image"
+              class="w-full h-full object-contain scale-130"
+              alt="Djinn"
+          />
+          <!-- Compact badge -->
+          <div v-if="djinnDisplayMode === 'compact'" class="absolute -right-1 -bottom-1 w-5 h-5 rounded-full flex items-center justify-center" style="background-color: rgb(139, 115, 85);">
+            <span class="text-white font-medium" style="font-family: 'Merriweather', serif; font-size: 11px; position: relative; top: -5.5px;">{{ jinxes.length }}</span>
+          </div>
+        </div>
+        <div class="ml-2">
+          <h3 class="text-sm font-medium" style="font-family: 'Fira Sans Condensed', sans-serif;">
+            {{ djinn.name }}
+          </h3>
+          <p class="text-xs leading-tight" style="color: rgb(0, 0, 0); font-family: 'Fira Sans Condensed', sans-serif;">
+            {{ djinn.ability }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Jinxes list (full mode) -->
+      <table v-if="jinxes && jinxes.length > 0 && djinnDisplayMode === 'full'" class="w-full border-separate ml-8 mb-6" style="border-spacing: 0 12px;">
         <tbody>
-        <template v-if="jinxes">
-          <tr>
-            <td colspan="3" class="text-lg font-serif tracking-widest text-center" style="color: rgb(100,25,32)">JINXES</td>
-          </tr>
           <tr v-for="(jinx, index) in jinxes" class="align-middle" :key="jinx.id">
-            <template v-if="index < 7">
-              <td class="w-[48px] h-[38px] p-0">
-                <img
-                    :src="jinx.first.base64Image"
-                    class="w-11 h-11 object-contain mx-auto scale-130"
-                    :alt="'first'+index" />
-              </td>
-              <td class="w-[48px] h-[38px] p-0">
-                <img
-                    :src="jinx.second.base64Image"
-                    class="w-11 h-11 object-contain mx-auto scale-130"
-                    :alt="'second'+index" />
-              </td>
-              <td>
-                <p class="text-xxs leading-tight ml-2 mr-6 mb-3" style="color: rgb(100,25,32);">
-                  {{ jinx.reason }}
-                </p>
-              </td>
-            </template>
-            <td v-else-if="index === 9" colspan="3">
-              <p class="text-xxs leading-tight ml-2 mr-6 mb-4" style="color: rgb(100,25,32);">
-                (Only first 7 shown. There were {{ jinxes.length }} in total.)
-            </p>
+            <td class="w-[48px] h-[38px] p-0">
+              <img
+                  :src="jinx.first.base64Image"
+                  class="w-11 h-11 object-contain mx-auto scale-130"
+                  :alt="'first'+index" />
+            </td>
+            <td class="w-[48px] h-[38px] p-0">
+              <img
+                  :src="jinx.second.base64Image"
+                  class="w-11 h-11 object-contain mx-auto scale-130"
+                  :alt="'second'+index" />
+            </td>
+            <td>
+              <p class="text-xs leading-tight ml-2 mr-6" style="color: rgb(0, 0, 0); font-family: 'Fira Sans Condensed', sans-serif;">
+                {{ jinx.reason }}
+              </p>
             </td>
           </tr>
-        </template>
         </tbody>
       </table>
-    </div>
-    <div v-if="travellers.length > 0 || fabled.length > 0" class="absolute bottom-0 left-0 right-0">
-      <h2 class="pb-2 w-full text-lg font-serif tracking-widest text-center" style="color: rgb(100,25,32)">RECOMMENDED</h2>
-      <img src="/images/elements/pdf/line_break.png" alt="Line Break" class="w-full -mb-3 scale-95" />
-      <table class="border-separate w-full" style="border-spacing: 4px 6px;">
-        <tbody>
-          <tr>
-            <td colspan="2" class="text-lg font-serif text-left pl-3 w-[50%]" style="color: rgb(100,25,32)">TRAVELLERS</td>
-            <td colspan="2" class="text-lg font-serif text-left pl-3 w-[50%]" style="color: rgb(100,25,32)">FABLED</td>
-          </tr>
-          <tr v-for="i in Math.max(travellers.length, fabled.length)" :key="i" class="align-middle">
-            <template v-if="i < 5 || (i === 5 && (travellers.length <= 5 && fabled.length <= 5))">
-              <recommended-row-item :item="travellers[i - 1]" />
-              <recommended-row-item :item="fabled[i - 1]" />
-            </template>
-            <template v-else>
-              <template v-if="i === 5">
-                <recommended-row-item v-if="travellers.length <= 5" :item="travellers[i - 1]" />
-                <td v-else colspan="2" class="align-middle" style="width: calc(50% - 48px - 6px); padding-left: 2px; padding-right: 12px;">
-                  <p class="text-xxs leading-tight mb-3 ml-7" style="color: rgb(100,25,32);">
-                    +{{ travellers.length - 4 }} travellers
-                  </p>
-                </td>
-                <recommended-row-item v-if="fabled.length <= 5" :item="fabled[i - 1]" />
-                <td v-else colspan="2" class="align-middle" style="width: calc(50% - 48px - 6px); padding-left: 2px; padding-right: 12px;">
-                  <p class="text-xxs leading-tight mb-3 ml-7" style="color: rgb(100,25,32);">
-                    +{{ fabled.length - 4 }} fabled
-                  </p>
-                </td>
-              </template>
-            </template>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Bootlegger header -->
+      <div v-if="bootlegger && bootleggerRules && bootleggerRules.length > 0" :class="['flex items-center', bootleggerDisplayMode === 'compact' ? 'mt-4' : '']">
+        <div class="w-12 h-12 flex-shrink-0 relative">
+          <img
+              :src="bootlegger.base64Image"
+              class="w-full h-full object-contain scale-130"
+              alt="Bootlegger"
+          />
+          <!-- Compact badge -->
+          <div v-if="bootleggerDisplayMode === 'compact'" class="absolute -right-1 -bottom-1 w-5 h-5 rounded-full flex items-center justify-center" style="background-color: rgb(139, 115, 85);">
+            <span class="text-white font-medium" style="font-family: 'Merriweather', serif; font-size: 11px; position: relative; top: -5.5px;">{{ bootleggerRules.length }}</span>
+          </div>
+        </div>
+        <div class="ml-2">
+          <h3 class="text-sm font-medium" style="font-family: 'Fira Sans Condensed', sans-serif;">
+            {{ bootlegger.name }}
+          </h3>
+          <p class="text-xs leading-tight" style="color: rgb(0, 0, 0); font-family: 'Fira Sans Condensed', sans-serif;">
+            {{ bootlegger.ability }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Bootlegger rules list (full mode) -->
+      <div v-if="bootleggerRules && bootleggerRules.length > 0 && bootleggerDisplayMode === 'full'" class="ml-10 mt-3 pl-4 pb-2 border-l-2" style="border-color: rgb(139, 115, 85);">
+        <div v-for="(rule, index) in bootleggerRules" :key="index" class="mb-2" style="color: rgb(0, 0, 0); font-family: 'Merriweather', serif; font-size: 15px;">
+          {{ rule }}
+        </div>
+      </div>
+
+      <!-- TFL compact mode -->
+      <div v-if="tflDisplayMode === 'compact'">
+        <!-- Travellers -->
+        <div v-if="firstTraveller" class="flex items-center mt-4">
+          <div class="w-12 h-12 flex-shrink-0 relative">
+            <img
+                :src="firstTraveller.base64Image"
+                class="w-full h-full object-contain scale-130"
+                alt="Traveller"
+            />
+            <div v-if="travellersCount > 1" class="absolute -right-1 -bottom-1 w-5 h-5 rounded-full flex items-center justify-center" style="background-color: rgb(139, 115, 85);">
+              <span class="text-white font-medium" style="font-family: 'Merriweather', serif; font-size: 11px; position: relative; top: -5.5px;">+{{ travellersCount - 1 }}</span>
+            </div>
+          </div>
+          <div class="ml-2">
+            <h3 class="text-sm font-medium" style="font-family: 'Fira Sans Condensed', sans-serif;">
+              {{ firstTraveller.name }}
+            </h3>
+            <p class="text-xs leading-tight" style="color: rgb(0, 0, 0); font-family: 'Fira Sans Condensed', sans-serif;">
+              {{ firstTraveller.ability }}
+            </p>
+          </div>
+        </div>
+        <!-- Fabled -->
+        <div v-if="firstFabled" class="flex items-center mt-4">
+          <div class="w-12 h-12 flex-shrink-0 relative">
+            <img
+                :src="firstFabled.base64Image"
+                class="w-full h-full object-contain scale-130"
+                alt="Fabled"
+            />
+            <div v-if="fabledCount > 1" class="absolute -right-1 -bottom-1 w-5 h-5 rounded-full flex items-center justify-center" style="background-color: rgb(139, 115, 85);">
+              <span class="text-white font-medium" style="font-family: 'Merriweather', serif; font-size: 11px; position: relative; top: -5.5px;">+{{ fabledCount - 1 }}</span>
+            </div>
+          </div>
+          <div class="ml-2">
+            <h3 class="text-sm font-medium" style="font-family: 'Fira Sans Condensed', sans-serif;">
+              {{ firstFabled.name }}
+            </h3>
+            <p class="text-xs leading-tight" style="color: rgb(0, 0, 0); font-family: 'Fira Sans Condensed', sans-serif;">
+              {{ firstFabled.ability }}
+            </p>
+          </div>
+        </div>
+        <!-- Loric -->
+        <div v-if="firstLoric" class="flex items-center mt-4">
+          <div class="w-12 h-12 flex-shrink-0 relative">
+            <img
+                :src="firstLoric.base64Image"
+                class="w-full h-full object-contain scale-130"
+                alt="Loric"
+            />
+            <div v-if="loricCount > 1" class="absolute -right-1 -bottom-1 w-5 h-5 rounded-full flex items-center justify-center" style="background-color: rgb(139, 115, 85);">
+              <span class="text-white font-medium" style="font-family: 'Merriweather', serif; font-size: 11px; position: relative; top: -5.5px;">+{{ loricCount - 1 }}</span>
+            </div>
+          </div>
+          <div class="ml-2">
+            <h3 class="text-sm font-medium" style="font-family: 'Fira Sans Condensed', sans-serif;">
+              {{ firstLoric.name }}
+            </h3>
+            <p class="text-xs leading-tight" style="color: rgb(0, 0, 0); font-family: 'Fira Sans Condensed', sans-serif;">
+              {{ firstLoric.ability }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script setup>
-
-import {useCraftStore} from "@/store/craft";
-import {computed} from "vue";
-import RecommendedRowItem from "@/components/craft/pdf/print/RecommendedRowItem.vue";
-
 const props = defineProps({
   jinxes: {
     type: Array,
-    default: []
+    default: () => []
   },
-  travellers: {
+  djinn: {
+    type: Object,
+    default: null
+  },
+  djinnDisplayMode: {
+    type: String,
+    default: 'full' // 'full' | 'compact'
+  },
+  bootlegger: {
+    type: Object,
+    default: null
+  },
+  bootleggerDisplayMode: {
+    type: String,
+    default: 'full' // 'full' | 'compact'
+  },
+  bootleggerRules: {
     type: Array,
-    default: []
+    default: () => []
   },
-  fabled: {
-    type: Array,
-    default: []
+  // TFL compact props
+  tflDisplayMode: {
+    type: String,
+    default: 'full' // 'full' | 'compact'
   },
-})
-
-const trimmedName = computed(() => {
-  const maxChars = 23
-  const craftStore = useCraftStore()
-  const text = craftStore.pdfMeta.name
-  return text.length > maxChars
-      ? text.slice(0, maxChars - 1) + '…'
-      : text
+  travellersCount: {
+    type: Number,
+    default: 0
+  },
+  firstTraveller: {
+    type: Object,
+    default: null
+  },
+  fabledCount: {
+    type: Number,
+    default: 0
+  },
+  firstFabled: {
+    type: Object,
+    default: null
+  },
+  loricCount: {
+    type: Number,
+    default: 0
+  },
+  firstLoric: {
+    type: Object,
+    default: null
+  }
 })
 
 </script>

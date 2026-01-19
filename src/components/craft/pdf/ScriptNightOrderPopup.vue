@@ -10,27 +10,11 @@
     <template #content>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="align-middle">
-          <div class="flex items-center">
-            <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.firstNight') }}</h2>
-            <action-button v-if="!isFirstNightDefault"
-                           icon="revert"
-                           icon-size="w-8 h-8"
-                           button-class="w-10 h-10"
-                           :tooltip="$t('tooltips.restoreDefaultOrder')"
-                           :is-show-effect="true"
-                           :handle="() => firstNight = defaultResetFirstNight()"
-                           class="ml-2" />
-            <action-button v-if="isSavedScript && !isFirstNightSameAsSave"
-                           icon="undoToSave"
-                           icon-size="w-8 h-8"
-                           button-class="w-10 h-10"
-                           :tooltip="$t('tooltips.restoreToLastSave')"
-                           :is-show-effect="true"
-                           :handle="resetFirstNightToSave"
-                           class="ml-2" />
-          </div>
-          <div class="flex gap-4 mt-2">
-            <div class="flex flex-col">
+          <h2 class="text-lg font-semibold text-theme mb-2">{{ $t('nightOrder.firstNight') }}</h2>
+          <div class="flex gap-4">
+            <!-- Current -->
+            <div class="flex flex-col items-center">
+              <div class="h-6"></div>
               <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.current') }}</h3>
               <draggable-component v-model="firstNight" item-key="id" :move="checkMove">
                 <template #item="{ element }">
@@ -38,7 +22,35 @@
                 </template>
               </draggable-component>
             </div>
-            <div class="flex flex-col">
+            <!-- Last Save -->
+            <div class="flex flex-col items-center">
+              <action-button v-if="!isFirstNightSameAsSave"
+                             icon="undoToSave"
+                             icon-size="w-5 h-5"
+                             button-class="w-6 h-6"
+                             :tooltip="$t('tooltips.restoreToLastSave')"
+                             :is-show-effect="true"
+                             :handle="resetFirstNightToSave" />
+              <div v-else class="h-6"></div>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.lastSave') }}</h3>
+              <div class="opacity-50 pointer-events-none">
+                <night-order-element
+                    v-for="element in getFirstNightLastSave()"
+                    :key="element"
+                    :value="getElement(element)"
+                    :is-default-element="defaultNightArray.includes(element)" />
+              </div>
+            </div>
+            <!-- Default -->
+            <div class="flex flex-col items-center">
+              <action-button v-if="!isFirstNightDefault"
+                             icon="revert"
+                             icon-size="w-5 h-5"
+                             button-class="w-6 h-6"
+                             :tooltip="$t('tooltips.restoreDefaultOrder')"
+                             :is-show-effect="true"
+                             :handle="() => firstNight = defaultResetFirstNight()" />
+              <div v-else class="h-6"></div>
               <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.default') }}</h3>
               <div class="opacity-50 pointer-events-none">
                 <night-order-element
@@ -51,27 +63,11 @@
           </div>
         </div>
         <div class="align-middle">
-          <div class="flex items-center">
-            <h2 class="text-lg font-semibold text-theme">{{ $t('nightOrder.otherNights') }}</h2>
-            <action-button v-if="!isOtherNightDefault"
-                           icon="revert"
-                           icon-size="w-8 h-8"
-                           button-class="w-10 h-10"
-                           :tooltip="$t('tooltips.restoreDefaultOrder')"
-                           :is-show-effect="true"
-                           :handle="() => otherNight = defaultResetOtherNight()"
-                           class="ml-2" />
-            <action-button v-if="isSavedScript && !isOtherNightSameAsSave"
-                           icon="undoToSave"
-                           icon-size="w-8 h-8"
-                           button-class="w-10 h-10"
-                           :tooltip="$t('tooltips.restoreToLastSave')"
-                           :is-show-effect="true"
-                           :handle="resetOtherNightToSave"
-                           class="ml-2" />
-          </div>
-          <div class="flex gap-4 mt-2">
-            <div class="flex flex-col">
+          <h2 class="text-lg font-semibold text-theme mb-2">{{ $t('nightOrder.otherNights') }}</h2>
+          <div class="flex gap-4">
+            <!-- Current -->
+            <div class="flex flex-col items-center">
+              <div class="h-6"></div>
               <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.current') }}</h3>
               <draggable-component v-model="otherNight" item-key="id" :move="checkMove">
                 <template #item="{ element }">
@@ -79,7 +75,35 @@
                 </template>
               </draggable-component>
             </div>
-            <div class="flex flex-col">
+            <!-- Last Save -->
+            <div class="flex flex-col items-center">
+              <action-button v-if="!isOtherNightSameAsSave"
+                             icon="undoToSave"
+                             icon-size="w-5 h-5"
+                             button-class="w-6 h-6"
+                             :tooltip="$t('tooltips.restoreToLastSave')"
+                             :is-show-effect="true"
+                             :handle="resetOtherNightToSave" />
+              <div v-else class="h-6"></div>
+              <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.lastSave') }}</h3>
+              <div class="opacity-50 pointer-events-none">
+                <night-order-element
+                    v-for="element in getOtherNightLastSave()"
+                    :key="element"
+                    :value="getElement(element)"
+                    :is-default-element="defaultNightArray.includes(element)" />
+              </div>
+            </div>
+            <!-- Default -->
+            <div class="flex flex-col items-center">
+              <action-button v-if="!isOtherNightDefault"
+                             icon="revert"
+                             icon-size="w-5 h-5"
+                             button-class="w-6 h-6"
+                             :tooltip="$t('tooltips.restoreDefaultOrder')"
+                             :is-show-effect="true"
+                             :handle="() => otherNight = defaultResetOtherNight()" />
+              <div v-else class="h-6"></div>
               <h3 class="text-sm font-semibold text-theme opacity-70 mb-2">{{ $t('nightOrder.default') }}</h3>
               <div class="opacity-50 pointer-events-none">
                 <night-order-element
@@ -115,7 +139,8 @@ const props = defineProps({
 })
 
 const craftStore = useCraftStore()
-const { pdfMeta, pdfListWithParams, isOpenNightOrder, isEditingScript, nightOrderAutoGenerated, isSavedScript } = storeToRefs(craftStore)
+const { pdfMeta, pdfListWithParams, isOpenNightOrder, isEditingScript, isSavedScript } = storeToRefs(craftStore)
+const { getLastSaveFirstNight, getLastSaveOtherNight } = craftStore
 const firstNight = ref([])
 const otherNight = ref([])
 const rolesList = ref()
@@ -124,24 +149,19 @@ const originalOtherNight = ref([])
 const emits = defineEmits(['update:isOpen'])
 const defaultNightArray = ['dusk', 'minioninfo', 'demoninfo', 'dawn']
 
-const firstNightDefault = () => pdfMeta.value.firstNight || defaultNightArray
-const otherNightDefault = () => pdfMeta.value.otherNight || ['dusk', 'dawn']
-
 const isFirstNightDefault = computed(() => isEqual(firstNight.value, defaultResetFirstNight()))
 const isOtherNightDefault = computed(() => isEqual(otherNight.value, defaultResetOtherNight()))
 
 const isFirstNightSameAsSave = computed(() => {
-  const saved = !isEmpty(originalFirstNight.value) ? originalFirstNight.value : defaultResetFirstNight()
-  return isEqual(firstNight.value, saved)
+  return isEqual(firstNight.value, getLastSaveFirstNight())
 })
 
 const isOtherNightSameAsSave = computed(() => {
-  const saved = !isEmpty(originalOtherNight.value) ? originalOtherNight.value : defaultResetOtherNight()
-  return isEqual(otherNight.value, saved)
+  return isEqual(otherNight.value, getLastSaveOtherNight())
 })
 
 function closeWindow(){
-  const hasChanges = !isEqual(originalFirstNight.value, firstNight.value) || !isEqual(originalOtherNight.value, otherNight.value)
+  const hasChanges = !isEqual(getLastSaveFirstNight(), firstNight.value) || !isEqual(getLastSaveOtherNight(), otherNight.value)
   if(hasChanges){
     // Save state for undo before applying changes
     pushState(ACTION_TYPES.CHANGE_NIGHT_ORDER, pdfMeta.value.name)
@@ -189,21 +209,22 @@ function defaultResetOtherNight(){
 }
 
 function resetFirstNightToSave(){
-  if(!isEmpty(pdfMeta.value.firstNight)){
-    firstNight.value = cloneDeep(pdfMeta.value.firstNight)
-  } else {
-    firstNight.value = defaultResetFirstNight()
-  }
+  firstNight.value = cloneDeep(getLastSaveFirstNight())
 }
 
 function resetOtherNightToSave(){
-  if(!isEmpty(pdfMeta.value.otherNight)){
-    otherNight.value = cloneDeep(pdfMeta.value.otherNight)
-  } else {
-    otherNight.value = defaultResetOtherNight()
-  }
+  otherNight.value = cloneDeep(getLastSaveOtherNight())
 }
 
+function getFirstNightLastSave(){
+  return getLastSaveFirstNight()
+}
+
+function getOtherNightLastSave(){
+  return getLastSaveOtherNight()
+}
+
+// Обновляем rolesList для отображения элементов
 watch(pdfListWithParams, () => {
   rolesList.value = Object.values(pdfListWithParams.value).flat()
   rolesList.value = [
@@ -213,53 +234,18 @@ watch(pdfListWithParams, () => {
     { id: 'demoninfo', firstNight: 18 },
     { id: 'dawn', firstNight: 10000, otherNight: 10000 }
   ]
-
-  firstNight.value = defaultResetFirstNight()
-  otherNight.value = defaultResetOtherNight()
-
-  // Инициализируем оригинальные значения при первой загрузке
-  if(isEmpty(originalFirstNight.value)){
-    originalFirstNight.value = cloneDeep(pdfMeta.value.firstNight) || []
-  }
-  if(isEmpty(originalOtherNight.value)){
-    originalOtherNight.value = cloneDeep(pdfMeta.value.otherNight) || []
-  }
-
-  const hasRoles = Object.values(pdfListWithParams.value).flat().length > 0
-  if(hasRoles && (isEmpty(pdfMeta.value.firstNight) || isEmpty(pdfMeta.value.otherNight))){
-    isEditingScript.value = true
-    nightOrderAutoGenerated.value = true
-  }
-
-  if(isEmpty(pdfMeta.value.firstNight)){
-    pdfMeta.value.firstNight = firstNight.value
-  }
-  if(isEmpty(pdfMeta.value.otherNight)){
-    pdfMeta.value.otherNight = otherNight.value
-  }
 }, { immediate: true, deep: true })
 
+// Синхронизируем локальное состояние с pdfMeta при открытии попапа
 watch(isOpenNightOrder, (isOpen) => {
-  const first = !isEmpty(firstNight.value) ? firstNight.value : defaultResetFirstNight()
-  const other = !isEmpty(otherNight.value) ? otherNight.value : defaultResetOtherNight()
-
-  if(!isEmpty(pdfMeta.value.firstNight)){
-    firstNight.value = firstNightDefault()
-        .filter(item => first.includes(item))
-  } else if(isEmpty(firstNight.value)) {
-    firstNight.value = first
-  }
-  if(!isEmpty(pdfMeta.value.otherNight)){
-    otherNight.value = otherNightDefault()
-        .filter(item => other.includes(item))
-  } else if(isEmpty(otherNight.value)) {
-    otherNight.value = other
-  }
-
-  // Save original state when popup opens
   if (isOpen) {
-    originalFirstNight.value = [...firstNight.value]
-    originalOtherNight.value = [...otherNight.value]
+    // Загружаем текущий порядок из pdfMeta
+    firstNight.value = cloneDeep(pdfMeta.value.firstNight) || defaultResetFirstNight()
+    otherNight.value = cloneDeep(pdfMeta.value.otherNight) || defaultResetOtherNight()
+
+    // Сохраняем для сравнения (Last Save показывает сохранённое состояние)
+    originalFirstNight.value = isSavedScript.value ? cloneDeep(pdfMeta.value.firstNight) || [] : []
+    originalOtherNight.value = isSavedScript.value ? cloneDeep(pdfMeta.value.otherNight) || [] : []
   }
-},{ immediate: true, deep: true })
+}, { immediate: true })
 </script>

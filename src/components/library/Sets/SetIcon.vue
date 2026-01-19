@@ -6,7 +6,7 @@
   ]">
     <div
         class="absolute inset-0 bg-cover bg-center z-0"
-        :style="logo && { backgroundImage : `url(${logo})`}"
+        :style="logoBase64 && { backgroundImage : `url(${logoBase64})`}"
     ></div>
     <div class="absolute inset-0 z-1 bg-[color:var(--color-bg)]/50"></div>
 
@@ -16,6 +16,9 @@
   </div>
 </template>
 <script setup>
+import { ref, watch } from 'vue'
+import { getBase64Image } from '@/store'
+
 const props = defineProps({
   name: String,
   logo: String,
@@ -25,4 +28,18 @@ const props = defineProps({
     default: false
   }
 })
+
+const logoBase64 = ref('')
+
+watch(() => props.logo, async (newLogo) => {
+  if (!newLogo) {
+    logoBase64.value = ''
+    return
+  }
+  if (newLogo.startsWith('data:')) {
+    logoBase64.value = newLogo
+    return
+  }
+  logoBase64.value = await getBase64Image(newLogo)
+}, { immediate: true })
 </script>

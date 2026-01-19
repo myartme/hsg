@@ -1,4 +1,4 @@
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import {EMPTY_SCRIPT, ROLES} from "@/constants/roles";
 import {SET_INDEX, ZERO_VERSION} from "@/constants/other";
 import {isEmpty, isEqual} from "lodash/lang";
@@ -81,18 +81,32 @@ const getDefaultOtherNight = () => {
       .map(item => item.id)
 }
 
+// Сохранённый порядок ночи (заполняется при загрузке/сохранении скрипта)
+export const savedFirstNightOrder = ref([])
+export const savedOtherNightOrder = ref([])
+
+// Базовый набор для Last Save (если нет сохранения)
+const baseFirstNightOrder = ['dusk', 'minioninfo', 'demoninfo', 'dawn']
+const baseOtherNightOrder = ['dusk', 'dawn']
+
+// Получить last save (сохранённый порядок или базовый набор)
+export const getLastSaveFirstNight = () => {
+  return !isEmpty(savedFirstNightOrder.value) ? savedFirstNightOrder.value : baseFirstNightOrder
+}
+
+export const getLastSaveOtherNight = () => {
+  return !isEmpty(savedOtherNightOrder.value) ? savedOtherNightOrder.value : baseOtherNightOrder
+}
+
 export const isNightOrderMismatch = computed(() => {
   if (isEmpty(Object.values(pdfListWithParams.value).flat())) return false
 
   const currentFirstNight = pdfMeta.value.firstNight || []
   const currentOtherNight = pdfMeta.value.otherNight || []
-  const defaultFirstNight = getDefaultFirstNight()
-  const defaultOtherNight = getDefaultOtherNight()
+  const lastSaveFirstNight = getLastSaveFirstNight()
+  const lastSaveOtherNight = getLastSaveOtherNight()
 
-  // Проверяем состав, а не порядок - mismatch только если персонажи добавлены/удалены
-  const firstNightSameElements = isEqual([...currentFirstNight].sort(), [...defaultFirstNight].sort())
-  const otherNightSameElements = isEqual([...currentOtherNight].sort(), [...defaultOtherNight].sort())
-
-  return !firstNightSameElements || !otherNightSameElements
+  // Предупреждение если current отличается от last save
+  return !isEqual(currentFirstNight, lastSaveFirstNight) || !isEqual(currentOtherNight, lastSaveOtherNight)
 })
 
