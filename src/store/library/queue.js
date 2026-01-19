@@ -12,6 +12,30 @@ export function normalizeQueuePositions() {
     }
 }
 
+export function addManyToQueuePositions(elements, team) {
+    const list = queuePositions.value[team] || []
+
+    for (const element of elements) {
+        const existingIdx = list.findIndex(el => el.id === element.id)
+        // Трюк: value - 0.5 чтобы встать перед существующим с тем же номером
+        const adjustedElement = {
+            ...element,
+            scriptCharacterPriority: element.scriptCharacterPriority - 0.5
+        }
+
+        if (existingIdx === -1) {
+            list.push(adjustedElement)
+        } else {
+            list[existingIdx] = adjustedElement
+        }
+    }
+
+    // Нормализация — дробные станут целыми
+    queuePositions.value[team] = list
+        .sort((a, b) => a.scriptCharacterPriority - b.scriptCharacterPriority)
+        .map((el, idx) => ({ ...el, scriptCharacterPriority: idx + 1 }))
+}
+
 export async function loadQueuePositions(isAppPath = false, isRecursive = false){
     const response = await getDataLibrary('script_character_priority', "", isAppPath)
     if(response?.isSuccess){
