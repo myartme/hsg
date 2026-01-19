@@ -15,7 +15,7 @@
       <template #popper>
         <div style="width: 770px; padding-right: 12px;">
           <span v-html="$t('importCharacter.info')"></span>
-          <img src="/images/elements/ui/set_options.png" alt="Set options" />
+          <cached-image :src="'/images/elements/ui/set_options.png'" alt="Set options" />
         </div>
       </template>
     </tooltip>
@@ -44,6 +44,7 @@
 </template>
 <script setup>
 import IconElement from "@/components/ui/IconElement.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import {Tooltip} from "floating-vue";
 import {storeToRefs} from "pinia";
 import {useOptionsStore} from "@/store/options";

@@ -138,10 +138,10 @@
               @close="closeValuePicker" />
         </div>
         <div class="max-h-[500px] mx-auto rounded object-cover">
-          <img v-if="meta.logo" :src="meta.logo" class="max-h-[500px] object-contain w-full rounded"  alt="logo">
+          <cached-image v-if="meta.logo" :src="meta.logo" img-class="max-h-[500px] object-contain w-full rounded" alt="logo" />
         </div>
         <div class="max-h-[500px] mx-auto rounded object-cover">
-          <img v-if="meta.background" :src="meta.background" class="max-h-[500px] object-contain w-full rounded" alt="background">
+          <cached-image v-if="meta.background" :src="meta.background" img-class="max-h-[500px] object-contain w-full rounded" alt="background" />
         </div>
       </div>
       <confirm-dialog v-if="isVisibleDeleteDialog"
@@ -173,6 +173,7 @@ import PopupContainer from "@/components/PopupContainer.vue";
 import SimpleDropdown from "@/components/ui/SimpleDropdown.vue";
 import InputColorTag from "@/components/craft/scripts/InputColorTag.vue";
 import ValuePickerPopup from "@/components/craft/scripts/ValuePickerPopup.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 
 const { t } = useI18n()
 

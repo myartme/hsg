@@ -20,7 +20,7 @@
         ]"
     />
     <span class="min-w-[5rem] text-right text-sm text-theme">
-      {{ value }} ms
+      {{ value }}{{ suffix }}
     </span>
   </div>
 </template>
@@ -62,6 +62,10 @@ const props = defineProps({
   inputClass: {
     type: String,
     default: "h-4 w-4 rounded"
+  },
+  suffix: {
+    type: String,
+    default: " ms"
   },
 })
 </script>

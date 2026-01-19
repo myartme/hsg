@@ -302,9 +302,7 @@ const warningTooltipSave = computed(() => {
     issues.push(t('tooltips.nightOrderMissing'))
   }
 
-  if (isNightOrderMismatch.value) {
-    issues.push(t('tooltips.nightOrderMismatch'))
-  }
+  // Убрано: isNightOrderMismatch уже показывается на кнопке night order
 
   return issues.join("<br><br>")
 })
@@ -422,22 +420,35 @@ async function handleDownloadPdf(){
     craftStore.triggerPrintPreparation()
     await craftStore.waitForReadyToPrint()
 
-    const pdfInstance = html2pdf()
+    // Считаем ожидаемое количество страниц из HTML
+    const expectedPages = pdfListElement.value.querySelectorAll('.pdf-page').length
+
+    const pdf = await html2pdf()
         .set({
           filename:     `${pdfMeta.value.name}_v${pdfMeta.value.version || DEFAULT_VERSION}.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
           html2canvas:  { scale: 3 },
-          jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+          jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+          pagebreak:    { mode: 'avoid-all', before: '.page-break-before', after: '.page-break-after' }
         })
         .from(pdfListElement.value)
         .toPdf()
         .get('pdf')
+
+    // Удаляем лишние пустые страницы в конце
+    const totalPages = pdf.internal.getNumberOfPages()
+    if (totalPages > expectedPages) {
+      for (let i = totalPages; i > expectedPages; i--) {
+        pdf.deletePage(i)
+      }
+    }
+
     if(isSavedScript.value) {
-      const arrayBuffer = await pdfInstance.output('arraybuffer')
+      const arrayBuffer = await pdf.output('arraybuffer')
       const content = new Uint8Array(arrayBuffer)
       await craftStore.savePdf(content)
     }
-    pdfInstance.save()
+    pdf.save(`${pdfMeta.value.name}_v${pdfMeta.value.version || DEFAULT_VERSION}.pdf`)
 
     craftStore.resetPrintPreparationTrigger()
     isWaitingOperation.value = false

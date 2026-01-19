@@ -21,3 +21,32 @@ export const tooltipDelay = ref({
     jinxesHide: 0
 })
 export const scriptEditorDefaultFilters = ref([])
+
+export const pdfPrintDefaults = ref({
+    // Travellers/Fabled/Loric (объединённая настройка)
+    showTravellersFabledLoric: true,
+    travellersFabledLoricDisplayMode: 'full', // 'full' | 'compact'
+
+    // Таблица игроков
+    showTable: true,
+
+    // Номера страниц
+    showPageNumbers: true,
+
+    // Djinn (jinxes)
+    showDjinn: true,
+    djinnDisplayMode: 'full',
+
+    // Bootlegger
+    showBootlegger: true,
+    bootleggerDisplayMode: 'full',
+
+    // Порядок ночи
+    showNightOrder: true,
+    nightOrderDisplayMode: 'full',
+
+    // Макет ролей
+    roleColumns: 1, // 1 | 2
+    rolesPerPage: 25, // 15-25 (для 1 столбца)
+    rowsPerPage: 13 // 8-13 (для 2 столбцов)
+})

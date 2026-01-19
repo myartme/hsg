@@ -288,3 +288,41 @@ const formatBytes = (bytes) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
+
+// ==================== Local Image Reading ====================
+
+export const getLocalImagePath = (relativePath) => {
+    // Убираем начальный слеш если есть
+    const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath
+
+    if (app.isPackaged) {
+        // В production изображения находятся в .vite/renderer/main_window/
+        return path.join(app.getAppPath(), '.vite', 'renderer', 'main_window', cleanPath)
+    } else {
+        // В development изображения в public/
+        return path.join(app.getAppPath(), 'public', cleanPath)
+    }
+}
+
+export const readLocalImageAsBase64 = async (relativePath) => {
+    try {
+        const imagePath = getLocalImagePath(relativePath)
+        const buffer = await readFile(imagePath)
+
+        if (!isValidImage(buffer)) {
+            return { isSuccess: false, error: 'Invalid image format' }
+        }
+
+        const mimeType = getMimeType(buffer)
+        const base64 = `data:${mimeType};base64,${buffer.toString('base64')}`
+        return { isSuccess: true, content: base64 }
+    } catch (error) {
+        return {
+            isSuccess: false,
+            error: {
+                code: error.code,
+                message: error.message
+            }
+        }
+    }
+}

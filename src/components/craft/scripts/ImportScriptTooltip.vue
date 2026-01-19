@@ -14,7 +14,7 @@
       </template>
       <template #popper>
         <div style="width: 420px; padding-right: 12px;">{{ $t('importScriptTooltip.info') }}
-          <img src="/images/elements/ui/script_options.png" alt="Script options" />
+          <cached-image :src="'/images/elements/ui/script_options.png'" alt="Script options" />
         </div>
       </template>
     </tooltip>
@@ -38,6 +38,7 @@
 </template>
 <script setup>
 import IconElement from "@/components/ui/IconElement.vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import {Tooltip} from "floating-vue";
 import {storeToRefs} from "pinia";
 import {useOptionsStore} from "@/store/options";

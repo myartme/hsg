@@ -443,7 +443,8 @@ function undoUpdate() {
 
 function handleToClipboard(){
   try {
-    navigator.clipboard.writeText(objectToPrettyJson(character.value))
+    const { wiki, ...characterWithoutWiki } = character.value
+    navigator.clipboard.writeText(objectToPrettyJson(characterWithoutWiki))
     return true
 
   } catch {

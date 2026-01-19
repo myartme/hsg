@@ -57,10 +57,13 @@ function loadedContentWithReplace(value){
 }
 
 function textareaValueChange({ text, withReplace }){
+  console.log('=== textareaValueChange ===', { withReplace, textLength: text?.length })
   try{
     const jsonContent = JSON.parse(text)
+    console.log('Parsed JSON keys:', Object.keys(jsonContent))
     formalizedList(jsonContent, withReplace)
   } catch (e){
+    console.error('JSON parse error:', e)
     formalizedList({})
   }
 }

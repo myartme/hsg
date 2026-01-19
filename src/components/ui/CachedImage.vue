@@ -22,20 +22,14 @@ async function loadImage(url) {
     return
   }
 
-  // Локальные изображения и data URL не кешируем
-  if (url.startsWith('data:') || url.startsWith('images/') || url.startsWith('/')) {
+  // Если уже data URL - используем как есть
+  if (url.startsWith('data:')) {
     imageSrc.value = url
     return
   }
 
-  // Кешируем только валидные http/https URL
-  if (url.startsWith('https://') || url.startsWith('http://')) {
-    imageSrc.value = url // показываем URL пока загружается
-    imageSrc.value = await getBase64Image(url)
-  } else {
-    // Невалидный URL - просто показываем как есть
-    imageSrc.value = url
-  }
+  // Для всех остальных путей (локальные и http) используем getBase64Image
+  imageSrc.value = await getBase64Image(url)
 }
 
 watch(() => props.src, (newUrl) => {

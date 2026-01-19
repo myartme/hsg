@@ -76,6 +76,7 @@
     "jinxTooltipShow": "Показ подсказок выбора jinx",
     "jinxTooltipHide": "Скрытие подсказок выбора jinx",
     "scriptEditorDefaults": "Настройки по умолчанию в редакторе скриптов",
+    "scriptEditor": "Редактор скриптов",
     "setsFilter": "Фильтр сетов",
     "restoreSets": "Управление наборами",
     "restoreThisSet": "Восстановить этот набор",
@@ -90,7 +91,22 @@
     "imageCache": "Кеш изображений",
     "imageCacheInfo": "{count} изображений, {size}",
     "clearImageCache": "Очистить кеш",
-    "imageCacheCleared": "Кеш очищен"
+    "imageCacheCleared": "Кеш очищен",
+    "pdfPrintSettings": "Настройки печати PDF",
+    "pdfPrintSettingsInfo": "Вы можете изменить настройки по умолчанию для печати PDF в меню настроек",
+    "showTravellersFabledLoric": "Показать Travellers, Fabled, Loric",
+    "showTable": "Показать таблицу игроков",
+    "showPageNumbers": "Показать номера страниц",
+    "showDjinn": "Показать Djinn",
+    "showBootlegger": "Показать Bootlegger",
+    "showNightOrder": "Показать порядок ночи",
+    "fullDisplay": "Полный",
+    "compactDisplay": "Сокращённый",
+    "roleColumns": "Столбцов ролей",
+    "oneColumn": "1 столбец",
+    "twoColumns": "2 столбца",
+    "rolesPerPage": "Ролей на странице",
+    "rowsPerPage": "Рядов на странице"
   },
   "importExport": {
     "importLibraryData": "Импорт данных библиотеки",
@@ -270,7 +286,7 @@
     "notAvailableDefaultName": "Недоступно с именем по умолчанию. Измените его в настройках текущего скрипта или в листе со списком добавленных персонажей.",
     "notAvailableEmptyName": "Недоступно с пустым именем. Измените его в настройках текущего скрипта или в листе со списком добавленных персонажей.",
     "nightOrderMissing": "Ночной порядок отсутствовал и заполнен значениями по умолчанию. Вы можете изменить их в соответствующем разделе. Сохраните скрипт для исправления.",
-    "nightOrderMismatch": "В скрипте произошли изменения, проверьте ночной порядок.",
+    "nightOrderMismatch": "Скрипт был изменен или порядок ночи не был сохранен, пожалуйста, проверьте перед сохранением.",
     "undo": "Отменить ({key}+Z)",
     "redo": "Повторить ({key}+Shift+Z)",
     "history": "История изменений"
@@ -301,6 +317,7 @@
     "firstNight": "Первая ночь",
     "otherNights": "Другие ночи",
     "current": "Текущий",
+    "lastSave": "Последнее сохранение",
     "default": "По умолчанию"
   },
   "importCharacter": {

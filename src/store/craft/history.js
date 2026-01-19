@@ -224,6 +224,25 @@ export function getHistoryState() {
 // ============ Draft (Session) Management ============
 
 /**
+ * Helper to calculate approximate JSON size without throwing
+ */
+function safeStringifySize(obj, label) {
+  try {
+    const str = JSON.stringify(obj)
+    return { label, size: str.length, sizeKB: (str.length / 1024).toFixed(2) }
+  } catch (e) {
+    return { label, error: e.message }
+  }
+}
+
+/**
+ * Check if draft can be serialized
+ */
+function analyzeDraftSize(draft) {
+  return safeStringifySize(draft, 'TOTAL')
+}
+
+/**
  * Save current session to file
  * @param {Object} scriptInfo - { name, version } of current script
  */
@@ -241,13 +260,19 @@ export async function saveDraft(scriptInfo = {}) {
     ...getHistoryState()
   }
 
+  // Debug: analyze sizes before stringify
+  const sizeInfo = analyzeDraftSize(draft)
+
+  if (sizeInfo.error) {
+    return false
+  }
+
   try {
     const content = JSON.stringify(draft, null, 2)
     await window.electronAPI.saveDraft(content)
     hasSavedDraft.value = true
     return true
   } catch (error) {
-    console.error('Failed to save draft:', error)
     return false
   }
 }
@@ -266,7 +291,7 @@ export async function loadDraft() {
       return draft
     }
   } catch (error) {
-    console.error('Failed to load draft:', error)
+    // ignore
   }
   return null
 }
@@ -286,11 +311,9 @@ export async function deleteDraft() {
         hasSavedDraft.value = false
         return true
       }
-      console.error('Failed to delete draft:', response?.error)
       return false
     }
   } catch (error) {
-    console.error('Failed to delete draft:', error)
     return false
   }
 }

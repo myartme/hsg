@@ -26,7 +26,7 @@ import { checkDraftExists } from "@/store/craft/history";
 import { hasSavedDraft } from "@/store/craft/state";
 
 const craftStore = useCraftStore()
-const { activeScriptIndex, activeVersion, isSavedScript, isEditScriptTags, isImportScript } = storeToRefs(craftStore)
+const { activeScriptIndex, activeVersion, isSavedScript, isEditScriptTags, isImportScript, savedFirstNightOrder, savedOtherNightOrder } = storeToRefs(craftStore)
 
 function onCreateScript(){
   isSavedScript.value = false
@@ -34,6 +34,9 @@ function onCreateScript(){
   activeVersion.value = DEFAULT_VERSION
   isImportScript.value = false
   isEditScriptTags.value = false
+  // Сбрасываем сохранённый порядок ночи для нового скрипта
+  savedFirstNightOrder.value = []
+  savedOtherNightOrder.value = []
   router.push({ name: 'scriptEdit' })
 }
 
@@ -57,6 +60,9 @@ function onEditTags(){
 
 function onOpenDraft(){
   isSavedScript.value = false
+  // Сбрасываем сохранённый порядок ночи для черновика
+  savedFirstNightOrder.value = []
+  savedOtherNightOrder.value = []
   router.push({ name: 'scriptEdit', query: { restoreDraft: 'true' } })
 }
 

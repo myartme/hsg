@@ -53,10 +53,10 @@
           :label="$t('library.setLogo')"
           :maxlength="250"
           class="mb-2" />
-      <img
+      <cached-image
           v-if="meta.logo"
           :src="meta.logo"
-          class="mt-10 h-50 object-cover rounded mx-auto"
+          img-class="mt-10 h-50 object-cover rounded mx-auto"
           alt="logo" />
       <confirm-dialog v-if="isVisibleDeleteDialog"
                       :title="$t('library.deletingSet', { name: meta.name })"
@@ -77,6 +77,7 @@ import { useLibraryStore } from "@/store/library";
 import {isEqual} from "lodash/lang";
 import {DEFAULT_ACTION_BUTTON_ACTIVE_TIME, toNormalizeString} from "@/constants/other";
 import {useIndexStore} from "@/store";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 
 defineOptions({

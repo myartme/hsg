@@ -4,6 +4,7 @@ import {deleteSet, getOriginalSets, loadSets, restoreSet, saveActiveSetWithList,
 import {deleteActiveCharacter, saveActiveCharacter} from "@/store/library/character";
 import {saveQueuePositions} from "@/store/library/queue";
 import {saveBootlegger} from "@/store/library/bootlegger";
+import {saveNightOrder} from "@/store/library/night_order";
 
 export const useLibraryStore = defineStore('library', () => {
     return {
@@ -35,6 +36,7 @@ export const useLibraryStore = defineStore('library', () => {
         saveSet,
         saveSets,
         saveQueuePositions,
-        saveBootlegger
+        saveBootlegger,
+        saveNightOrder
     }
 })

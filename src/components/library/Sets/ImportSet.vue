@@ -77,10 +77,10 @@
           :maxlength="250"
           :disabled="isOfficial"
           class="mb-2" />
-      <img
+      <cached-image
           v-if="meta.logo"
-          class="mt-10 h-50 object-cover rounded mx-auto"
           :src="meta.logo"
+          img-class="mt-10 h-50 object-cover rounded mx-auto"
           alt="logo" />
     </template>
   </sector-container>
@@ -102,6 +102,7 @@ import {
 } from "@/constants/other";
 import ImportTableInfo from "@/components/ui/ImportTableInfo.vue";
 import JsonEditorVue from "json-editor-vue";
+import CachedImage from "@/components/ui/CachedImage.vue";
 import {useOptionsStore} from "@/store/options";
 import DragAndDrop from "@/components/ui/DragAndDrop.vue";
 import ImportSetTooltip from "@/components/library/Sets/ImportSetTooltip.vue";

@@ -1,5 +1,5 @@
 import {deleteDataScript, getDataScript, renameScriptFile, renamePdfFile, setDataScript} from "@/store";
-import {activeScriptIndex, activeVersion, isWaitingOperation, pdfListWithParams, pdfMeta, scriptList, tags} from "@/store/craft/state";
+import {activeScriptIndex, activeVersion, isWaitingOperation, pdfListWithParams, pdfMeta, scriptList, tags, savedFirstNightOrder, savedOtherNightOrder} from "@/store/craft/state";
 import {deletePdf, fillPdfList} from "@/store/craft/pdf";
 import {DEFAULT_VERSION, objectToPrettyJson, toNormalizeString} from "@/constants/other";
 import {DEFAULT_SCRIPT_AUTHOR, EMPTY_IMPORT_SCRIPT, NPC_ROLES} from "@/constants/roles";
@@ -35,6 +35,10 @@ export async function loadScriptWithMetaFilling(version, name, withWaitingOption
         }
 
         fillPdfList(result.content)
+
+        // Сохраняем порядок ночи как "последнее сохранение"
+        savedFirstNightOrder.value = pdfMeta.value.firstNight ? [...pdfMeta.value.firstNight] : []
+        savedOtherNightOrder.value = pdfMeta.value.otherNight ? [...pdfMeta.value.otherNight] : []
     }
     if(withWaitingOptions) {
         isWaitingOperation.value = false
@@ -142,8 +146,12 @@ export async function saveCurrentScript() {
         }
 
         await saveScripts()
+
+        // Обновляем сохранённый порядок ночи
+        savedFirstNightOrder.value = pdfMeta.value.firstNight ? [...pdfMeta.value.firstNight] : []
+        savedOtherNightOrder.value = pdfMeta.value.otherNight ? [...pdfMeta.value.otherNight] : []
     }catch (e){
-        console.log(e)
+        // ignore
     }
 }
 

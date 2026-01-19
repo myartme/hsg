@@ -44,6 +44,27 @@ export const renamePdfFile = async (oldFilename, newFilename, folder, isAppPath)
 export const getBase64Image = async (url, retries = 2) => {
     const fallback = 'images/icons/defaults/default_character.png'
 
+    // Если URL пустой или undefined
+    if (!url) {
+        console.warn('getBase64Image: empty URL, using fallback')
+        return fallback
+    }
+
+    // Если уже data: URL - возвращаем как есть
+    if (url.startsWith('data:')) {
+        return url
+    }
+
+    // Если локальный путь (не http/https) - читаем через Electron
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        const result = await window.electronAPI.getLocalImage(url)
+        if (result.isSuccess) {
+            return result.content
+        }
+        console.warn('getBase64Image: local image load failed:', url, result.error)
+        return fallback
+    }
+
     // Проверяем кеш
     const cached = await window.electronAPI.getCachedImage(url)
     if (cached.isSuccess) {
