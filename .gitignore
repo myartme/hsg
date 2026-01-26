@@ -94,3 +94,6 @@ out/
 .idea/
 public/data
 public/images/icons
+
+# Worktrees
+.worktrees/
