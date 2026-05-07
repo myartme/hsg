@@ -10,7 +10,7 @@
               'px-4 py-2 rounded-md cursor-pointer text-theme',
               cancelDanger
                 ? 'bg-[color:var(--color-button-error)] hover:bg-[color:var(--color-button-hover-error)]'
-                : 'bg-[color:var(--color-border)] hover:bg-[color:var(--color-hover-bg)]'
+                : 'bg-[color:var(--color-button-secondary)] hover:bg-[color:var(--color-button-secondary-hover)]'
             ]"
         >
           {{ cancelText || $t('buttons.cancel') }}

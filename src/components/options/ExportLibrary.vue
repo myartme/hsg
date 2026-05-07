@@ -29,8 +29,13 @@
             ? 'hover:border-[color:var(--color-active)] cursor-pointer'
             : 'bg-[color:var(--color-disable-placeholder-text)] cursor-not-allowed'
           ]" @click="exportData()">
-          <p class="text-[color:var(--color-placeholder-text)]">{{ $t('importExport.clickToExport') }}</p>
-          <p class="align-text-bottom text-[color:var(--color-placeholder-text)]" v-html="getExportDescription()"></p>
+          <template v-if="isCanExport">
+            <p class="text-[color:var(--color-placeholder-text)]">{{ $t('importExport.clickToExport') }}</p>
+          </template>
+          <template v-else>
+            <p v-for="msg in missingSelections" :key="msg" class="text-[color:var(--color-bg)]">{{ msg }}</p>
+          </template>
+          <p :class="['align-text-bottom', isCanExport ? 'text-[color:var(--color-placeholder-text)]' : 'text-[color:var(--color-bg)]']" v-html="getExportDescription()"></p>
       </div>
     </template>
     <spinner v-if="isWaitingOperation"
@@ -67,6 +72,20 @@ const isCanExport = computed(() =>
     if (el === 'scripts') return scripts.value.length <= 0
     })
 )
+
+const missingSelections = computed(() => {
+  const missing = []
+  if (categories.value.length === 0) {
+    missing.push(t('importExport.selectCategories'))
+  }
+  if (steps.value.includes('sets') && sets.value.length === 0) {
+    missing.push(t('importExport.selectSets'))
+  }
+  if (steps.value.includes('scripts') && scripts.value.length === 0) {
+    missing.push(t('importExport.selectScripts'))
+  }
+  return missing
+})
 
 const categoryInputs = computed(() => ({
   sets: t('importExport.sets'),
@@ -109,13 +128,9 @@ function updateScripts(event){
 
 function getExportDescription(){
   let text = ''
-  const categoryLength = categories.value.length
   const setLength = sets.value.length
   const scriptLength = scripts.value.length
   steps.value.forEach(el => {
-    if(el === 'categories' && categoryLength > 0){
-      text += '<br>' + t('importExport.categories') + ': ' + categoryLength
-    }
     if(el === 'sets' && setLength > 0){
       text += '<br>' + t('importExport.sets') + ': ' + setLength
     }

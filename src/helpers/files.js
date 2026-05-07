@@ -326,3 +326,49 @@ export const readLocalImageAsBase64 = async (relativePath) => {
         }
     }
 }
+
+// ==================== Cloud Data Loading ====================
+
+export const loadContentFromCloud = (url) => {
+    return new Promise((resolve) => {
+        const protocol = url.startsWith('https') ? https : http
+
+        protocol.get(url, (resp) => {
+            if (resp.statusCode !== 200) {
+                resolve({
+                    isSuccess: false,
+                    error: {
+                        code: `HTTP_${resp.statusCode}`,
+                        message: `HTTP ${resp.statusCode}`
+                    }
+                })
+                return
+            }
+
+            let data = ''
+            resp.on('data', chunk => { data += chunk })
+            resp.on('end', () => {
+                try {
+                    const content = JSON.parse(data)
+                    resolve({ isSuccess: true, content })
+                } catch (error) {
+                    resolve({
+                        isSuccess: false,
+                        error: {
+                            code: 'PARSE_ERROR',
+                            message: error.message
+                        }
+                    })
+                }
+            })
+        }).on('error', (error) => {
+            resolve({
+                isSuccess: false,
+                error: {
+                    code: 'NETWORK_ERROR',
+                    message: error.message
+                }
+            })
+        })
+    })
+}

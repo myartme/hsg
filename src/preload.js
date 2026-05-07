@@ -98,6 +98,11 @@ contextBridge.exposeInMainWorld(
         },
         deleteDraft: () => {
             return ipcRenderer.invoke('deleteDraft')
+        },
+
+        // Cloud data loading
+        loadFromCloud: (url) => {
+            return ipcRenderer.invoke('loadFromCloud', { url })
         }
     }
 )

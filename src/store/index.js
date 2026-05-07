@@ -1,9 +1,13 @@
 import {defineStore} from 'pinia'
 import {ref} from "vue";
 import {objectToPrettyJson} from "@/constants/other";
+import {getCloudUrl} from "@/config/cloud";
 
 export const getDataLibrary = async (fileName, folder, isAppPath = false)=>
     await window.electronAPI.readFromLibraryJson(fileName, folder, isAppPath)
+
+export const getDataFromCloud = async (fileName, folder = '') =>
+    await window.electronAPI.loadFromCloud(getCloudUrl(fileName, folder))
 export const setDataLibrary = async (filename, folder, content, isAppPath = false)=>
     await window.electronAPI.writeToLibraryJson(filename, folder, objectToPrettyJson(content), isAppPath)
 export const deleteDataLibrary = async (filename, folder)=>

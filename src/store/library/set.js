@@ -1,5 +1,5 @@
 import {allData, activeSetIndex, metaSets, queuePositions, activeCharacter, bootlegger} from "@/store/library/state";
-import {deleteDataLibrary, getDataLibrary, setDataLibrary} from "@/store";
+import {deleteDataLibrary, getDataLibrary, setDataLibrary, getDataFromCloud} from "@/store";
 import {loadQueuePositions, saveQueuePositions, normalizeQueuePositions, addManyToQueuePositions} from "@/store/library/queue";
 import {SET_INDEX, getImageFirstUrl} from "@/constants/other";
 import {ROLES, MAIN_ROLES} from "@/constants/roles";
@@ -77,20 +77,28 @@ export async function setSetsValueFromFile(content){
     sets.set(results.filter(Boolean))
 }
 
-export async function setSetValueFromFile(item, isAppPath = false, isRecursive = false){
-     const response = await getDataLibrary(`${item.id}`, "sets", isAppPath)
+export async function setSetValueFromFile(item, isRecursive = false){
+     // First try to load from user data
+     const response = await getDataLibrary(`${item.id}`, "sets", false)
      if(response?.isSuccess){
-         const list = { meta: item, list: response.content }
-         if(isRecursive){
-             await saveSet(item.id, response.content)
-         }
-
-         return list
-     } else {
-         if(response?.error.code === 'ENOENT' && !isRecursive){
-             return await setSetValueFromFile(item, !isAppPath, true)
-         }
+         console.log(`[Cloud] Set "${item.id}" loaded from LOCAL`)
+         return { meta: item, list: response.content }
      }
+
+     // If not found and not recursive, try to load from cloud
+     if(response?.error.code === 'ENOENT' && !isRecursive){
+         console.log(`[Cloud] Set "${item.id}" not found locally, loading from CLOUD...`)
+         const cloudResponse = await getDataFromCloud(item.id, 'sets')
+         if(cloudResponse?.isSuccess){
+             console.log(`[Cloud] Set "${item.id}" loaded from CLOUD ✓`)
+             // Save to user data for future use
+             await saveSet(item.id, cloudResponse.content)
+             return { meta: item, list: cloudResponse.content }
+         }
+         console.error(`[Cloud] Set "${item.id}" failed to load from cloud:`, cloudResponse?.error)
+     }
+
+     return null
 }
 
 export async function saveNewMetaAndList(meta = {}, list = {}){
@@ -299,18 +307,20 @@ export async function restoreSet(set){
     const idx = metaSets.value.findIndex(el => el.id === set.id)
     if (idx !== -1) return
 
-    const setResponse = await getDataLibrary(set.id, "sets", true)
+    // Load all data from cloud
+    const setResponse = await getDataFromCloud(set.id, 'sets')
     const setContent = setResponse?.isSuccess ? setResponse.content : null
 
-    const firstNightResponse = await getDataLibrary('first_night_order', "", true)
+    const firstNightResponse = await getDataFromCloud('first_night_order')
     const firstNightContent = firstNightResponse?.isSuccess ? firstNightResponse.content : null
 
-    const otherNightResponse = await getDataLibrary('other_night_order', "", true)
+    const otherNightResponse = await getDataFromCloud('other_night_order')
     const otherNightContent = otherNightResponse?.isSuccess ? otherNightResponse.content : null
 
-    const queueResponse = await getDataLibrary('script_character_priority', "", true)
+    const queueResponse = await getDataFromCloud('script_character_priority')
     const queueContent = queueResponse?.isSuccess ? queueResponse.content : null
 
+    // Bootlegger might not be in cloud, try local first then cloud
     const bootleggerResponse = await getDataLibrary('bootlegger', "", true)
     const bootleggerContent = bootleggerResponse?.isSuccess ? bootleggerResponse.content : null
 
@@ -386,22 +396,33 @@ export async function saveSet(name, content){
     await setDataLibrary(`${ name }`, "sets", content)
 }
 
-export async function getSetsFromFile(isAppPath = false, isRecursive = false){
-    const response = await getDataLibrary('role_sets', "", isAppPath)
+export async function getSetsFromFile(isRecursive = false){
+    // First try to load from user data
+    const response = await getDataLibrary('role_sets', "", false)
     if(response?.isSuccess){
+        console.log(`[Cloud] role_sets loaded from LOCAL`)
         await setSetsValueFromFile(response.content)
-        if(isRecursive){
+        return
+    }
+
+    // If not found and not recursive, try to load from cloud
+    if(response?.error.code === 'ENOENT' && !isRecursive){
+        console.log(`[Cloud] role_sets not found locally, loading from CLOUD...`)
+        const cloudResponse = await getDataFromCloud('role_sets')
+        if(cloudResponse?.isSuccess){
+            console.log(`[Cloud] role_sets loaded from CLOUD ✓`)
+            await setSetsValueFromFile(cloudResponse.content)
+            // Save to user data for future use
             await saveSets()
-        }
-    } else {
-        if(response?.error.code === 'ENOENT' && !isRecursive){
-            await getSetsFromFile(!isAppPath, true)
+        } else {
+            console.error(`[Cloud] role_sets failed to load from cloud:`, cloudResponse?.error)
         }
     }
 }
 
 export async function getOriginalSets(){
-    const response = await getDataLibrary('role_sets', "", true)
+    // Load original sets from cloud
+    const response = await getDataFromCloud('role_sets')
     if(response?.isSuccess){
         return response.content
     }

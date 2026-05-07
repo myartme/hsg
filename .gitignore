@@ -87,6 +87,7 @@ typings/
 
 # Vite
 .vite/
+vite.*.timestamp-*.mjs
 
 # Electron-Forge
 out/
@@ -97,3 +98,9 @@ public/images/icons
 
 # Worktrees
 .worktrees/
+
+# Claude Code
+.claude/
+
+# Dev scripts (local utilities)
+scripts/

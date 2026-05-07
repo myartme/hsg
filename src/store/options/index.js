@@ -426,7 +426,7 @@ export const useOptionsStore = defineStore('options', () => {
     async function deleteAppData(){
         const result = await deleteAllData()
         if(result){
-            await router.replace({ name: 'library' })
+            await router.replace({ name: 'scriptList' })
             location.reload()
         }
     }

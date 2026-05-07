@@ -1,4 +1,4 @@
-import {getDataLibrary, setDataLibrary} from "@/store";
+import {getDataLibrary, setDataLibrary, getDataFromCloud} from "@/store";
 import {nightOrder} from "@/store/library/state";
 
 export function normalizeNightOrderList(list, field) {
@@ -62,12 +62,12 @@ export function removeFromNightOrder(id) {
     }
 }
 
-export async function loadFirstNightOrder(isAppPath = false, isRecursive = false){
-    await loadNightOrder("first_night_order", "firstNight", isAppPath, isRecursive)
+export async function loadFirstNightOrder(){
+    await loadNightOrder("first_night_order", "firstNight")
 }
 
-export async function loadOtherNightOrder(isAppPath = false, isRecursive = false){
-    await loadNightOrder("other_night_order", "otherNight", isAppPath, isRecursive)
+export async function loadOtherNightOrder(){
+    await loadNightOrder("other_night_order", "otherNight")
 }
 
 export async function saveNightOrder() {
@@ -75,16 +75,26 @@ export async function saveNightOrder() {
     await setDataLibrary('other_night_order', "", nightOrder.value.otherNight)
 }
 
-async function loadNightOrder(fileName, elemName, isAppPath = false, isRecursive = false){
-    const response = await getDataLibrary(fileName, "", isAppPath)
+async function loadNightOrder(fileName, elemName, isRecursive = false){
+    // First try to load from user data
+    const response = await getDataLibrary(fileName, "", false)
     if(response?.isSuccess){
+        console.log(`[Cloud] ${fileName} loaded from LOCAL`)
         nightOrder.value[elemName] = response.content
-        if(isRecursive){
-            await setDataLibrary(fileName, "", nightOrder.value[elemName])
-        }
-    } else {
-        if(response?.error.code === 'ENOENT' && !isRecursive){
-            await loadNightOrder(fileName, elemName, !isAppPath, true)
+        return
+    }
+
+    // If not found and not recursive, try to load from cloud
+    if(response?.error.code === 'ENOENT' && !isRecursive){
+        console.log(`[Cloud] ${fileName} not found locally, loading from CLOUD...`)
+        const cloudResponse = await getDataFromCloud(fileName)
+        if(cloudResponse?.isSuccess){
+            console.log(`[Cloud] ${fileName} loaded from CLOUD ✓`)
+            nightOrder.value[elemName] = cloudResponse.content
+            // Save to user data for future use
+            await setDataLibrary(fileName, "", cloudResponse.content)
+        } else {
+            console.error(`[Cloud] ${fileName} failed to load from cloud:`, cloudResponse?.error)
         }
     }
 }

@@ -1,4 +1,4 @@
-import {getDataLibrary, setDataLibrary} from "@/store";
+import {getDataLibrary, setDataLibrary, getDataFromCloud} from "@/store";
 import {queuePositions} from "@/store/library/state";
 import {MAIN_ROLES} from "@/constants/roles";
 
@@ -36,16 +36,26 @@ export function addManyToQueuePositions(elements, team) {
         .map((el, idx) => ({ ...el, scriptCharacterPriority: idx + 1 }))
 }
 
-export async function loadQueuePositions(isAppPath = false, isRecursive = false){
-    const response = await getDataLibrary('script_character_priority', "", isAppPath)
+export async function loadQueuePositions(){
+    // First try to load from user data
+    const response = await getDataLibrary('script_character_priority', "", false)
     if(response?.isSuccess){
+        console.log(`[Cloud] script_character_priority loaded from LOCAL`)
         queuePositions.value = response.content
-        if(isRecursive){
+        return
+    }
+
+    // If not found, try to load from cloud
+    if(response?.error.code === 'ENOENT'){
+        console.log(`[Cloud] script_character_priority not found locally, loading from CLOUD...`)
+        const cloudResponse = await getDataFromCloud('script_character_priority')
+        if(cloudResponse?.isSuccess){
+            console.log(`[Cloud] script_character_priority loaded from CLOUD ✓`)
+            queuePositions.value = cloudResponse.content
+            // Save to user data for future use
             await saveQueuePositions()
-        }
-    } else {
-        if(response?.error.code === 'ENOENT' && !isRecursive){
-            await loadQueuePositions(!isAppPath,  true)
+        } else {
+            console.error(`[Cloud] script_character_priority failed to load from cloud:`, cloudResponse?.error)
         }
     }
 }

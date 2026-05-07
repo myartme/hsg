@@ -47,6 +47,8 @@ html, body, #app {
   --color-warning: #f59e0b;
   --color-button: #4d5568;
   --color-button-hover: #000000;
+  --color-button-secondary: #9ca3af;
+  --color-button-secondary-hover: #6b7280;
   --color-button-error: #d6313c;
   --color-button-hover-error: #fb2c36;
   --color-button-success: #3d9c12;
@@ -74,6 +76,8 @@ html, body, #app {
   --color-warning: #fbbf24;
   --color-button: #99a1af;
   --color-button-hover: #404959;
+  --color-button-secondary: #6c798e;
+  --color-button-secondary-hover: #4a5565;
   --color-button-error: #95050c;
   --color-button-hover-error: #95050CCC;
   --color-button-success: #3d9c12;

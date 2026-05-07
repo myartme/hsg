@@ -2,7 +2,7 @@ import { Menu, app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import { rm } from 'fs/promises';
 import started from 'electron-squirrel-startup';
-import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64, getCachedImage, saveCachedImage, clearImageCache, getImageCacheInfo, readLocalImageAsBase64 } from '/src/helpers/files.js'
+import { saveContent, loadContent, deleteContent, renameFile , getCurrentFilePath, downloadImageAsBase64, getCachedImage, saveCachedImage, clearImageCache, getImageCacheInfo, readLocalImageAsBase64, loadContentFromCloud } from '/src/helpers/files.js'
 
 const menuLabels = {
   en: {
@@ -205,6 +205,10 @@ ipcMain.handle('loadDraft', async () => {
 
 ipcMain.handle('deleteDraft', async () => {
   return deleteContent('draft', true)
+})
+
+ipcMain.handle('loadFromCloud', async (e, { url }) => {
+  return await loadContentFromCloud(url)
 })
 
 function updateAboutPanel() {
